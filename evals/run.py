@@ -272,6 +272,43 @@ def score_dates(units, predictions):
     return result(name, metric, right, total, "100%", right == total, failures)
 
 
+def score_date_commitments(units, predictions):
+    """Phase 4 exit criterion: zero forecasts or informal dates stored as committed. Every date the agent types
+    as committed for the order must be labeled committed for the order."""
+    name = "Dates: no forecast or informal date as committed"
+    metric = "order dates typed committed that the labels do not type committed / order dates typed committed"
+    scored = pairs(units, predictions, "dates")
+    if not scored:
+        return result(name, metric, None, None, "0", None)
+    wrong, total, failures = 0, 0, []
+    for unit, prediction in scored:
+        labeled = {(d["doc_id"], d["date"]) for d in unit["golden"]["expected_dates"]
+                   if d["type"] == "committed" and d["scope"] == "order"}
+        for d in prediction["dates"]:
+            if d["type"] == "committed" and d["scope"] == "order":
+                total += 1
+                if (d["doc_id"], d["date"]) not in labeled:
+                    wrong += 1
+                    failures.append(tag(unit, f"{d['doc_id']} {d['date']} typed committed for the order"))
+    return result(name, metric, wrong, total, "0", wrong == 0, failures)
+
+
+def score_date_extras(units, predictions):
+    name, metric = "Dates: unlabeled or mistyped mentions", "predicted date mentions not in the labels / predicted"
+    scored = pairs(units, predictions, "dates")
+    if not scored:
+        return result(name, metric, None, None, "reported", None)
+    extra, total, failures = 0, 0, []
+    for unit, prediction in scored:
+        labeled = {(d["doc_id"], d["date"], d["type"], d["scope"]) for d in unit["golden"]["expected_dates"]}
+        for d in prediction["dates"]:
+            total += 1
+            if (d["doc_id"], d["date"], d["type"], d["scope"]) not in labeled:
+                extra += 1
+                failures.append(tag(unit, f"{d['doc_id']} {d['date']} {d['type']} ({d['scope']}) is not labeled"))
+    return result(name, metric, extra, total, "reported", True, failures)
+
+
 def score_uncertainty(units, predictions):
     name, metric = "Uncertainty", "missing or contradictory fields escalated / such fields"
     cases = [(u, f["field_key"]) for u in units for f in u["golden"]["expected_fields"]
@@ -346,7 +383,8 @@ def run_all(units, adversarial, predictions, manifest) -> list[dict]:
     results += score_findings(units, predictions)
     results += score_traceability(units, predictions)
     results += score_gates(units, predictions)
-    results += [score_dates(units, predictions), score_uncertainty(units, predictions),
+    results += [score_dates(units, predictions), score_date_commitments(units, predictions),
+                score_date_extras(units, predictions), score_uncertainty(units, predictions),
                 score_version_change(units, predictions), score_adversarial(adversarial, predictions)]
     return results + not_automated(manifest)
 

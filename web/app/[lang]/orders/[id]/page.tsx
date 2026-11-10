@@ -7,6 +7,7 @@ import {
   capacityOf,
   customerOf,
   fieldBuckets,
+  isApprovedCommitment,
   keyDate,
   openFindings,
   otherBlockers,
@@ -46,7 +47,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
   const requirements = requirementsOf(order);
   const open = openFindings(validation);
   const capacity = capacityOf(extraction);
-  const date = keyDate(extraction);
+  const date = keyDate(extraction, order.plan);
   const change = validation.version_change;
   const decision = validation.gate.human_decision;
   const buckets = fieldBuckets(extraction);
@@ -475,7 +476,19 @@ export default async function OrderPage({ params, searchParams }: Props) {
                           <td>
                             <code>{field.field_key}</code>
                           </td>
-                          <td className="value">{field.raw_value}</td>
+                          <td className="value">
+                            {field.raw_value}
+                            {field.field_key === "dates.committed" &&
+                              typeof field.normalized_value === "string" &&
+                              !isApprovedCommitment(order.plan, field.normalized_value) && (
+                                <>
+                                  {" "}
+                                  <span className="badge date-committed_awaiting_approval">
+                                    {t("date_type.committed_awaiting_approval")}
+                                  </span>
+                                </>
+                              )}
+                          </td>
                           <td className="muted">
                             {field.source
                               ? `${field.source.filename} · ${t("ui.page_abbrev", { page: field.source.page })}`

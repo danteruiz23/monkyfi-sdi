@@ -5,6 +5,7 @@ import {
   Field,
   Finding,
   OrderVersion,
+  Plan,
   SEVERITIES,
   Severity,
   StageRule,
@@ -26,14 +27,23 @@ export function capacityOf(extraction: Extraction): { value: string | null; stat
   return { value: field?.raw_value ?? null, status: field ? field.status : null };
 }
 
-export type DateType = "committed" | "forecast" | "requested";
+export type DateType = "committed" | "committed_awaiting_approval" | "forecast" | "requested";
 
-/** The strongest date the order states: committed, else forecast, else requested. Its type is always shown. */
-export function keyDate(extraction: Extraction): { type: DateType; date: string } | null {
-  for (const type of ["committed", "forecast", "requested"] as DateType[]) {
+/** A committed date is shown as committed only when the planner found an approval record for it (D58).
+ *  Without plan.json there is no approval record, so a stated commitment is "awaiting approval". */
+export function isApprovedCommitment(plan: Plan | null, date: string): boolean {
+  return plan?.dates.order.committed.includes(date) ?? false;
+}
+
+/** The strongest date the order states: committed, else forecast, else requested. Its type is always shown,
+ *  and a commitment without an approval record is never shown as committed. */
+export function keyDate(extraction: Extraction, plan: Plan | null): { type: DateType; date: string } | null {
+  for (const type of ["committed", "forecast", "requested"] as const) {
     const field = fieldOf(extraction, `dates.${type}`);
     if (field && typeof field.normalized_value === "string" && ["pending", "verified"].includes(field.status)) {
-      return { type, date: field.normalized_value };
+      const date = field.normalized_value;
+      if (type === "committed" && !isApprovedCommitment(plan, date)) return { type: "committed_awaiting_approval", date };
+      return { type, date };
     }
   }
   return null;

@@ -15,8 +15,9 @@ from .versions import compare_versions, finding_changes
 
 
 def validate_version(extraction: dict, *, as_of: date, evaluated_at: str, previous: dict | None = None,
-                     previous_validation: dict | None = None, documents=None, customers: list[str] | None = None) -> dict:
-    findings = validate(extraction, as_of, documents, customers)
+                     previous_validation: dict | None = None, documents=None, customers: list[str] | None = None,
+                     suppliers: list[str] | None = None) -> dict:
+    findings = validate(extraction, as_of, documents, customers, suppliers)
     warnings = []
     if documents is None or customers is None:
         warnings.append("customer scoping was not run: the package documents or the customer register were not given")

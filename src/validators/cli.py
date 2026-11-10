@@ -56,6 +56,7 @@ def main(argv=None) -> int:
     manifest = _read(args.data / "manifest.json")
     paths = {o["order_id"]: args.data / o["path"] for o in manifest["orders"]}
     customers = load_register(args.customers or args.data / "customers.json")[manifest["tenant"]]
+    suppliers = [s["name"] for s in _read(args.data / "seed" / "supplier.json")]
     print("SYNTHETIC — NOT REAL DATA", flush=True)
     failures = 0
     for directory in directories:
@@ -69,7 +70,7 @@ def main(argv=None) -> int:
             documents = read_package(package) if package.is_dir() else None
             validation = validate_version(extraction, as_of=as_of, evaluated_at=evaluated_at, previous=previous,
                                           previous_validation=previous_validation, documents=documents,
-                                          customers=customers)
+                                          customers=customers, suppliers=suppliers)
             prediction = add_to_prediction(to_prediction(extraction), validation)
         except (ValueError, KeyError, OSError) as exc:
             failures += 1

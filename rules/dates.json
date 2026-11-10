@@ -1,0 +1,50 @@
+{
+  "rules_version": "0.1.0",
+  "status": "Phase 4, Proposed. Cue words and their order are defaults. D26 (a supplier FOC stays on the dependency) and D35 (an email is forecast evidence only for the order) are decided.",
+  "contract_fields": {
+    "note": "Dates printed in a quote or order form keep the type of the field they are printed under (FOC date = committed, D19). Emails never set these fields (D35).",
+    "field_types": {
+      "dates.requested": "requested",
+      "dates.forecast": "forecast",
+      "dates.committed": "committed"
+    },
+    "doc_types": ["quote", "order_form"]
+  },
+  "email": {
+    "note": "Each date printed in an email is typed from the sentence it is in. Rules are tried in order; the first match wins. An email never yields a committed date for the order. A firm supplier date is committed only for the supplier dependency, and only when the sender is in the supplier register (D26). A delivery sentence that matches no rule is a forecast, never a commitment.",
+    "rules": [
+      {
+        "id": "tentative",
+        "type": "forecast",
+        "scope": "order",
+        "cues": ["tentative", "tentatively", "target", "targeting", "estimate", "estimated", "expect", "expected", "aiming", "not confirmed", "not yet confirmed", "subject to", "depends on", "conditional on", "ETA"]
+      },
+      {
+        "id": "supplier_firm",
+        "type": "committed",
+        "scope": "supplier_dependency",
+        "requires_supplier_sender": true,
+        "cues": ["we confirm", "confirmed", "firm commitment", "firm date", "FOC", "firm order commitment"]
+      },
+      {
+        "id": "customer_requested",
+        "type": "requested",
+        "scope": "order",
+        "cues": ["need the service by", "needed by", "required by", "requested date", "requested service date", "as stated in the order"]
+      },
+      {
+        "id": "delivery_other",
+        "type": "forecast",
+        "scope": "order",
+        "cues": ["handover", "delivery", "deliver", "ready", "in service", "go live", "activation"]
+      }
+    ],
+    "weakest_reading_wins": "Within one email, if a date is also given as tentative, a sentence that calls the same date firm (or asks to record it as committed) is ignored with reason same_date_tentative_in_this_email.",
+    "assumption_cues": ["depends on", "subject to", "conditional on", "once", "until", "pending", "not been issued", "not issued"],
+    "ignored_note": "A date in a sentence with no rule cue (for example 'signed on') is not a delivery date. It is listed as ignored with the sentence, never stored as a plan date."
+  },
+  "commitment": {
+    "note": "A committed date for the order is used in the plan only with an approval record (commitment_approval_id). Without one it is kept as stated in the document and is never shown or stored as the order's committed date.",
+    "requires_approval_record": true
+  }
+}

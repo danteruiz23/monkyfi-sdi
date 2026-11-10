@@ -14,7 +14,8 @@
   "date_type": {
     "requested": "Fecha solicitada",
     "forecast": "Fecha estimada",
-    "committed": "Fecha comprometida"
+    "committed": "Fecha comprometida",
+    "committed_awaiting_approval": "Comprometida — pendiente de aprobación"
   },
   "field_status": {
     "verified": "Verificado",
@@ -64,7 +65,8 @@
     "G1-SIGNATURE": "Los datos de la firma autorizada ({field}) faltan o son inconsistentes.",
     "G1-VERSION-CURRENT": "El paquete mezcla versiones de la orden: {documents} no es la versión vigente {version}.",
     "WAV-DIVERSITY-REFERENCE": "Se exige diversidad de ruta pero no se indica el circuito de referencia.",
-    "SEG-OTHER-CUSTOMER": "El paquete nombra a más de un cliente."
+    "SEG-OTHER-CUSTOMER": "El paquete nombra a más de un cliente.",
+    "DATE-CUSTOMER-CHANGE": "Un correo del cliente pide una fecha solicitada distinta de la del formulario de orden firmado."
   },
   "finding_action": {
     "provide_missing_value": "Pedir {field} al dueño del dato y registrar su documento fuente.",
@@ -72,7 +74,8 @@
     "reissue_stale_documents": "Pedir que se reemita {documents} para la versión vigente {version} de la orden.",
     "obtain_authorized_signature": "Obtener los datos de la firma autorizada ({field}) en el formulario de orden antes de continuar la recepción.",
     "provide_diversity_reference": "Preguntar al cliente de qué IDs de circuito debe ser diverso este servicio.",
-    "confirm_customer_and_remove_foreign_data": "Confirmar a qué cliente pertenece la orden y retirar del paquete el documento del otro cliente. No compartir el paquete mientras tanto."
+    "confirm_customer_and_remove_foreign_data": "Confirmar a qué cliente pertenece la orden y retirar del paquete el documento del otro cliente. No compartir el paquete mientras tanto.",
+    "confirm_requested_date_change": "Preguntar al cliente si cambió la fecha solicitada; un cambio requiere una nueva versión de la orden. Mientras tanto se mantiene la fecha del formulario firmado."
   },
   "owner_role": {
     "sdm": "Service Delivery Manager",

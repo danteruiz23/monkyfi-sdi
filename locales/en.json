@@ -14,7 +14,8 @@
   "date_type": {
     "requested": "Requested date",
     "forecast": "Forecast date",
-    "committed": "Committed date"
+    "committed": "Committed date",
+    "committed_awaiting_approval": "Committed — awaiting approval"
   },
   "field_status": {
     "verified": "Verified",
@@ -64,7 +65,8 @@
     "G1-SIGNATURE": "Authorized signature data ({field}) is missing or inconsistent.",
     "G1-VERSION-CURRENT": "The package mixes order versions: {documents} is not the current version {version}.",
     "WAV-DIVERSITY-REFERENCE": "Route diversity is required but no reference circuit is given.",
-    "SEG-OTHER-CUSTOMER": "The package names more than one customer."
+    "SEG-OTHER-CUSTOMER": "The package names more than one customer.",
+    "DATE-CUSTOMER-CHANGE": "A customer email asks for a requested date different from the signed order form."
   },
   "finding_action": {
     "provide_missing_value": "Ask the data owner for {field} and record its source document.",
@@ -72,7 +74,8 @@
     "reissue_stale_documents": "Have {documents} reissued for the current order version {version}.",
     "obtain_authorized_signature": "Obtain the authorized signature data ({field}) on the order form before intake continues.",
     "provide_diversity_reference": "Ask the customer which circuit IDs this service must be diverse from.",
-    "confirm_customer_and_remove_foreign_data": "Confirm which customer the order belongs to and remove the other customer's document from the package. Do not share the package meanwhile."
+    "confirm_customer_and_remove_foreign_data": "Confirm which customer the order belongs to and remove the other customer's document from the package. Do not share the package meanwhile.",
+    "confirm_requested_date_change": "Ask the customer whether the requested date has changed; a change needs a new order version. The signed order form date stays until then."
   },
   "owner_role": {
     "sdm": "Service Delivery Manager",

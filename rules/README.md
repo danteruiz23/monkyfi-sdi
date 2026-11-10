@@ -13,3 +13,5 @@ Rules as JSON, readable by Python and TypeScript.
 - `stages.json` — the 11 delivery stages (SPEC 6) with equal weights, the gate that closes each stage and the Presales assumption (D45, D47). Read by the web view.
 
 The field files are checked against `schemas/field_rules.schema.json` by the tests. Changing a rule requires re-running the evals.
+
+- `dates.json` — Phase 4, Proposed: how every date is typed requested / forecast / committed. Quote and order form keep the type of the field (FOC date = committed, D19). An email date is typed from its sentence by ordered cue rules; an email never gives the order a committed date (D35); a firm supplier date is committed only on the supplier dependency and only from a registered supplier (D26); within one email the tentative reading of a date wins. A committed order date is used only with an approval record.

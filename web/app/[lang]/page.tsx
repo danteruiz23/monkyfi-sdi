@@ -36,11 +36,11 @@ export default async function OrdersPage({ params }: { params: Promise<{ lang: s
               </tr>
             </thead>
             <tbody>
-              {orders.map(({ orderId, versionNo, extraction, validation }) => {
+              {orders.map(({ orderId, versionNo, extraction, validation, plan }) => {
                 const progress = progressOf(validation, stages);
                 const current = progress.stages.find((s) => s.key === progress.current);
                 const capacity = capacityOf(extraction);
-                const date = keyDate(extraction);
+                const date = keyDate(extraction, plan);
                 return (
                   <tr key={orderId} data-order={orderId}>
                     <td>

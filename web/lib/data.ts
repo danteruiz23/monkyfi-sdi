@@ -76,11 +76,24 @@ export interface Validation {
     plan_impact: boolean;
   } | null;
 }
+/** plan.json from the Phase 4 planner (src/planner). Optional: a run folder without it has no approvals. */
+export interface Plan {
+  synthetic: boolean;
+  dates: {
+    order: {
+      requested: string[];
+      forecast: string[];
+      committed: string[];
+      committed_awaiting_approval: string[];
+    };
+  };
+}
 export interface OrderVersion {
   orderId: string;
   versionNo: number;
   extraction: Extraction;
   validation: Validation;
+  plan: Plan | null;
 }
 export interface StageRule {
   key: string;
@@ -116,6 +129,9 @@ export function loadVersion(orderId: string, versionNo: number): OrderVersion | 
     versionNo,
     extraction: readJson<Extraction>(path.join(/*turbopackIgnore: true*/ dir, "extraction.json")),
     validation: readJson<Validation>(path.join(/*turbopackIgnore: true*/ dir, "validation.json")),
+    plan: fs.existsSync(path.join(/*turbopackIgnore: true*/ dir, "plan.json"))
+      ? readJson<Plan>(path.join(/*turbopackIgnore: true*/ dir, "plan.json"))
+      : null,
   };
 }
 

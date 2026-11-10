@@ -93,6 +93,16 @@
     "note_key": "another customer of the tenant is named in the package",
     "decision": "D42"
   },
+  "customer_date_change": {
+    "rule_id": "DATE-CUSTOMER-CHANGE",
+    "field_key": "dates.requested",
+    "group": "dates",
+    "severity": "high",
+    "action": "confirm_requested_date_change",
+    "note_key": "an email gives a requested date different from the signed order form",
+    "decision": "D57",
+    "note": "Severity high is Proposed (8.3: puts a date at risk); it does not block G1 (D43). The order form value stays until a new order version."
+  },
   "product_undetermined": {
     "rule_id": "G1-REQUIRED",
     "action": "provide_missing_value",

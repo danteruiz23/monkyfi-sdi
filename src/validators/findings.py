@@ -87,17 +87,22 @@ def _finding(number: int, rule_id: str, action: str, field_key: str, group: str,
     }
 
 
-def validate(extraction: dict, as_of: date, documents=None, customers: list[str] | None = None) -> list[dict]:
+def validate(extraction: dict, as_of: date, documents=None, customers: list[str] | None = None,
+             suppliers: list[str] | None = None) -> list[dict]:
     """Findings for one order version, in rules-file order. With the package's documents and the
-    tenant's customer register, the customer-scoping check runs too (D42)."""
+    tenant's customer register, the customer-scoping check runs too (D42); with the documents, the
+    customer date change check runs too (D57)."""
     findings = _field_findings(extraction, as_of)
+
+    def make(number, rule_id, action, field_key, group, severity, status, conflicting, notes, params):
+        return _finding(number, rule_id, action, field_key, group, severity, status, conflicting, notes, params,
+                        as_of)
     if documents is not None and customers is not None:
         from .segregation import scope_customers
-
-        def make(number, rule_id, action, field_key, group, severity, status, conflicting, notes, params):
-            return _finding(number, rule_id, action, field_key, group, severity, status, conflicting, notes, params,
-                            as_of)
         findings = scope_customers(extraction, documents, customers, findings, make)
+    if documents is not None:
+        from .date_change import customer_date_changes
+        findings = customer_date_changes(extraction, documents, suppliers or [], findings, make)
     return findings
 
 

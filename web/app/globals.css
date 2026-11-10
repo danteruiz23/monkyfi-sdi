@@ -108,6 +108,8 @@ td > .badge:first-child, p > .badge:first-child { margin-left: 0; }
 .date-requested { background: var(--info-bg); color: var(--info); }
 .date-forecast { background: var(--medium-bg); color: var(--medium); }
 .date-committed { background: var(--ok-bg); color: var(--ok); }
+/* D58: a stated commitment with no approval record; never styled like an approved one. */
+.date-committed_awaiting_approval { background: transparent; color: var(--medium); border: 1px dashed var(--medium); }
 
 .counts { display: inline-flex; gap: 6px; flex-wrap: wrap; }
 .count { display: inline-flex; gap: 6px; padding: 1px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; }
