@@ -32,7 +32,8 @@ TABLES = ["tenant", "customer", "project", "supplier", "shared_resource", "servi
           "dependency", "evidence", "communication", "audit_event"]
 
 SUPPLIERS = ["Supplier Echo Fiber (synthetic)", "Supplier Sierra Access (synthetic)"]
-FOLLOW_UP_THRESHOLD_DAYS = 5  # Proposed default (UC05)
+FOLLOW_UP_THRESHOLD_DAYS = 3  # business days to the first follow-up (D55, Proposed default, per supplier)
+ESCALATION_THRESHOLD_DAYS = 5  # business days to escalation (D55)
 
 # The second tenant exists only so that tenant segregation can be tested (D16).
 SECOND_TENANT_CUSTOMER = "Manufacturer Uniform (synthetic)"
@@ -63,7 +64,8 @@ def build_rows(data_dir: Path = HERE) -> dict[str, list[dict]]:
     add("tenant", id=tenant, name=tenant_name)
     add("tenant", id=second, name=second_name)
     for name in SUPPLIERS:
-        add("supplier", id=uid("supplier", name), name=name, follow_up_threshold_days=FOLLOW_UP_THRESHOLD_DAYS)
+        add("supplier", id=uid("supplier", name), name=name, follow_up_threshold_days=FOLLOW_UP_THRESHOLD_DAYS,
+            escalation_threshold_days=ESCALATION_THRESHOLD_DAYS)
 
     latest: dict[str, dict] = {}
     for version_dir, golden in load_goldens(data_dir):

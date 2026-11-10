@@ -89,6 +89,13 @@ for (const lang of ["en", "es"]) {
         if (!row || !row.includes(escape(locale(lang).plan_action[action.action])) || !row.includes(escape(locale(lang).owner_role[action.owner]))) {
           problems.push(`${where}: plan action ${action.action_id} (${action.action}) is not in the workstreams with its owner`);
         }
+        if (action.anchor_kind === "last_supplier_email"
+            && !row.includes(escape(locale(lang).ui.follow_up_anchor_last_supplier_email.replace("{date}", action.anchor)))) {
+          problems.push(`${where}: follow-up ${action.action_id} does not say it is counted from the last supplier email`);
+        }
+        for (const h of action.history ?? []) {
+          if (!row.includes(`data-history="${h.event}"`)) problems.push(`${where}: ${action.action_id} history ${h.event} is not shown`);
+        }
         actionRows += 1;
       }
       checkCommitments(where, page.html, approved, lang);

@@ -9,6 +9,7 @@
     "tenant_id",
     "name",
     "follow_up_threshold_days",
+    "escalation_threshold_days",
     "is_synthetic"
   ],
   "properties": {
@@ -25,7 +26,12 @@
     },
     "follow_up_threshold_days": {
       "type": "integer",
-      "description": "Days without a response before a follow-up is due (UC05)."
+      "description": "Business days without an answer before the first follow-up is due (UC05, D55)."
+    },
+    "escalation_threshold_days": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Business days without an answer before the follow-up is escalated (D55). follow_up_threshold_days is the first follow-up."
     },
     "is_synthetic": {
       "type": "boolean",

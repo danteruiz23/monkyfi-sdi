@@ -11,8 +11,8 @@
     "supplier_involved": "a registered supplier wrote an email in the package; otherwise unknown (no contract field says whether access is off-net)"
   },
   "unknown_actions": {
-    "note": "D60: a conditional milestone whose applicability is unknown creates an action with an owner, shown in the plan and in the workstreams. No due date is set (Proposed): the action has no severity.",
-    "supplier_involved": {"action": "confirm_access_type", "owner": "engineering"}
+    "note": "D60: a conditional milestone whose applicability is unknown creates an action with an owner, shown in the plan and in the workstreams. D62: due in 2 business days from the plan's as-of date by default; configurable here.",
+    "supplier_involved": {"action": "confirm_access_type", "owner": "engineering", "due_in_business_days": 2}
   },
   "products": {
     "EPL": [

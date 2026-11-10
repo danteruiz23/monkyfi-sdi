@@ -154,6 +154,64 @@
         }
       }
     },
+    "dependencies": {
+      "type": "array",
+      "description": "Phase 4: supplier dependencies (D26, D55).",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source_doc_id",
+          "kind",
+          "supplier",
+          "supplier_date",
+          "supplier_date_type",
+          "order_forecast_status",
+          "follow_up_expected"
+        ],
+        "properties": {
+          "source_doc_id": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "internal",
+              "supplier",
+              "customer"
+            ]
+          },
+          "supplier": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "supplier_date": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date"
+          },
+          "supplier_date_type": {
+            "enum": [
+              "forecast",
+              "committed",
+              null
+            ]
+          },
+          "order_forecast_status": {
+            "enum": [
+              "estimable",
+              "not_estimable"
+            ]
+          },
+          "follow_up_expected": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
     "reopened_validations": {
       "type": "array",
       "items": {

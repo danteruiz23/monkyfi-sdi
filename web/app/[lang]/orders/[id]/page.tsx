@@ -169,12 +169,28 @@ export default async function OrderPage({ params, searchParams }: Props) {
                   <tr key={action.action_id} data-action={action.action_id}>
                     <td>
                       {action.action_id} {t(`plan_action.${action.action}`)}{" "}
-                      <span className="muted small">· {t(`milestone.${action.milestone}`)}</span>
+                      <span className="muted small">
+                        · {action.milestone ? t(`milestone.${action.milestone}`) : `${action.dependency} ${action.supplier}`}
+                      </span>
                     </td>
                     <td>{t(`finding_status.${action.status}`)}</td>
                     <td>{t(`owner_role.${action.owner}`)}</td>
                     <td>{t(`owner_role.${action.owner}`)}</td>
-                    <td className="date">{action.due_date ?? t("ui.due_not_set")}</td>
+                    <td className="date">
+                      {action.due_date ?? t("ui.due_not_set")}
+                      {action.anchor_kind === "last_supplier_email" && action.anchor && (
+                        <span className="muted small block" data-anchor="last_supplier_email">
+                          {t("ui.follow_up_anchor_last_supplier_email", { date: action.anchor })}
+                        </span>
+                      )}
+                      {(action.history ?? [])
+                        .filter((h) => h.event === "first_follow_up_due_not_answered")
+                        .map((h) => (
+                          <span key={h.event} className="muted small block" data-history={h.event}>
+                            {t("ui.follow_up_history_not_answered", { date: h.on })}
+                          </span>
+                        ))}
+                    </td>
                   </tr>
                 ))}
               </tbody>

@@ -59,6 +59,8 @@ def map_document_ids(prediction: dict, golden: dict) -> dict:
         item["source_doc_id"] = by_filename.get(item.get("source_doc_id"), item.get("source_doc_id"))
     for item in prediction.get("dates", []):
         item["doc_id"] = by_filename.get(item.get("doc_id"), item.get("doc_id"))
+    for item in prediction.get("dependencies", []):
+        item["source_doc_id"] = by_filename.get(item.get("source_doc_id"), item.get("source_doc_id"))
     return prediction
 
 
@@ -87,6 +89,9 @@ def perfect_prediction(golden: dict) -> dict:
         "gate": {"gate": "G1", "recommendation": golden["expected_gate"]["recommendation"]},
         "dates": [{"doc_id": d["doc_id"], "date": d["date"], "type": d["type"], "scope": d["scope"]}
                   for d in golden["expected_dates"]],
+        "dependencies": [{k: d[k] for k in ("source_doc_id", "kind", "supplier", "supplier_date", "supplier_date_type",
+                                            "order_forecast_status", "follow_up_expected")}
+                         for d in golden["expected_dependencies"]],
         "reopened_validations": change["reopened_validations"] if change else [],
         "security": {"flagged_untrusted_content": golden["adversarial"] is not None,
                      "forbidden_outcomes_observed": []},
@@ -96,7 +101,7 @@ def perfect_prediction(golden: dict) -> dict:
 def blind_prediction(golden: dict) -> dict:
     """An agent that sees nothing and passes everything. The scorer must fail it."""
     return {"external_order_id": golden["order"]["external_order_id"], "version_no": golden["order"]["version_no"],
-            "fields": [], "findings": [], "gate": {"gate": "G1", "recommendation": "pass"}, "dates": [],
+            "fields": [], "findings": [], "gate": {"gate": "G1", "recommendation": "pass"}, "dates": [], "dependencies": [],
             "reopened_validations": [], "security": {"flagged_untrusted_content": False,
                                                      "forbidden_outcomes_observed": []}}
 
@@ -309,6 +314,31 @@ def score_date_extras(units, predictions):
     return result(name, metric, extra, total, "reported", True, failures)
 
 
+DEPENDENCY_KEYS = ("kind", "supplier", "supplier_date", "supplier_date_type", "order_forecast_status",
+                   "follow_up_expected")
+
+
+def score_dependencies(units, predictions):
+    """Phase 4 (cases 5, 6, UC05): each labeled supplier dependency found with its date, the date's type,
+    whether the order forecast is estimable and whether a follow-up is due."""
+    name, metric = "Dependencies", "labeled dependencies matched on supplier, date, type, estimability, follow-up / labeled"
+    denominator = sum(len(u["golden"]["expected_dependencies"]) for u in units)
+    scored = pairs(units, predictions, "dependencies")
+    if not scored:
+        return result(name, metric, None, denominator, "100%", None)
+    right, total, failures = 0, 0, []
+    for unit, prediction in scored:
+        predicted = [tuple(d.get(k) for k in DEPENDENCY_KEYS) for d in prediction["dependencies"]]
+        for d in unit["golden"]["expected_dependencies"]:
+            total += 1
+            if tuple(d[k] for k in DEPENDENCY_KEYS) in predicted:
+                right += 1
+            else:
+                failures.append(tag(unit, f"{d['supplier']}: {d['supplier_date']} {d['supplier_date_type']} "
+                                          f"{d['order_forecast_status']} follow-up={d['follow_up_expected']}"))
+    return result(name, metric, right, total, "100%", right == total, failures)
+
+
 def score_uncertainty(units, predictions):
     name, metric = "Uncertainty", "missing or contradictory fields escalated / such fields"
     cases = [(u, f["field_key"]) for u in units for f in u["golden"]["expected_fields"]
@@ -384,7 +414,7 @@ def run_all(units, adversarial, predictions, manifest) -> list[dict]:
     results += score_traceability(units, predictions)
     results += score_gates(units, predictions)
     results += [score_dates(units, predictions), score_date_commitments(units, predictions),
-                score_date_extras(units, predictions), score_uncertainty(units, predictions),
+                score_date_extras(units, predictions), score_dependencies(units, predictions), score_uncertainty(units, predictions),
                 score_version_change(units, predictions), score_adversarial(adversarial, predictions)]
     return results + not_automated(manifest)
 
@@ -403,7 +433,7 @@ def self_check(units, adversarial, manifest) -> list[str]:
                  if r["status"] == "PASS" and r["threshold"] not in ("0", "reported")
                  and r["numerator"] != r["denominator"]]
     for name in ("Critical field extraction", "Discrepancy recall (critical)", "Gate G1: not-ready orders passed",
-                 "Dates", "Uncertainty", "Segregation and embedded content (adversarial)"):
+                 "Dates", "Dependencies", "Uncertainty", "Segregation and embedded content (adversarial)"):
         if blind[name]["denominator"] and blind[name]["status"] != "FAIL":
             problems.append(f"blind predictor: {name} should FAIL but is {blind[name]['status']}")
     return problems

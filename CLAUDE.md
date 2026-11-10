@@ -31,6 +31,7 @@ These rules apply to every session, regardless of phase or handoff.
 
 - **Language:** English by default for docs, code, comments, UI and agent communications. Spanish is available through a language setting (per user or per audience). No hardcoded UI strings; all user-facing text goes through `locales/`.
 - **Stack:** Python for ingestion, extraction, validators and evals (`src/`, `evals/`, `tests/`). TypeScript for the web view and API on Vercel (`web/`). Rules are JSON in `rules/`, readable by both. Database is Supabase (Postgres) with RLS; migrations in `supabase/migrations/`.
+- **Migrations:** from the first time a migration is applied to Supabase, schema changes go only in new files in `supabase/migrations/`; an applied migration is never edited (D64).
 - **Models:** all model calls go through the provider layer in `src/providers/`. Changing model, prompt, rules or extraction requires re-running the evals.
 
 ## Session workflow

@@ -160,3 +160,5 @@ div.bucket-needs_action table { border-radius: 8px; }
 div.bucket-needs_action h3 { margin-top: 0; font-size: 17px; }
 .compact { list-style: none; padding: 0; margin: 0; font-size: 13px; }
 .compact li { padding: 3px 0; border-bottom: 1px solid var(--line); }
+
+.block { display: block; }

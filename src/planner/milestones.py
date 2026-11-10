@@ -9,9 +9,11 @@ it applies, its applicability is ``unknown``.
 from __future__ import annotations
 
 import json
+from datetime import date
 from functools import lru_cache
 
 from .. import RULES_DIR
+from ..validators.findings import add_business_days
 
 
 @lru_cache(maxsize=None)
@@ -57,7 +59,8 @@ def _evidence(m: dict) -> dict:
             "scope": m["scope"], "sentence": m.get("sentence"), "location": m.get("location")}
 
 
-def build_milestones(product: str | None, extraction: dict, dates: dict, validation: dict | None) -> dict:
+def build_milestones(product: str | None, extraction: dict, dates: dict, validation: dict | None,
+                     as_of: date | None = None) -> dict:
     if product not in milestone_rules()["products"]:
         return {"milestones": [], "actions": [], "warnings": ["product undetermined: no milestone template"]}
     mentions = dates["mentions"]
@@ -133,9 +136,10 @@ def build_milestones(product: str | None, extraction: dict, dates: dict, validat
             warnings.append(f"{m['key']}: forecast without stated assumptions")
         if applicability == "unknown" and rule.get("condition") in unknown_actions:
             config = unknown_actions[rule["condition"]]
+            due = add_business_days(as_of or date.today(), config["due_in_business_days"]).isoformat()
             actions.append({"action_id": f"A{len(actions) + 1}", "action": config["action"], "milestone": rule["key"],
-                            "owner": config["owner"], "reason": reason, "status": "open", "due_date": None,
-                            "decision": "D60"})
+                            "owner": config["owner"], "reason": reason, "status": "open", "due_date": due,
+                            "history": [], "decision": "D60, D62"})
             m["actions"] = [actions[-1]["action_id"]]
         else:
             m["actions"] = []

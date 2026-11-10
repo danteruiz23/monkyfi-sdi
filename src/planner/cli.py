@@ -1,8 +1,8 @@
-"""Planner over a run: types every date of each order version and writes plan.json next to
-extraction.json; adds the dates section to prediction.json for the eval runner.
+"""Planner over a run: dates, milestones, supplier dependencies and follow-up for each order version.
+Writes plan.json next to extraction.json and adds the dates and dependencies sections to prediction.json.
 
-Usage, from the repo root:
-    .venv/bin/python -m src.planner.cli --run runs/eval-meta [--orders SYN-WAV-0001 ...] [--show]
+Usage, from the repo root (run after the validators):
+    .venv/bin/python -m src.planner.cli --run runs/eval-meta [--orders ...] [--as-of YYYY-MM-DD] [--show]
 """
 
 from __future__ import annotations
@@ -10,10 +10,12 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from datetime import date
 from pathlib import Path
 
 from ..ingest.documents import SYNTHETIC_MARK, now_utc, read_package
 from .dates import PLANNER_VERSION, classify_dates, to_prediction_dates
+from .dependencies import dependency_graph, supplier_dependencies
 from .milestones import build_milestones
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -27,26 +29,88 @@ def _write(path: Path, document: dict) -> None:
     path.write_text(json.dumps(document, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
-def supplier_register(data: Path) -> list[str]:
-    return [s["name"] for s in _read(data / "seed" / "supplier.json")]
+def supplier_register(data: Path) -> list[dict]:
+    return _read(data / "seed" / "supplier.json")
 
 
-def build_plan(extraction: dict, documents, suppliers: list[str], evaluated_at: str,
-               validation: dict | None = None) -> dict:
+def to_prediction_dependency(d: dict) -> dict:
+    """The prediction keeps the golden label's field name (order_forecast_status) so the eval can compare;
+    it means only whether the supplier input is in (D62)."""
+    out = {k: d[k] for k in ("source_doc_id", "kind", "supplier", "supplier_date", "supplier_date_type",
+                             "follow_up_expected")}
+    out["order_forecast_status"] = "estimable" if d["supplier_input"] == "complete" else "not_estimable"
+    return out
+
+
+FOLLOW_UP_ACTIONS = {"follow_up_due": "follow_up_supplier", "escalation_due": "escalate_supplier_follow_up",
+                     "not_due": "follow_up_supplier", "anchor_unknown": "follow_up_supplier"}
+
+
+def dependency_actions(dependencies: list[dict], first_id: int) -> list[dict]:
+    """One open action per supplier dependency that needs a follow-up (UC05, D55)."""
+    actions = []
+    for d in dependencies:
+        follow = d["follow_up"]
+        if not follow:
+            continue
+        escalate = follow["state"] == "escalation_due"
+        # D62: an escalation keeps the record that the first follow-up was due and not answered.
+        history = [{"event": "first_follow_up_due_not_answered", "on": follow["first_follow_up_on"],
+                    "owner": follow["owner"]}] if escalate else []
+        actions.append({"action_id": f"A{first_id + len(actions)}", "action": FOLLOW_UP_ACTIONS[follow["state"]],
+                        "milestone": None, "dependency": d["dependency_id"], "supplier": d["supplier"],
+                        "owner": follow["escalate_to"] if escalate else follow["owner"],
+                        "reason": follow["state"], "status": "open",
+                        "due_date": follow["escalation_on"] if escalate else follow["first_follow_up_on"],
+                        "anchor": follow["anchor"], "anchor_kind": "last_supplier_email", "history": history,
+                        "decision": "D55"})
+    return actions
+
+
+def supplier_inputs(dependencies: list[dict]) -> dict:
+    """D62: are all supplier inputs in? Not a delivery forecast. A missing date is unknown, never a delay."""
+    missing = [d["dependency_id"] for d in dependencies if d["supplier_input"] == "missing"]
+    return {"status": "missing" if missing else "complete", "missing": missing,
+            "delay_assessment": "unknown" if missing else "not_assessed"}
+
+
+def delivery_forecast(milestones: list[dict]) -> dict:
+    """The delivery forecast. Without standard intervals (D61) it is not built from supplier inputs."""
+    delivery = next((m for m in milestones if m["key"] == "delivery"), None)
+    if delivery and delivery["forecast_date"]:
+        return {"status": "estimated", "date": delivery["forecast_date"], "reason": None}
+    return {"status": "not_estimable", "date": None, "reason": "no_standard_interval"}
+
+
+def build_plan(extraction: dict, documents, register: list[dict], evaluated_at: str,
+               validation: dict | None = None, as_of: date | None = None) -> dict:
+    as_of = as_of or date.today()
+    suppliers = [s["name"] for s in register]
     # No approval records exist yet (data/synthetic/seed/approval.json is empty), so no order
     # commitment is usable as the order's committed date.
     dates = classify_dates(extraction, documents, suppliers, approvals={})
-    plan = build_milestones(extraction.get("product"), extraction, dates, validation)
+    plan = build_milestones(extraction.get("product"), extraction, dates, validation, as_of)
+    dependencies = supplier_dependencies(dates, documents, register, as_of)
+    actions = plan["actions"] + dependency_actions(dependencies, len(plan["actions"]) + 1)
+    inputs = supplier_inputs(dependencies)
+    for m in plan["milestones"]:
+        if m["key"] == "delivery" and not m["forecast_date"]:
+            m["forecast_reason"] = "no_standard_interval"
+    forecast = delivery_forecast(plan["milestones"])
     return {
         "synthetic": True,
         "synthetic_mark": SYNTHETIC_MARK,
         "order_dir_id": extraction["order_dir_id"],
         "version_no": extraction["version_no"],
-        "run": {"planner_version": PLANNER_VERSION, "evaluated_at": evaluated_at},
+        "run": {"planner_version": PLANNER_VERSION, "evaluated_at": evaluated_at, "as_of": as_of.isoformat()},
         "product": extraction.get("product"),
         "dates": dates,
         "milestones": plan["milestones"],
-        "actions": plan["actions"],
+        "dependencies": dependencies,
+        "dependency_graph": dependency_graph(plan["milestones"], dependencies),
+        "supplier_inputs": inputs,
+        "delivery_forecast": forecast,
+        "actions": actions,
         "warnings": dates["warnings"] + plan["warnings"],
     }
 
@@ -72,6 +136,17 @@ def show(plan: dict) -> None:
               f"{' · ' + dates if dates else ''}{' blocked by ' + ','.join(ms['blocked_by']) if ms['blocked_by'] else ''}")
         for assumption in ms["forecast_assumptions"]:
             print(f"          assumption: {assumption}")
+    for d in plan["dependencies"]:
+        f = d["follow_up"]
+        print(f"      {d['dependency_id']} {d['supplier']} ({d['description']}): date {d['supplier_date']} "
+              f"[{d['supplier_date_type']}] · supplier input {d['supplier_input']} · delay {d['delay_assessment']}"
+              + (f" · follow-up from {f['anchor']}: first {f['first_follow_up_on']}, escalate {f['escalation_on']}"
+                 f" → {f['state']}" if f else " · no follow-up (firm commitment)"))
+    for a in plan["actions"]:
+        print(f"      action {a['action_id']} {a['action']} → {a['owner']} due {a['due_date']}")
+    i, f = plan["supplier_inputs"], plan["delivery_forecast"]
+    print(f"      supplier inputs: {i['status']} {i['missing'] or ''} · delay {i['delay_assessment']}"
+          f" · delivery forecast: {f['status']} ({f['reason']})")
     order = plan["dates"]["order"]
     print(f"      order dates: requested {order['requested']} · forecast {order['forecast']} · "
           f"committed {order['committed']} · committed awaiting approval {order['committed_awaiting_approval']}")
@@ -82,12 +157,14 @@ def main(argv=None) -> int:
     parser.add_argument("--run", type=Path, required=True, help="directory with <order>/v<N>/extraction.json")
     parser.add_argument("--orders", nargs="*", help="only these order ids")
     parser.add_argument("--data", type=Path, default=ROOT / "data" / "synthetic")
+    parser.add_argument("--as-of", type=date.fromisoformat, default=None,
+                        help="evaluation date for follow-up states, YYYY-MM-DD (default: today)")
     parser.add_argument("--show", action="store_true", help="print every date mention with its sentence")
     args = parser.parse_args(argv)
 
     manifest = _read(args.data / "manifest.json")
     paths = {o["order_id"]: args.data / o["path"] for o in manifest["orders"]}
-    suppliers = supplier_register(args.data)
+    register = supplier_register(args.data)
     directories = sorted(p.parent for p in args.run.glob("*/v*/extraction.json")
                          if not args.orders or p.parent.parent.name in args.orders)
     if not directories:
@@ -102,7 +179,7 @@ def main(argv=None) -> int:
             package = paths[order_id] / f"v{version_no}" / "documents"
             documents = read_package(package) if package.is_dir() else None
             validation = _read(directory / "validation.json") if (directory / "validation.json").exists() else None
-            plan = build_plan(extraction, documents, suppliers, evaluated_at, validation)
+            plan = build_plan(extraction, documents, register, evaluated_at, validation, args.as_of)
         except (ValueError, KeyError, OSError) as exc:
             failures += 1
             print(f"  {order_id} v{version_no}: FAILED — {exc}", flush=True)
@@ -112,6 +189,7 @@ def main(argv=None) -> int:
         if prediction_path.exists():
             prediction = _read(prediction_path)
             prediction["dates"] = to_prediction_dates(plan["dates"])
+            prediction["dependencies"] = [to_prediction_dependency(d) for d in plan["dependencies"]]
             _write(prediction_path, prediction)
         counts = {}
         for m in plan["dates"]["mentions"]:

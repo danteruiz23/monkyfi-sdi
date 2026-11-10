@@ -38,10 +38,12 @@ create table public.supplier (
   tenant_id uuid not null references public.tenant (id),
   name text not null,
   follow_up_threshold_days integer not null,
+  escalation_threshold_days integer not null,
   is_synthetic boolean not null,
   created_at timestamptz not null default now(),
   unique (tenant_id, id),
-  check (follow_up_threshold_days > 0)
+  check (follow_up_threshold_days > 0),
+  check (escalation_threshold_days >= follow_up_threshold_days)
 );
 
 create table public.shared_resource (
@@ -168,6 +170,7 @@ create table public.finding (
   evidence jsonb not null,
   impact text not null check (impact in ('confirmed', 'possible')),
   owner text,
+  resolving_party text,
   due_date date,
   action text,
   status text not null check (status in ('open', 'in_progress', 'resolved', 'overridden')),

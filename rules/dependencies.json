@@ -1,0 +1,22 @@
+{
+  "rules_version": "0.1.0",
+  "status": "Phase 4. Thresholds decided as defaults (D55), configurable per supplier in the supplier register. The anchor, the follow-up states and the dependency description are Proposed.",
+  "supplier_follow_up": {
+    "default_first_follow_up_business_days": 3,
+    "default_escalation_business_days": 5,
+    "per_supplier": "supplier.follow_up_threshold_days and supplier.escalation_threshold_days override the defaults",
+    "anchor": "the sent time of the supplier's latest email in the package (its last answer)",
+    "follow_up_when": "the supplier has not given a firm commitment: its date is a forecast or there is no date",
+    "states": {
+      "not_due": "as-of date before the first follow-up date",
+      "follow_up_due": "as-of date on or after the first follow-up date and before the escalation date",
+      "escalation_due": "as-of date on or after the escalation date"
+    },
+    "owner": "supplier_management",
+    "escalate_to": "sdm"
+  },
+  "supplier_inputs": {
+    "note": "D62: per order, supplier inputs are 'complete' when every supplier dependency has a date and 'missing' otherwise. This is not a delivery forecast: delivery stays 'not estimable - no standard interval' (D61). The absence of a date is reported as unknown, never as a delay (UC05).",
+    "delay_assessment": "unknown"
+  }
+}

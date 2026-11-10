@@ -15,3 +15,5 @@ Results are written to `evals/results/latest.json` (git-ignored). Thresholds mea
 ## Phase 4: dates
 
 Run the planner first (`python -m src.planner.cli --run <run>`), which adds `dates` to each `prediction.json`. Three date results: **Dates** (recall of labeled mentions with the right type and scope, 100%), **Dates: no forecast or informal date as committed** (order dates typed committed that the labels do not type committed, must be 0) and **Dates: unlabeled or mistyped mentions** (reported).
+
+**Dependencies** (Phase 4, cases 5 and 6): each labeled supplier dependency must be predicted with the same supplier, date, date type, order forecast status and follow-up flag (100%). The planner writes `dependencies` to `prediction.json`.

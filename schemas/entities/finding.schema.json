@@ -65,6 +65,13 @@
         "null"
       ]
     },
+    "resolving_party": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Who must provide or fix the data (D46); the finding is escalated to this party."
+    },
     "due_date": {
       "type": [
         "string",

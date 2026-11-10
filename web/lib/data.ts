@@ -93,10 +93,15 @@ export interface Plan {
 export interface PlanAction {
   action_id: string;
   action: string;
-  milestone: string;
+  milestone: string | null;
+  dependency?: string;
+  supplier?: string;
   owner: string;
   status: string;
   due_date: string | null;
+  anchor?: string | null;
+  anchor_kind?: string;
+  history?: { event: string; on: string; owner: string }[];
 }
 export interface OrderVersion {
   orderId: string;
