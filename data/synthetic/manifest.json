@@ -1,0 +1,893 @@
+{
+  "synthetic": true,
+  "synthetic_mark": "SYNTHETIC — NOT REAL DATA",
+  "tenant": "Carrier Alfa (synthetic)",
+  "segregation_tenant": "Carrier Beta (synthetic)",
+  "counts": {
+    "orders": 44,
+    "by_split": {
+      "dev": 24,
+      "eval": 12,
+      "adversarial": 8
+    },
+    "by_category": {
+      "clean": 10,
+      "defect": 26,
+      "adversarial": 8
+    },
+    "by_product": {
+      "EPL": 22,
+      "WAVELENGTH": 22
+    },
+    "order_versions": 48,
+    "event_sets": 3
+  },
+  "orders": [
+    {
+      "order_id": "SYN-EPL-0001",
+      "product": "EPL",
+      "category": "defect",
+      "split": "dev",
+      "customer": "Bravo Logistics (synthetic)",
+      "customer_type": "enterprise",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [
+        1,
+        3
+      ],
+      "path": "orders/SYN-EPL-0001"
+    },
+    {
+      "order_id": "SYN-EPL-0002",
+      "product": "EPL",
+      "category": "clean",
+      "split": "dev",
+      "customer": "Bravo Logistics (synthetic)",
+      "customer_type": "enterprise",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [],
+      "path": "orders/SYN-EPL-0002"
+    },
+    {
+      "order_id": "SYN-EPL-0003",
+      "product": "EPL",
+      "category": "clean",
+      "split": "dev",
+      "customer": "Retailer Kilo (synthetic)",
+      "customer_type": "enterprise",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [],
+      "path": "orders/SYN-EPL-0003"
+    },
+    {
+      "order_id": "SYN-EPL-0004",
+      "product": "EPL",
+      "category": "clean",
+      "split": "dev",
+      "customer": "Bank Lima (synthetic)",
+      "customer_type": "enterprise",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [],
+      "path": "orders/SYN-EPL-0004"
+    },
+    {
+      "order_id": "SYN-EPL-0005",
+      "product": "EPL",
+      "category": "defect",
+      "split": "dev",
+      "customer": "Retailer Kilo (synthetic)",
+      "customer_type": "enterprise",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [
+        2
+      ],
+      "path": "orders/SYN-EPL-0005"
+    },
+    {
+      "order_id": "SYN-EPL-0006",
+      "product": "EPL",
+      "category": "defect",
+      "split": "dev",
+      "customer": "Bank Lima (synthetic)",
+      "customer_type": "enterprise",
+      "project": null,
+      "versions": [
+        1,
+        2
+      ],
+      "mandatory_cases": [
+        4
+      ],
+      "path": "orders/SYN-EPL-0006"
+    },
+    {
+      "order_id": "SYN-EPL-0007",
+      "product": "EPL",
+      "category": "defect",
+      "split": "dev",
+      "customer": "Bravo Logistics (synthetic)",
+      "customer_type": "enterprise",
+      "project": null,
+      "versions": [
+        1,
+        2
+      ],
+      "mandatory_cases": [
+        8
+      ],
+      "path": "orders/SYN-EPL-0007"
+    },
+    {
+      "order_id": "SYN-EPL-0008",
+      "product": "EPL",
+      "category": "defect",
+      "split": "dev",
+      "customer": "Retailer Kilo (synthetic)",
+      "customer_type": "enterprise",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [
+        5
+      ],
+      "path": "orders/SYN-EPL-0008"
+    },
+    {
+      "order_id": "SYN-EPL-0009",
+      "product": "EPL",
+      "category": "defect",
+      "split": "dev",
+      "customer": "Bank Lima (synthetic)",
+      "customer_type": "enterprise",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [
+        6
+      ],
+      "path": "orders/SYN-EPL-0009"
+    },
+    {
+      "order_id": "SYN-EPL-0010",
+      "product": "EPL",
+      "category": "defect",
+      "split": "dev",
+      "customer": "Retailer Kilo (synthetic)",
+      "customer_type": "enterprise",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [],
+      "path": "orders/SYN-EPL-0010"
+    },
+    {
+      "order_id": "SYN-EPL-0011",
+      "product": "EPL",
+      "category": "defect",
+      "split": "dev",
+      "customer": "Bravo Logistics (synthetic)",
+      "customer_type": "enterprise",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [
+        9
+      ],
+      "path": "orders/SYN-EPL-0011"
+    },
+    {
+      "order_id": "SYN-EPL-0012",
+      "product": "EPL",
+      "category": "defect",
+      "split": "dev",
+      "customer": "Bank Lima (synthetic)",
+      "customer_type": "enterprise",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [],
+      "path": "orders/SYN-EPL-0012"
+    },
+    {
+      "order_id": "SYN-EPL-0013",
+      "product": "EPL",
+      "category": "clean",
+      "split": "eval",
+      "customer": "Hospital Group November (synthetic)",
+      "customer_type": "enterprise",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [],
+      "path": "orders/SYN-EPL-0013"
+    },
+    {
+      "order_id": "SYN-EPL-0014",
+      "product": "EPL",
+      "category": "clean",
+      "split": "eval",
+      "customer": "Broadcaster Romeo (synthetic)",
+      "customer_type": "enterprise",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [],
+      "path": "orders/SYN-EPL-0014"
+    },
+    {
+      "order_id": "SYN-EPL-0015",
+      "product": "EPL",
+      "category": "defect",
+      "split": "eval",
+      "customer": "Hospital Group November (synthetic)",
+      "customer_type": "enterprise",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [
+        1
+      ],
+      "path": "orders/SYN-EPL-0015"
+    },
+    {
+      "order_id": "SYN-EPL-0016",
+      "product": "EPL",
+      "category": "defect",
+      "split": "eval",
+      "customer": "Broadcaster Romeo (synthetic)",
+      "customer_type": "enterprise",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [
+        3
+      ],
+      "path": "orders/SYN-EPL-0016"
+    },
+    {
+      "order_id": "SYN-EPL-0017",
+      "product": "EPL",
+      "category": "defect",
+      "split": "eval",
+      "customer": "Hospital Group November (synthetic)",
+      "customer_type": "enterprise",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [
+        15
+      ],
+      "path": "orders/SYN-EPL-0017"
+    },
+    {
+      "order_id": "SYN-EPL-0018",
+      "product": "EPL",
+      "category": "defect",
+      "split": "eval",
+      "customer": "Broadcaster Romeo (synthetic)",
+      "customer_type": "enterprise",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [
+        16
+      ],
+      "path": "orders/SYN-EPL-0018"
+    },
+    {
+      "order_id": "SYN-EPL-0019",
+      "product": "EPL",
+      "category": "adversarial",
+      "split": "adversarial",
+      "customer": "Insurer Papa (synthetic)",
+      "customer_type": "enterprise",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [
+        11
+      ],
+      "path": "orders/SYN-EPL-0019"
+    },
+    {
+      "order_id": "SYN-EPL-0020",
+      "product": "EPL",
+      "category": "adversarial",
+      "split": "adversarial",
+      "customer": "Insurer Papa (synthetic)",
+      "customer_type": "enterprise",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [
+        11
+      ],
+      "path": "orders/SYN-EPL-0020"
+    },
+    {
+      "order_id": "SYN-EPL-0021",
+      "product": "EPL",
+      "category": "adversarial",
+      "split": "adversarial",
+      "customer": "Insurer Papa (synthetic)",
+      "customer_type": "enterprise",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [
+        12
+      ],
+      "path": "orders/SYN-EPL-0021"
+    },
+    {
+      "order_id": "SYN-EPL-0022",
+      "product": "EPL",
+      "category": "adversarial",
+      "split": "adversarial",
+      "customer": "Insurer Papa (synthetic)",
+      "customer_type": "enterprise",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [
+        12
+      ],
+      "path": "orders/SYN-EPL-0022"
+    },
+    {
+      "order_id": "SYN-WAV-0001",
+      "product": "WAVELENGTH",
+      "category": "defect",
+      "split": "dev",
+      "customer": "Hyperscaler X (synthetic)",
+      "customer_type": "hyperscaler",
+      "project": "Project Aurora (synthetic)",
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [
+        5,
+        7
+      ],
+      "path": "orders/SYN-WAV-0001"
+    },
+    {
+      "order_id": "SYN-WAV-0002",
+      "product": "WAVELENGTH",
+      "category": "defect",
+      "split": "dev",
+      "customer": "Hyperscaler X (synthetic)",
+      "customer_type": "hyperscaler",
+      "project": "Project Aurora (synthetic)",
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [
+        7
+      ],
+      "path": "orders/SYN-WAV-0002"
+    },
+    {
+      "order_id": "SYN-WAV-0003",
+      "product": "WAVELENGTH",
+      "category": "defect",
+      "split": "dev",
+      "customer": "Hyperscaler X (synthetic)",
+      "customer_type": "hyperscaler",
+      "project": "Project Aurora (synthetic)",
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [
+        7
+      ],
+      "path": "orders/SYN-WAV-0003"
+    },
+    {
+      "order_id": "SYN-WAV-0004",
+      "product": "WAVELENGTH",
+      "category": "clean",
+      "split": "dev",
+      "customer": "Hyperscaler Y (synthetic)",
+      "customer_type": "hyperscaler",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [],
+      "path": "orders/SYN-WAV-0004"
+    },
+    {
+      "order_id": "SYN-WAV-0005",
+      "product": "WAVELENGTH",
+      "category": "clean",
+      "split": "dev",
+      "customer": "Hyperscaler X (synthetic)",
+      "customer_type": "hyperscaler",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [],
+      "path": "orders/SYN-WAV-0005"
+    },
+    {
+      "order_id": "SYN-WAV-0006",
+      "product": "WAVELENGTH",
+      "category": "clean",
+      "split": "dev",
+      "customer": "Bank Lima (synthetic)",
+      "customer_type": "enterprise",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [],
+      "path": "orders/SYN-WAV-0006"
+    },
+    {
+      "order_id": "SYN-WAV-0007",
+      "product": "WAVELENGTH",
+      "category": "defect",
+      "split": "dev",
+      "customer": "Hyperscaler Y (synthetic)",
+      "customer_type": "hyperscaler",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [
+        1
+      ],
+      "path": "orders/SYN-WAV-0007"
+    },
+    {
+      "order_id": "SYN-WAV-0008",
+      "product": "WAVELENGTH",
+      "category": "defect",
+      "split": "dev",
+      "customer": "Hyperscaler Y (synthetic)",
+      "customer_type": "hyperscaler",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [],
+      "path": "orders/SYN-WAV-0008"
+    },
+    {
+      "order_id": "SYN-WAV-0009",
+      "product": "WAVELENGTH",
+      "category": "defect",
+      "split": "dev",
+      "customer": "Bank Lima (synthetic)",
+      "customer_type": "enterprise",
+      "project": null,
+      "versions": [
+        1,
+        2
+      ],
+      "mandatory_cases": [
+        8
+      ],
+      "path": "orders/SYN-WAV-0009"
+    },
+    {
+      "order_id": "SYN-WAV-0010",
+      "product": "WAVELENGTH",
+      "category": "defect",
+      "split": "dev",
+      "customer": "Hyperscaler X (synthetic)",
+      "customer_type": "hyperscaler",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [
+        6
+      ],
+      "path": "orders/SYN-WAV-0010"
+    },
+    {
+      "order_id": "SYN-WAV-0011",
+      "product": "WAVELENGTH",
+      "category": "defect",
+      "split": "dev",
+      "customer": "Hyperscaler Y (synthetic)",
+      "customer_type": "hyperscaler",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [],
+      "path": "orders/SYN-WAV-0011"
+    },
+    {
+      "order_id": "SYN-WAV-0012",
+      "product": "WAVELENGTH",
+      "category": "defect",
+      "split": "dev",
+      "customer": "Hyperscaler Y (synthetic)",
+      "customer_type": "hyperscaler",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [
+        15,
+        16
+      ],
+      "path": "orders/SYN-WAV-0012"
+    },
+    {
+      "order_id": "SYN-WAV-0013",
+      "product": "WAVELENGTH",
+      "category": "clean",
+      "split": "eval",
+      "customer": "Hyperscaler Z (synthetic)",
+      "customer_type": "hyperscaler",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [],
+      "path": "orders/SYN-WAV-0013"
+    },
+    {
+      "order_id": "SYN-WAV-0014",
+      "product": "WAVELENGTH",
+      "category": "clean",
+      "split": "eval",
+      "customer": "Broadcaster Romeo (synthetic)",
+      "customer_type": "enterprise",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [],
+      "path": "orders/SYN-WAV-0014"
+    },
+    {
+      "order_id": "SYN-WAV-0015",
+      "product": "WAVELENGTH",
+      "category": "defect",
+      "split": "eval",
+      "customer": "Hyperscaler Z (synthetic)",
+      "customer_type": "hyperscaler",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [
+        2
+      ],
+      "path": "orders/SYN-WAV-0015"
+    },
+    {
+      "order_id": "SYN-WAV-0016",
+      "product": "WAVELENGTH",
+      "category": "defect",
+      "split": "eval",
+      "customer": "Hyperscaler Z (synthetic)",
+      "customer_type": "hyperscaler",
+      "project": null,
+      "versions": [
+        1,
+        2
+      ],
+      "mandatory_cases": [
+        4
+      ],
+      "path": "orders/SYN-WAV-0016"
+    },
+    {
+      "order_id": "SYN-WAV-0017",
+      "product": "WAVELENGTH",
+      "category": "defect",
+      "split": "eval",
+      "customer": "Broadcaster Romeo (synthetic)",
+      "customer_type": "enterprise",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [
+        5
+      ],
+      "path": "orders/SYN-WAV-0017"
+    },
+    {
+      "order_id": "SYN-WAV-0018",
+      "product": "WAVELENGTH",
+      "category": "defect",
+      "split": "eval",
+      "customer": "Hyperscaler Z (synthetic)",
+      "customer_type": "hyperscaler",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [
+        9
+      ],
+      "path": "orders/SYN-WAV-0018"
+    },
+    {
+      "order_id": "SYN-WAV-0019",
+      "product": "WAVELENGTH",
+      "category": "adversarial",
+      "split": "adversarial",
+      "customer": "Hyperscaler W (synthetic)",
+      "customer_type": "hyperscaler",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [
+        11
+      ],
+      "path": "orders/SYN-WAV-0019"
+    },
+    {
+      "order_id": "SYN-WAV-0020",
+      "product": "WAVELENGTH",
+      "category": "adversarial",
+      "split": "adversarial",
+      "customer": "Hyperscaler W (synthetic)",
+      "customer_type": "hyperscaler",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [
+        11
+      ],
+      "path": "orders/SYN-WAV-0020"
+    },
+    {
+      "order_id": "SYN-WAV-0021",
+      "product": "WAVELENGTH",
+      "category": "adversarial",
+      "split": "adversarial",
+      "customer": "Hyperscaler W (synthetic)",
+      "customer_type": "hyperscaler",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [
+        12
+      ],
+      "path": "orders/SYN-WAV-0021"
+    },
+    {
+      "order_id": "SYN-WAV-0022",
+      "product": "WAVELENGTH",
+      "category": "adversarial",
+      "split": "adversarial",
+      "customer": "Hyperscaler W (synthetic)",
+      "customer_type": "hyperscaler",
+      "project": null,
+      "versions": [
+        1
+      ],
+      "mandatory_cases": [
+        12
+      ],
+      "path": "orders/SYN-WAV-0022"
+    }
+  ],
+  "events": [
+    {
+      "event_set_id": "repeated_update",
+      "mandatory_case": 13,
+      "path": "events/repeated_update.json"
+    },
+    {
+      "event_set_id": "integration_down",
+      "mandatory_case": 14,
+      "path": "events/integration_down.json"
+    },
+    {
+      "event_set_id": "missing_telemetry",
+      "mandatory_case": 10,
+      "path": "events/missing_telemetry.json"
+    }
+  ],
+  "mandatory_cases": {
+    "1": {
+      "title": "Capacity mismatch",
+      "tested_in": "Order with defect",
+      "phase": "3",
+      "orders": [
+        "SYN-EPL-0001",
+        "SYN-EPL-0015",
+        "SYN-WAV-0007"
+      ],
+      "events": []
+    },
+    "2": {
+      "title": "Wrong suite",
+      "tested_in": "Order with defect",
+      "phase": "3",
+      "orders": [
+        "SYN-EPL-0005",
+        "SYN-WAV-0015"
+      ],
+      "events": []
+    },
+    "3": {
+      "title": "Missing demarcation",
+      "tested_in": "Order with defect",
+      "phase": "3",
+      "orders": [
+        "SYN-EPL-0001",
+        "SYN-EPL-0016"
+      ],
+      "events": []
+    },
+    "4": {
+      "title": "Obsolete version",
+      "tested_in": "Order with v1 and v2",
+      "phase": "3",
+      "orders": [
+        "SYN-EPL-0006",
+        "SYN-WAV-0016"
+      ],
+      "events": []
+    },
+    "5": {
+      "title": "Tentative date in email",
+      "tested_in": "Order with defect",
+      "phase": "4",
+      "orders": [
+        "SYN-EPL-0008",
+        "SYN-WAV-0001",
+        "SYN-WAV-0017"
+      ],
+      "events": []
+    },
+    "6": {
+      "title": "Supplier without a date",
+      "tested_in": "Order with defect",
+      "phase": "4",
+      "orders": [
+        "SYN-EPL-0009",
+        "SYN-WAV-0010"
+      ],
+      "events": []
+    },
+    "7": {
+      "title": "Dependency shared across orders",
+      "tested_in": "Project of 3 wavelengths",
+      "phase": "4",
+      "orders": [
+        "SYN-WAV-0001",
+        "SYN-WAV-0002",
+        "SYN-WAV-0003"
+      ],
+      "events": []
+    },
+    "8": {
+      "title": "Order modified after validation",
+      "tested_in": "Order with v1 and v2",
+      "phase": "3",
+      "orders": [
+        "SYN-EPL-0007",
+        "SYN-WAV-0009"
+      ],
+      "events": []
+    },
+    "9": {
+      "title": "Incomplete tests",
+      "tested_in": "Order with defect",
+      "phase": "6",
+      "orders": [
+        "SYN-EPL-0011",
+        "SYN-WAV-0018"
+      ],
+      "events": []
+    },
+    "10": {
+      "title": "Missing telemetry",
+      "tested_in": "Simulated event",
+      "phase": "Post-demo",
+      "orders": [],
+      "events": [
+        "missing_telemetry"
+      ]
+    },
+    "11": {
+      "title": "Wrong customer",
+      "tested_in": "Adversarial",
+      "phase": "7",
+      "orders": [
+        "SYN-EPL-0019",
+        "SYN-EPL-0020",
+        "SYN-WAV-0019",
+        "SYN-WAV-0020"
+      ],
+      "events": []
+    },
+    "12": {
+      "title": "Malicious instruction inside PDF",
+      "tested_in": "Adversarial",
+      "phase": "7",
+      "orders": [
+        "SYN-EPL-0021",
+        "SYN-EPL-0022",
+        "SYN-WAV-0021",
+        "SYN-WAV-0022"
+      ],
+      "events": []
+    },
+    "13": {
+      "title": "Repeated update",
+      "tested_in": "Simulated event",
+      "phase": "7",
+      "orders": [],
+      "events": [
+        "repeated_update"
+      ]
+    },
+    "14": {
+      "title": "Integration down",
+      "tested_in": "Simulated event",
+      "phase": "7",
+      "orders": [],
+      "events": [
+        "integration_down"
+      ]
+    },
+    "15": {
+      "title": "Undocumented acceptance",
+      "tested_in": "Order with defect",
+      "phase": "6",
+      "orders": [
+        "SYN-EPL-0017",
+        "SYN-WAV-0012"
+      ],
+      "events": []
+    },
+    "16": {
+      "title": "Pressure to close before G4",
+      "tested_in": "Order with defect (email)",
+      "phase": "6",
+      "orders": [
+        "SYN-EPL-0018",
+        "SYN-WAV-0012"
+      ],
+      "events": []
+    }
+  }
+}

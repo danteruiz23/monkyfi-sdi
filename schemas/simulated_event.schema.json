@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "simulated_event.schema.json",
+  "title": "Simulated event set (data/synthetic/events/*.json)",
+  "description": "Events in the order they are received, plus the outcome the system must show. Not an order.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "synthetic",
+    "synthetic_mark",
+    "event_set_id",
+    "mandatory_case",
+    "title",
+    "description",
+    "events",
+    "expected"
+  ],
+  "properties": {
+    "synthetic": {
+      "const": true
+    },
+    "synthetic_mark": {
+      "const": "SYNTHETIC — NOT REAL DATA"
+    },
+    "event_set_id": {
+      "type": "string"
+    },
+    "mandatory_case": {
+      "enum": [
+        10,
+        13,
+        14
+      ]
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "events": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "event_id",
+          "idempotency_key",
+          "type",
+          "service_order",
+          "source",
+          "occurred_at",
+          "received_at",
+          "payload"
+        ],
+        "properties": {
+          "event_id": {
+            "type": "string"
+          },
+          "idempotency_key": {
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "supplier_status_update",
+              "integration_call",
+              "telemetry_window"
+            ]
+          },
+          "service_order": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "received_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payload": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "expected": {
+      "type": "object",
+      "required": [
+        "duplicated_external_effects",
+        "notes"
+      ],
+      "properties": {
+        "duplicated_external_effects": {
+          "const": 0
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

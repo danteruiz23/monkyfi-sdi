@@ -1,0 +1,61 @@
+{
+  "app": {
+    "name": "Service Delivery Intelligence",
+    "synthetic_mark": "SYNTHETIC — NOT REAL DATA"
+  },
+  "language": {
+    "en": "English",
+    "es": "Spanish"
+  },
+  "product": {
+    "EPL": "Ethernet Private Line (EPL)",
+    "WAVELENGTH": "Wavelength"
+  },
+  "date_type": {
+    "requested": "Requested date",
+    "forecast": "Forecast date",
+    "committed": "Committed date"
+  },
+  "field_status": {
+    "verified": "Verified",
+    "pending": "Pending",
+    "missing": "Missing",
+    "not_applicable": "Not applicable",
+    "contradictory": "Contradictory",
+    "stale": "Stale"
+  },
+  "severity": {
+    "critical": "Critical",
+    "high": "High",
+    "medium": "Medium",
+    "info": "Info"
+  },
+  "gate": {
+    "G0": "G0: presales handover",
+    "G1": "G1: order intake",
+    "G2": "G2: ready for execution",
+    "G3": "G3: ready for delivery",
+    "G4": "G4: accepted",
+    "G5": "G5: closure"
+  },
+  "recommendation": {
+    "pass": "Recommend pass",
+    "block": "Recommend block"
+  },
+  "audience": {
+    "internal": "Internal",
+    "customer": "Customer",
+    "supplier": "Supplier"
+  },
+  "communication_status": {
+    "prepared": "Prepared",
+    "approved": "Approved",
+    "sent": "Sent",
+    "failed": "Failed"
+  },
+  "forecast_status": {
+    "pending": "Pending",
+    "estimated": "Estimated",
+    "not_estimable": "Not estimable"
+  }
+}

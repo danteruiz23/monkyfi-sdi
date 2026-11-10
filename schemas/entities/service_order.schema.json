@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "entities/service_order.schema.json",
+  "title": "service_order",
+  "description": "The service order. Named service_order because 'order' is a reserved word in Postgres.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "tenant_id",
+    "customer_id",
+    "external_order_id",
+    "product",
+    "stage",
+    "is_blocked",
+    "is_synthetic"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "tenant_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "project_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid"
+    },
+    "customer_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "external_order_id": {
+      "type": "string"
+    },
+    "product": {
+      "enum": [
+        "EPL",
+        "WAVELENGTH"
+      ]
+    },
+    "stage": {
+      "enum": [
+        "presales",
+        "order_received",
+        "order_validated",
+        "design_and_dependencies",
+        "provisioning",
+        "ready_for_testing",
+        "testing_completed",
+        "delivered_pending_acceptance",
+        "accepted",
+        "hypercare",
+        "closed",
+        "cancelled",
+        "pending_correction"
+      ]
+    },
+    "is_blocked": {
+      "type": "boolean",
+      "description": "Cross-cutting condition; it does not replace the stage."
+    },
+    "blocked_reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "blocked_since": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "blocked_owner": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "current_version_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid"
+    },
+    "is_synthetic": {
+      "type": "boolean",
+      "description": "True for every synthetic row (CLAUDE.md rule 3)."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

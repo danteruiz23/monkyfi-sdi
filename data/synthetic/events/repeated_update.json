@@ -1,0 +1,83 @@
+{
+  "synthetic": true,
+  "synthetic_mark": "SYNTHETIC — NOT REAL DATA",
+  "event_set_id": "repeated_update",
+  "mandatory_case": 13,
+  "title": "Repeated update",
+  "description": "The same supplier status update for SYN-WAV-0010 is delivered three times (a retry and a replay), and an older update arrives late.",
+  "events": [
+    {
+      "event_id": "EVT-SYN-0001",
+      "idempotency_key": "supplier-sierra:ALFA-WAV-000210:status:2",
+      "type": "supplier_status_update",
+      "service_order": "SYN-WAV-0010",
+      "source": "supplier_portal",
+      "occurred_at": "2026-11-12T10:00:00Z",
+      "received_at": "2026-11-12T10:00:05Z",
+      "payload": {
+        "sequence": 2,
+        "status": "survey_scheduled",
+        "supplier_date": null
+      }
+    },
+    {
+      "event_id": "EVT-SYN-0002",
+      "idempotency_key": "supplier-sierra:ALFA-WAV-000210:status:2",
+      "type": "supplier_status_update",
+      "service_order": "SYN-WAV-0010",
+      "source": "supplier_portal",
+      "occurred_at": "2026-11-12T10:00:00Z",
+      "received_at": "2026-11-12T10:00:35Z",
+      "payload": {
+        "sequence": 2,
+        "status": "survey_scheduled",
+        "supplier_date": null
+      }
+    },
+    {
+      "event_id": "EVT-SYN-0003",
+      "idempotency_key": "supplier-sierra:ALFA-WAV-000210:status:1",
+      "type": "supplier_status_update",
+      "service_order": "SYN-WAV-0010",
+      "source": "supplier_portal",
+      "occurred_at": "2026-11-10T09:00:00Z",
+      "received_at": "2026-11-12T10:05:00Z",
+      "payload": {
+        "sequence": 1,
+        "status": "order_acknowledged",
+        "supplier_date": null
+      }
+    },
+    {
+      "event_id": "EVT-SYN-0004",
+      "idempotency_key": "supplier-sierra:ALFA-WAV-000210:status:2",
+      "type": "supplier_status_update",
+      "service_order": "SYN-WAV-0010",
+      "source": "supplier_portal",
+      "occurred_at": "2026-11-12T10:00:00Z",
+      "received_at": "2026-11-13T08:00:00Z",
+      "payload": {
+        "sequence": 2,
+        "status": "survey_scheduled",
+        "supplier_date": null
+      }
+    }
+  ],
+  "expected": {
+    "state_changes": 1,
+    "final_state": {
+      "status": "survey_scheduled",
+      "sequence": 2
+    },
+    "duplicate_event_ids": [
+      "EVT-SYN-0002",
+      "EVT-SYN-0004"
+    ],
+    "out_of_order_event_ids": [
+      "EVT-SYN-0003"
+    ],
+    "max_drafts_created": 1,
+    "duplicated_external_effects": 0,
+    "notes": "Duplicates are recognized by idempotency key and logged, not applied again. The late older update is recorded with both timestamps and does not overwrite the newer state."
+  }
+}

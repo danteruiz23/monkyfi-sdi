@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "entities/approval.schema.json",
+  "title": "approval",
+  "description": "Approvals and overrides. An override never deletes the original finding.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "tenant_id",
+    "entity",
+    "entity_id",
+    "decision",
+    "approver",
+    "is_synthetic"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "tenant_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "entity": {
+      "type": "string",
+      "description": "Table name of the approved entity."
+    },
+    "entity_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "decision": {
+      "enum": [
+        "approved",
+        "rejected",
+        "override"
+      ]
+    },
+    "approver": {
+      "type": "string"
+    },
+    "reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "is_synthetic": {
+      "type": "boolean",
+      "description": "True for every synthetic row (CLAUDE.md rule 3)."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

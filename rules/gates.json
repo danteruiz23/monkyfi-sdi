@@ -1,0 +1,18 @@
+{
+  "rules_version": "0.2.0",
+  "status": "G1 pass condition decided by Dante (D28). Reading 'critical fields' as fields whose finding has critical severity is Proposed. Other gates are added in their phases.",
+  "gates": {
+    "G1": {
+      "name": "Order intake",
+      "pass_when": "Critical fields are consistent across their authoritative sources, with no missing or contradictory values.",
+      "blocking_statuses": ["missing", "contradictory"],
+      "non_blocking_statuses": ["pending", "verified", "not_applicable"],
+      "requires_verified": false,
+      "blocking_severities": ["critical"],
+      "notes": [
+        "G1 never requires a field to be 'verified'. 'verified' is set by the data owner and is not a gate condition (D28).",
+        "A missing or contradictory field always raises a finding. The finding blocks G1 when its severity is in blocking_severities (SPEC 8.3); lower severities are reported and do not block."
+      ]
+    }
+  }
+}

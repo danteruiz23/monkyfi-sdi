@@ -1,0 +1,77 @@
+{
+  "synthetic": true,
+  "synthetic_mark": "SYNTHETIC — NOT REAL DATA",
+  "event_set_id": "integration_down",
+  "mandatory_case": 14,
+  "title": "Integration down",
+  "description": "The order-source integration times out and returns errors while SYN-EPL-0002 is being refreshed, then recovers.",
+  "events": [
+    {
+      "event_id": "EVT-SYN-0101",
+      "idempotency_key": "order-source:SYN-EPL-0002:poll:1",
+      "type": "integration_call",
+      "service_order": "SYN-EPL-0002",
+      "source": "order_source",
+      "occurred_at": "2026-11-15T12:00:00Z",
+      "received_at": "2026-11-15T12:00:30Z",
+      "payload": {
+        "attempt": 1,
+        "outcome": "timeout",
+        "http_status": null
+      }
+    },
+    {
+      "event_id": "EVT-SYN-0102",
+      "idempotency_key": "order-source:SYN-EPL-0002:poll:1",
+      "type": "integration_call",
+      "service_order": "SYN-EPL-0002",
+      "source": "order_source",
+      "occurred_at": "2026-11-15T12:01:00Z",
+      "received_at": "2026-11-15T12:01:01Z",
+      "payload": {
+        "attempt": 2,
+        "outcome": "error",
+        "http_status": 503
+      }
+    },
+    {
+      "event_id": "EVT-SYN-0103",
+      "idempotency_key": "order-source:SYN-EPL-0002:poll:1",
+      "type": "integration_call",
+      "service_order": "SYN-EPL-0002",
+      "source": "order_source",
+      "occurred_at": "2026-11-15T12:03:00Z",
+      "received_at": "2026-11-15T12:03:01Z",
+      "payload": {
+        "attempt": 3,
+        "outcome": "error",
+        "http_status": 503
+      }
+    },
+    {
+      "event_id": "EVT-SYN-0104",
+      "idempotency_key": "order-source:SYN-EPL-0002:poll:2",
+      "type": "integration_call",
+      "service_order": "SYN-EPL-0002",
+      "source": "order_source",
+      "occurred_at": "2026-11-15T13:00:00Z",
+      "received_at": "2026-11-15T13:00:01Z",
+      "payload": {
+        "attempt": 1,
+        "outcome": "ok",
+        "http_status": 200
+      }
+    }
+  ],
+  "expected": {
+    "retries_are_limited": true,
+    "failure_visible_to_user": true,
+    "data_marked_stale_between": [
+      "2026-11-15T12:00:30Z",
+      "2026-11-15T13:00:01Z"
+    ],
+    "status_reported_during_outage": "stale",
+    "duplicated_external_effects": 0,
+    "notes": "During the outage the order shows its last known data with its age and an integration error; nothing is presented as current. After recovery the refresh is applied once."
+  }
+}

@@ -1,0 +1,1222 @@
+{
+  "synthetic": true,
+  "synthetic_mark": "SYNTHETIC — NOT REAL DATA",
+  "order": {
+    "external_order_id": "SYN-WAV-0009",
+    "product": "WAVELENGTH",
+    "version_no": 2,
+    "received_at": "2026-11-08T09:00:00Z",
+    "stage": "order_received",
+    "tenant": "Carrier Alfa (synthetic)",
+    "customer": "Bank Lima (synthetic)",
+    "customer_type": "enterprise",
+    "project": null,
+    "split": "dev",
+    "category": "defect"
+  },
+  "mandatory_cases": [
+    8
+  ],
+  "documents": [
+    {
+      "doc_id": "quote",
+      "doc_type": "quote",
+      "filename": "01_quote.pdf",
+      "pages": 1,
+      "stale": false,
+      "foreign": false
+    },
+    {
+      "doc_id": "order_form",
+      "doc_type": "order_form",
+      "filename": "02_order_form_signed.pdf",
+      "pages": 2,
+      "stale": false,
+      "foreign": false
+    },
+    {
+      "doc_id": "technical_annex",
+      "doc_type": "technical_annex",
+      "filename": "03_technical_annex.pdf",
+      "pages": 2,
+      "stale": false,
+      "foreign": false
+    },
+    {
+      "doc_id": "loa_cfa",
+      "doc_type": "loa_cfa",
+      "filename": "04_loa_cfa.pdf",
+      "pages": 1,
+      "stale": false,
+      "foreign": false
+    },
+    {
+      "doc_id": "email_01",
+      "doc_type": "email",
+      "filename": "05_email_01.pdf",
+      "pages": 1,
+      "stale": false,
+      "foreign": false
+    }
+  ],
+  "expected_fields": [
+    {
+      "field_key": "order_id",
+      "expected_status": "pending",
+      "raw_value": "SYN-WAV-0009",
+      "normalized_value": "SYN-WAV-0009",
+      "sources": [
+        {
+          "doc_id": "order_form",
+          "page": 1,
+          "location": "§1 Order identification › Order ID",
+          "raw_value": "SYN-WAV-0009"
+        },
+        {
+          "doc_id": "technical_annex",
+          "page": 1,
+          "location": "§1 Service parameters › Order ID",
+          "raw_value": "SYN-WAV-0009"
+        }
+      ]
+    },
+    {
+      "field_key": "customer_name",
+      "expected_status": "pending",
+      "raw_value": "Bank Lima (synthetic)",
+      "normalized_value": "Bank Lima (synthetic)",
+      "sources": [
+        {
+          "doc_id": "quote",
+          "page": 1,
+          "location": "§1 Quote details › Customer",
+          "raw_value": "Bank Lima (synthetic)"
+        },
+        {
+          "doc_id": "order_form",
+          "page": 1,
+          "location": "§1 Order identification › Customer",
+          "raw_value": "Bank Lima (synthetic)"
+        }
+      ]
+    },
+    {
+      "field_key": "product",
+      "expected_status": "pending",
+      "raw_value": "WAVELENGTH",
+      "normalized_value": "wavelength",
+      "sources": [
+        {
+          "doc_id": "quote",
+          "page": 1,
+          "location": "§1 Quote details › Product",
+          "raw_value": "WAVELENGTH"
+        },
+        {
+          "doc_id": "order_form",
+          "page": 1,
+          "location": "§1 Order identification › Product",
+          "raw_value": "WAVELENGTH"
+        }
+      ]
+    },
+    {
+      "field_key": "order_version",
+      "expected_status": "pending",
+      "raw_value": "2",
+      "normalized_value": "2",
+      "sources": [
+        {
+          "doc_id": "quote",
+          "page": 1,
+          "location": "header › Version",
+          "raw_value": "2"
+        },
+        {
+          "doc_id": "order_form",
+          "page": 1,
+          "location": "header › Version",
+          "raw_value": "2"
+        },
+        {
+          "doc_id": "order_form",
+          "page": 1,
+          "location": "§1 Order identification › Order version",
+          "raw_value": "2"
+        },
+        {
+          "doc_id": "technical_annex",
+          "page": 1,
+          "location": "header › Version",
+          "raw_value": "2"
+        },
+        {
+          "doc_id": "loa_cfa",
+          "page": 1,
+          "location": "header › Version",
+          "raw_value": "2"
+        }
+      ]
+    },
+    {
+      "field_key": "carrier_circuit_id",
+      "expected_status": "pending",
+      "raw_value": "ALFA-WAV-000209",
+      "normalized_value": "ALFA-WAV-000209",
+      "sources": [
+        {
+          "doc_id": "order_form",
+          "page": 1,
+          "location": "§1 Order identification › Carrier circuit ID",
+          "raw_value": "ALFA-WAV-000209"
+        }
+      ]
+    },
+    {
+      "field_key": "signature.signatory_name",
+      "expected_status": "pending",
+      "raw_value": "Robin Sample",
+      "normalized_value": "Robin Sample",
+      "sources": [
+        {
+          "doc_id": "order_form",
+          "page": 2,
+          "location": "§8 Authorized signature › Signatory name",
+          "raw_value": "Robin Sample"
+        }
+      ]
+    },
+    {
+      "field_key": "signature.signatory_title",
+      "expected_status": "pending",
+      "raw_value": "VP Network Services",
+      "normalized_value": "VP Network Services",
+      "sources": [
+        {
+          "doc_id": "order_form",
+          "page": 2,
+          "location": "§8 Authorized signature › Signatory title",
+          "raw_value": "VP Network Services"
+        }
+      ]
+    },
+    {
+      "field_key": "signature.date",
+      "expected_status": "pending",
+      "raw_value": "2026-11-07",
+      "normalized_value": "2026-11-07",
+      "sources": [
+        {
+          "doc_id": "order_form",
+          "page": 2,
+          "location": "§8 Authorized signature › Signature date",
+          "raw_value": "2026-11-07"
+        }
+      ]
+    },
+    {
+      "field_key": "signature.contract_reference",
+      "expected_status": "pending",
+      "raw_value": "MSA-SYN-2026-084 / Order Form OF-SYN-0209",
+      "normalized_value": "MSA-SYN-2026-084 / Order Form OF-SYN-0209",
+      "sources": [
+        {
+          "doc_id": "order_form",
+          "page": 2,
+          "location": "§8 Authorized signature › Contract / order form reference",
+          "raw_value": "MSA-SYN-2026-084 / Order Form OF-SYN-0209"
+        }
+      ]
+    },
+    {
+      "field_key": "a_end.address",
+      "expected_status": "pending",
+      "raw_value": "610 Prototype Way, Placeholder Heights, PH 00090",
+      "normalized_value": "610 Prototype Way, Placeholder Heights, PH 00090",
+      "sources": [
+        {
+          "doc_id": "technical_annex",
+          "page": 1,
+          "location": "§2 A end › Address",
+          "raw_value": "610 Prototype Way, Placeholder Heights, PH 00090"
+        }
+      ]
+    },
+    {
+      "field_key": "z_end.address",
+      "expected_status": "pending",
+      "raw_value": "294 Example Avenue, Demo Springs, DS 00062",
+      "normalized_value": "294 Example Avenue, Demo Springs, DS 00062",
+      "sources": [
+        {
+          "doc_id": "technical_annex",
+          "page": 2,
+          "location": "§3 Z end › Address",
+          "raw_value": "294 Example Avenue, Demo Springs, DS 00062"
+        }
+      ]
+    },
+    {
+      "field_key": "a_end.building",
+      "expected_status": "pending",
+      "raw_value": "DC-East",
+      "normalized_value": "DC-East",
+      "sources": [
+        {
+          "doc_id": "technical_annex",
+          "page": 1,
+          "location": "§2 A end › Building",
+          "raw_value": "DC-East"
+        }
+      ]
+    },
+    {
+      "field_key": "z_end.building",
+      "expected_status": "pending",
+      "raw_value": "DC-West",
+      "normalized_value": "DC-West",
+      "sources": [
+        {
+          "doc_id": "technical_annex",
+          "page": 2,
+          "location": "§3 Z end › Building",
+          "raw_value": "DC-West"
+        }
+      ]
+    },
+    {
+      "field_key": "a_end.floor",
+      "expected_status": "pending",
+      "raw_value": "1",
+      "normalized_value": "1",
+      "sources": [
+        {
+          "doc_id": "technical_annex",
+          "page": 1,
+          "location": "§2 A end › Floor",
+          "raw_value": "1"
+        }
+      ]
+    },
+    {
+      "field_key": "z_end.floor",
+      "expected_status": "pending",
+      "raw_value": "3",
+      "normalized_value": "3",
+      "sources": [
+        {
+          "doc_id": "technical_annex",
+          "page": 2,
+          "location": "§3 Z end › Floor",
+          "raw_value": "3"
+        }
+      ]
+    },
+    {
+      "field_key": "a_end.suite_or_room",
+      "expected_status": "pending",
+      "raw_value": "Suite 122",
+      "normalized_value": "Suite 122",
+      "sources": [
+        {
+          "doc_id": "technical_annex",
+          "page": 1,
+          "location": "§2 A end › Suite / room",
+          "raw_value": "Suite 122"
+        },
+        {
+          "doc_id": "loa_cfa",
+          "page": 1,
+          "location": "§1 A end › Suite / room",
+          "raw_value": "Suite 122"
+        }
+      ]
+    },
+    {
+      "field_key": "z_end.suite_or_room",
+      "expected_status": "pending",
+      "raw_value": "Suite 323",
+      "normalized_value": "Suite 323",
+      "sources": [
+        {
+          "doc_id": "technical_annex",
+          "page": 2,
+          "location": "§3 Z end › Suite / room",
+          "raw_value": "Suite 323"
+        },
+        {
+          "doc_id": "loa_cfa",
+          "page": 1,
+          "location": "§2 Z end › Suite / room",
+          "raw_value": "Suite 323"
+        }
+      ]
+    },
+    {
+      "field_key": "a_end.rack",
+      "expected_status": "pending",
+      "raw_value": "R-30",
+      "normalized_value": "R-30",
+      "sources": [
+        {
+          "doc_id": "technical_annex",
+          "page": 1,
+          "location": "§2 A end › Rack",
+          "raw_value": "R-30"
+        }
+      ]
+    },
+    {
+      "field_key": "z_end.rack",
+      "expected_status": "pending",
+      "raw_value": "R-45",
+      "normalized_value": "R-45",
+      "sources": [
+        {
+          "doc_id": "technical_annex",
+          "page": 2,
+          "location": "§3 Z end › Rack",
+          "raw_value": "R-45"
+        }
+      ]
+    },
+    {
+      "field_key": "a_end.demarcation_point",
+      "expected_status": "pending",
+      "raw_value": "Patch panel PP-5, ports 21-22",
+      "normalized_value": "Patch panel PP-5, ports 21-22",
+      "sources": [
+        {
+          "doc_id": "technical_annex",
+          "page": 1,
+          "location": "§2 A end › Demarcation point",
+          "raw_value": "Patch panel PP-5, ports 21-22"
+        },
+        {
+          "doc_id": "loa_cfa",
+          "page": 1,
+          "location": "§1 A end › Demarcation point",
+          "raw_value": "Patch panel PP-5, ports 21-22"
+        }
+      ]
+    },
+    {
+      "field_key": "z_end.demarcation_point",
+      "expected_status": "pending",
+      "raw_value": "Patch panel PP-4, ports 17-18",
+      "normalized_value": "Patch panel PP-4, ports 17-18",
+      "sources": [
+        {
+          "doc_id": "technical_annex",
+          "page": 2,
+          "location": "§3 Z end › Demarcation point",
+          "raw_value": "Patch panel PP-4, ports 17-18"
+        },
+        {
+          "doc_id": "loa_cfa",
+          "page": 1,
+          "location": "§2 Z end › Demarcation point",
+          "raw_value": "Patch panel PP-4, ports 17-18"
+        }
+      ]
+    },
+    {
+      "field_key": "a_end.data_center_operator",
+      "expected_status": "pending",
+      "raw_value": "DC Operator Delta (synthetic)",
+      "normalized_value": "DC Operator Delta (synthetic)",
+      "sources": [
+        {
+          "doc_id": "technical_annex",
+          "page": 1,
+          "location": "§2 A end › Data center operator",
+          "raw_value": "DC Operator Delta (synthetic)"
+        },
+        {
+          "doc_id": "loa_cfa",
+          "page": 1,
+          "location": "§1 A end › Data center operator",
+          "raw_value": "DC Operator Delta (synthetic)"
+        }
+      ]
+    },
+    {
+      "field_key": "z_end.data_center_operator",
+      "expected_status": "pending",
+      "raw_value": "DC Operator Tango (synthetic)",
+      "normalized_value": "DC Operator Tango (synthetic)",
+      "sources": [
+        {
+          "doc_id": "technical_annex",
+          "page": 2,
+          "location": "§3 Z end › Data center operator",
+          "raw_value": "DC Operator Tango (synthetic)"
+        },
+        {
+          "doc_id": "loa_cfa",
+          "page": 1,
+          "location": "§2 Z end › Data center operator",
+          "raw_value": "DC Operator Tango (synthetic)"
+        }
+      ]
+    },
+    {
+      "field_key": "a_end.meet_me_room",
+      "expected_status": "pending",
+      "raw_value": "MMR-2",
+      "normalized_value": "MMR-2",
+      "sources": [
+        {
+          "doc_id": "technical_annex",
+          "page": 1,
+          "location": "§2 A end › Meet-Me Room (MMR)",
+          "raw_value": "MMR-2"
+        },
+        {
+          "doc_id": "loa_cfa",
+          "page": 1,
+          "location": "§1 A end › Meet-Me Room (MMR)",
+          "raw_value": "MMR-2"
+        }
+      ]
+    },
+    {
+      "field_key": "z_end.meet_me_room",
+      "expected_status": "pending",
+      "raw_value": "MMR-B",
+      "normalized_value": "MMR-B",
+      "sources": [
+        {
+          "doc_id": "technical_annex",
+          "page": 2,
+          "location": "§3 Z end › Meet-Me Room (MMR)",
+          "raw_value": "MMR-B"
+        },
+        {
+          "doc_id": "loa_cfa",
+          "page": 1,
+          "location": "§2 Z end › Meet-Me Room (MMR)",
+          "raw_value": "MMR-B"
+        }
+      ]
+    },
+    {
+      "field_key": "a_end.cross_connect.required",
+      "expected_status": "pending",
+      "raw_value": "Yes",
+      "normalized_value": true,
+      "sources": [
+        {
+          "doc_id": "technical_annex",
+          "page": 1,
+          "location": "§2 A end › Cross-connect required",
+          "raw_value": "Yes"
+        }
+      ]
+    },
+    {
+      "field_key": "z_end.cross_connect.required",
+      "expected_status": "pending",
+      "raw_value": "Yes",
+      "normalized_value": true,
+      "sources": [
+        {
+          "doc_id": "technical_annex",
+          "page": 2,
+          "location": "§3 Z end › Cross-connect required",
+          "raw_value": "Yes"
+        }
+      ]
+    },
+    {
+      "field_key": "a_end.cross_connect.responsibility",
+      "expected_status": "pending",
+      "raw_value": "customer",
+      "normalized_value": "customer",
+      "sources": [
+        {
+          "doc_id": "order_form",
+          "page": 1,
+          "location": "§4 Cross-connect responsibility › A end cross-connect ordered by",
+          "raw_value": "customer"
+        }
+      ]
+    },
+    {
+      "field_key": "z_end.cross_connect.responsibility",
+      "expected_status": "pending",
+      "raw_value": "carrier",
+      "normalized_value": "carrier",
+      "sources": [
+        {
+          "doc_id": "order_form",
+          "page": 1,
+          "location": "§4 Cross-connect responsibility › Z end cross-connect ordered by",
+          "raw_value": "carrier"
+        }
+      ]
+    },
+    {
+      "field_key": "a_end.cross_connect.loa_cfa_reference",
+      "expected_status": "pending",
+      "raw_value": "LOA-SYN-0209-A",
+      "normalized_value": "LOA-SYN-0209-A",
+      "sources": [
+        {
+          "doc_id": "loa_cfa",
+          "page": 1,
+          "location": "§1 A end › LOA-CFA reference",
+          "raw_value": "LOA-SYN-0209-A"
+        }
+      ]
+    },
+    {
+      "field_key": "z_end.cross_connect.loa_cfa_reference",
+      "expected_status": "pending",
+      "raw_value": "LOA-SYN-0209-Z",
+      "normalized_value": "LOA-SYN-0209-Z",
+      "sources": [
+        {
+          "doc_id": "loa_cfa",
+          "page": 1,
+          "location": "§2 Z end › LOA-CFA reference",
+          "raw_value": "LOA-SYN-0209-Z"
+        }
+      ]
+    },
+    {
+      "field_key": "a_end.site_access.hours",
+      "expected_status": "pending",
+      "raw_value": "Monday to Friday, 08:00-18:00 local time",
+      "normalized_value": "Monday to Friday, 08:00-18:00 local time",
+      "sources": [
+        {
+          "doc_id": "technical_annex",
+          "page": 1,
+          "location": "§2 A end › Site access hours",
+          "raw_value": "Monday to Friday, 08:00-18:00 local time"
+        }
+      ]
+    },
+    {
+      "field_key": "z_end.site_access.hours",
+      "expected_status": "pending",
+      "raw_value": "Monday to Friday, 08:00-18:00 local time",
+      "normalized_value": "Monday to Friday, 08:00-18:00 local time",
+      "sources": [
+        {
+          "doc_id": "technical_annex",
+          "page": 2,
+          "location": "§3 Z end › Site access hours",
+          "raw_value": "Monday to Friday, 08:00-18:00 local time"
+        }
+      ]
+    },
+    {
+      "field_key": "a_end.site_access.notice_lead_time",
+      "expected_status": "pending",
+      "raw_value": "48 hours",
+      "normalized_value": "48 hours",
+      "sources": [
+        {
+          "doc_id": "technical_annex",
+          "page": 1,
+          "location": "§2 A end › Access notice lead time",
+          "raw_value": "48 hours"
+        }
+      ]
+    },
+    {
+      "field_key": "z_end.site_access.notice_lead_time",
+      "expected_status": "pending",
+      "raw_value": "72 hours",
+      "normalized_value": "72 hours",
+      "sources": [
+        {
+          "doc_id": "technical_annex",
+          "page": 2,
+          "location": "§3 Z end › Access notice lead time",
+          "raw_value": "72 hours"
+        }
+      ]
+    },
+    {
+      "field_key": "a_end.site_access.escort_required",
+      "expected_status": "pending",
+      "raw_value": "No",
+      "normalized_value": false,
+      "sources": [
+        {
+          "doc_id": "technical_annex",
+          "page": 1,
+          "location": "§2 A end › Escort required",
+          "raw_value": "No"
+        }
+      ]
+    },
+    {
+      "field_key": "z_end.site_access.escort_required",
+      "expected_status": "pending",
+      "raw_value": "Yes",
+      "normalized_value": true,
+      "sources": [
+        {
+          "doc_id": "technical_annex",
+          "page": 2,
+          "location": "§3 Z end › Escort required",
+          "raw_value": "Yes"
+        }
+      ]
+    },
+    {
+      "field_key": "a_end.technical_contact",
+      "expected_status": "pending",
+      "raw_value": "Morgan Standin, Site Engineer, morgan.standin@bank-lima.example, +1 555 0161",
+      "normalized_value": "Morgan Standin, Site Engineer, morgan.standin@bank-lima.example, +1 555 0161",
+      "sources": [
+        {
+          "doc_id": "technical_annex",
+          "page": 1,
+          "location": "§2 A end › Technical contact",
+          "raw_value": "Morgan Standin, Site Engineer, morgan.standin@bank-lima.example, +1 555 0161"
+        }
+      ]
+    },
+    {
+      "field_key": "z_end.technical_contact",
+      "expected_status": "pending",
+      "raw_value": "Taylor Specimen, Infrastructure Lead, taylor.specimen@bank-lima.example, +1 555 0118",
+      "normalized_value": "Taylor Specimen, Infrastructure Lead, taylor.specimen@bank-lima.example, +1 555 0118",
+      "sources": [
+        {
+          "doc_id": "technical_annex",
+          "page": 2,
+          "location": "§3 Z end › Technical contact",
+          "raw_value": "Taylor Specimen, Infrastructure Lead, taylor.specimen@bank-lima.example, +1 555 0118"
+        }
+      ]
+    },
+    {
+      "field_key": "escalation_contact",
+      "expected_status": "pending",
+      "raw_value": "Drew Dummy, Director of Network Delivery, drew.dummy@bank-lima.example, +1 555 0184",
+      "normalized_value": "Drew Dummy, Director of Network Delivery, drew.dummy@bank-lima.example, +1 555 0184",
+      "sources": [
+        {
+          "doc_id": "order_form",
+          "page": 2,
+          "location": "§7 Contacts › Escalation contact",
+          "raw_value": "Drew Dummy, Director of Network Delivery, drew.dummy@bank-lima.example, +1 555 0184"
+        }
+      ]
+    },
+    {
+      "field_key": "acceptance.deemed_acceptance_clause",
+      "expected_status": "pending",
+      "raw_value": "Yes",
+      "normalized_value": true,
+      "sources": [
+        {
+          "doc_id": "order_form",
+          "page": 1,
+          "location": "§5 Acceptance › Deemed-acceptance clause",
+          "raw_value": "Yes"
+        }
+      ]
+    },
+    {
+      "field_key": "acceptance.deemed_acceptance_period",
+      "expected_status": "pending",
+      "raw_value": "5 business days",
+      "normalized_value": "5 business days",
+      "sources": [
+        {
+          "doc_id": "order_form",
+          "page": 1,
+          "location": "§5 Acceptance › Deemed-acceptance period",
+          "raw_value": "5 business days"
+        }
+      ]
+    },
+    {
+      "field_key": "dates.requested",
+      "expected_status": "pending",
+      "raw_value": "2027-02-22",
+      "normalized_value": "2027-02-22",
+      "sources": [
+        {
+          "doc_id": "quote",
+          "page": 1,
+          "location": "§1 Quote details › Requested service date",
+          "raw_value": "22 February 2027"
+        },
+        {
+          "doc_id": "order_form",
+          "page": 1,
+          "location": "§6 Dates › Requested date",
+          "raw_value": "2027-02-22"
+        }
+      ]
+    },
+    {
+      "field_key": "dates.forecast",
+      "expected_status": "pending",
+      "raw_value": null,
+      "normalized_value": null,
+      "sources": []
+    },
+    {
+      "field_key": "dates.committed",
+      "expected_status": "pending",
+      "raw_value": null,
+      "normalized_value": null,
+      "sources": []
+    },
+    {
+      "field_key": "rate",
+      "expected_status": "pending",
+      "raw_value": "100 Gbps",
+      "normalized_value": {
+        "value": 100000,
+        "unit": "Mbps"
+      },
+      "sources": [
+        {
+          "doc_id": "quote",
+          "page": 1,
+          "location": "§1 Quote details › Rate",
+          "raw_value": "100 Gbps"
+        },
+        {
+          "doc_id": "order_form",
+          "page": 1,
+          "location": "§2 Service › Rate",
+          "raw_value": "100 Gbps"
+        },
+        {
+          "doc_id": "technical_annex",
+          "page": 1,
+          "location": "§1 Service parameters › Rate",
+          "raw_value": "100 Gbps"
+        }
+      ]
+    },
+    {
+      "field_key": "client_protocol",
+      "expected_status": "pending",
+      "raw_value": "Ethernet",
+      "normalized_value": "ethernet",
+      "sources": [
+        {
+          "doc_id": "quote",
+          "page": 1,
+          "location": "§1 Quote details › Client protocol",
+          "raw_value": "Ethernet"
+        },
+        {
+          "doc_id": "order_form",
+          "page": 1,
+          "location": "§2 Service › Client protocol",
+          "raw_value": "Ethernet"
+        },
+        {
+          "doc_id": "technical_annex",
+          "page": 1,
+          "location": "§1 Service parameters › Client protocol",
+          "raw_value": "Ethernet"
+        }
+      ]
+    },
+    {
+      "field_key": "a_end.interface.client_interface",
+      "expected_status": "pending",
+      "raw_value": "100GBASE-LR4",
+      "normalized_value": "100GBASE-LR4",
+      "sources": [
+        {
+          "doc_id": "order_form",
+          "page": 1,
+          "location": "§3 Handoff interface › A end client interface",
+          "raw_value": "100GBASE-LR4"
+        },
+        {
+          "doc_id": "technical_annex",
+          "page": 1,
+          "location": "§2 A end › Client interface",
+          "raw_value": "100GBASE-LR4"
+        }
+      ]
+    },
+    {
+      "field_key": "z_end.interface.client_interface",
+      "expected_status": "pending",
+      "raw_value": "100GBASE-LR4",
+      "normalized_value": "100GBASE-LR4",
+      "sources": [
+        {
+          "doc_id": "order_form",
+          "page": 1,
+          "location": "§3 Handoff interface › Z end client interface",
+          "raw_value": "100GBASE-LR4"
+        },
+        {
+          "doc_id": "technical_annex",
+          "page": 2,
+          "location": "§3 Z end › Client interface",
+          "raw_value": "100GBASE-LR4"
+        }
+      ]
+    },
+    {
+      "field_key": "a_end.interface.optic",
+      "expected_status": "pending",
+      "raw_value": "QSFP28",
+      "normalized_value": "QSFP28",
+      "sources": [
+        {
+          "doc_id": "order_form",
+          "page": 1,
+          "location": "§3 Handoff interface › A end optic",
+          "raw_value": "QSFP28"
+        },
+        {
+          "doc_id": "technical_annex",
+          "page": 1,
+          "location": "§2 A end › Optic",
+          "raw_value": "QSFP28"
+        }
+      ]
+    },
+    {
+      "field_key": "z_end.interface.optic",
+      "expected_status": "pending",
+      "raw_value": "QSFP28",
+      "normalized_value": "QSFP28",
+      "sources": [
+        {
+          "doc_id": "order_form",
+          "page": 1,
+          "location": "§3 Handoff interface › Z end optic",
+          "raw_value": "QSFP28"
+        },
+        {
+          "doc_id": "technical_annex",
+          "page": 2,
+          "location": "§3 Z end › Optic",
+          "raw_value": "QSFP28"
+        }
+      ]
+    },
+    {
+      "field_key": "a_end.interface.optic_reach",
+      "expected_status": "pending",
+      "raw_value": "LR4",
+      "normalized_value": "LR4",
+      "sources": [
+        {
+          "doc_id": "technical_annex",
+          "page": 1,
+          "location": "§2 A end › Optic reach",
+          "raw_value": "LR4"
+        }
+      ]
+    },
+    {
+      "field_key": "z_end.interface.optic_reach",
+      "expected_status": "pending",
+      "raw_value": "LR4",
+      "normalized_value": "LR4",
+      "sources": [
+        {
+          "doc_id": "technical_annex",
+          "page": 2,
+          "location": "§3 Z end › Optic reach",
+          "raw_value": "LR4"
+        }
+      ]
+    },
+    {
+      "field_key": "a_end.interface.connector",
+      "expected_status": "pending",
+      "raw_value": "LC/UPC duplex",
+      "normalized_value": "LC/UPC duplex",
+      "sources": [
+        {
+          "doc_id": "technical_annex",
+          "page": 1,
+          "location": "§2 A end › Connector",
+          "raw_value": "LC/UPC duplex"
+        }
+      ]
+    },
+    {
+      "field_key": "z_end.interface.connector",
+      "expected_status": "pending",
+      "raw_value": "LC/UPC duplex",
+      "normalized_value": "LC/UPC duplex",
+      "sources": [
+        {
+          "doc_id": "technical_annex",
+          "page": 2,
+          "location": "§3 Z end › Connector",
+          "raw_value": "LC/UPC duplex"
+        }
+      ]
+    },
+    {
+      "field_key": "fec",
+      "expected_status": "not_applicable",
+      "raw_value": null,
+      "normalized_value": null,
+      "sources": [
+        {
+          "doc_id": "technical_annex",
+          "page": 1,
+          "location": "§1 Service parameters › FEC (Forward Error Correction)",
+          "raw_value": "Not applicable"
+        }
+      ]
+    },
+    {
+      "field_key": "protection.type",
+      "expected_status": "pending",
+      "raw_value": "unprotected",
+      "normalized_value": "unprotected",
+      "sources": [
+        {
+          "doc_id": "order_form",
+          "page": 1,
+          "location": "§2 Service › Protection",
+          "raw_value": "unprotected"
+        }
+      ]
+    },
+    {
+      "field_key": "protection.switching_time",
+      "expected_status": "not_applicable",
+      "raw_value": null,
+      "normalized_value": null,
+      "sources": [
+        {
+          "doc_id": "order_form",
+          "page": 1,
+          "location": "§2 Service › Protection switching time",
+          "raw_value": "Not applicable"
+        }
+      ]
+    },
+    {
+      "field_key": "route_diversity.required",
+      "expected_status": "pending",
+      "raw_value": "No",
+      "normalized_value": false,
+      "sources": [
+        {
+          "doc_id": "order_form",
+          "page": 1,
+          "location": "§2 Service › Route diversity required",
+          "raw_value": "No"
+        }
+      ]
+    },
+    {
+      "field_key": "route_diversity.reference_circuit_ids",
+      "expected_status": "not_applicable",
+      "raw_value": null,
+      "normalized_value": null,
+      "sources": [
+        {
+          "doc_id": "order_form",
+          "page": 1,
+          "location": "§2 Service › Diverse from circuit IDs",
+          "raw_value": "Not applicable"
+        }
+      ]
+    },
+    {
+      "field_key": "route_diversity.required_evidence",
+      "expected_status": "not_applicable",
+      "raw_value": null,
+      "normalized_value": null,
+      "sources": [
+        {
+          "doc_id": "order_form",
+          "page": 1,
+          "location": "§2 Service › Diversity evidence required",
+          "raw_value": "Not applicable"
+        }
+      ]
+    },
+    {
+      "field_key": "latency.max",
+      "expected_status": "not_applicable",
+      "raw_value": null,
+      "normalized_value": null,
+      "sources": [
+        {
+          "doc_id": "order_form",
+          "page": 1,
+          "location": "§2 Service › Maximum latency",
+          "raw_value": "Not applicable"
+        }
+      ]
+    },
+    {
+      "field_key": "latency.definition",
+      "expected_status": "not_applicable",
+      "raw_value": null,
+      "normalized_value": null,
+      "sources": [
+        {
+          "doc_id": "order_form",
+          "page": 1,
+          "location": "§2 Service › Latency definition",
+          "raw_value": "Not applicable"
+        }
+      ]
+    },
+    {
+      "field_key": "latency.measurement_method",
+      "expected_status": "not_applicable",
+      "raw_value": null,
+      "normalized_value": null,
+      "sources": [
+        {
+          "doc_id": "order_form",
+          "page": 1,
+          "location": "§2 Service › Latency measurement method",
+          "raw_value": "Not applicable"
+        }
+      ]
+    },
+    {
+      "field_key": "acceptance.ber_test",
+      "expected_status": "pending",
+      "raw_value": "BER no worse than 1E-12",
+      "normalized_value": "BER no worse than 1E-12",
+      "sources": [
+        {
+          "doc_id": "order_form",
+          "page": 1,
+          "location": "§5 Acceptance › BER test",
+          "raw_value": "BER no worse than 1E-12"
+        }
+      ]
+    },
+    {
+      "field_key": "acceptance.ber_test_duration",
+      "expected_status": "pending",
+      "raw_value": "24 hours",
+      "normalized_value": "24 hours",
+      "sources": [
+        {
+          "doc_id": "order_form",
+          "page": 1,
+          "location": "§5 Acceptance › BER test duration",
+          "raw_value": "24 hours"
+        }
+      ]
+    }
+  ],
+  "expected_findings": [],
+  "expected_gate": {
+    "gate": "G1",
+    "recommendation": "pass",
+    "blocking_finding_ids": []
+  },
+  "expected_later_gates": [],
+  "expected_dates": [
+    {
+      "doc_id": "quote",
+      "page": 1,
+      "location": "§1 Quote details › Requested service date",
+      "raw_value": "22 February 2027",
+      "date": "2027-02-22",
+      "type": "requested",
+      "scope": "order",
+      "is_commitment": false,
+      "mandatory_case": null,
+      "note": "Customer requested date."
+    },
+    {
+      "doc_id": "order_form",
+      "page": 1,
+      "location": "§6 Dates › Requested date",
+      "raw_value": "2027-02-22",
+      "date": "2027-02-22",
+      "type": "requested",
+      "scope": "order",
+      "is_commitment": false,
+      "mandatory_case": null,
+      "note": "Customer requested date."
+    }
+  ],
+  "expected_dependencies": [],
+  "expected_version_change": {
+    "previous_version_no": 1,
+    "previous_gate_recommendation": "pass",
+    "changed_fields": [
+      {
+        "field_key": "signature.date",
+        "previous": "2026-11-01",
+        "current": "2026-11-07"
+      },
+      {
+        "field_key": "rate",
+        "previous": "10 Gbps",
+        "current": "100 Gbps"
+      },
+      {
+        "field_key": "a_end.interface.client_interface",
+        "previous": "10GBASE-LR",
+        "current": "100GBASE-LR4"
+      },
+      {
+        "field_key": "z_end.interface.client_interface",
+        "previous": "10GBASE-LR",
+        "current": "100GBASE-LR4"
+      },
+      {
+        "field_key": "a_end.interface.optic",
+        "previous": "SFP+",
+        "current": "QSFP28"
+      },
+      {
+        "field_key": "z_end.interface.optic",
+        "previous": "SFP+",
+        "current": "QSFP28"
+      },
+      {
+        "field_key": "a_end.interface.optic_reach",
+        "previous": "LR",
+        "current": "LR4"
+      },
+      {
+        "field_key": "z_end.interface.optic_reach",
+        "previous": "LR",
+        "current": "LR4"
+      }
+    ],
+    "reopened_validations": [
+      "signature.date",
+      "rate",
+      "a_end.interface.client_interface",
+      "z_end.interface.client_interface",
+      "a_end.interface.optic",
+      "z_end.interface.optic",
+      "a_end.interface.optic_reach",
+      "z_end.interface.optic_reach"
+    ],
+    "milestone_impact_expected": true,
+    "milestone_impact_note": "A 100G port and different optics are needed; design, provisioning and test milestones must be re-planned."
+  },
+  "shared_resources": [],
+  "adversarial": null,
+  "seeded_defects": [
+    {
+      "defect_type": "modified_after_validation",
+      "field": null,
+      "description": "Version 1 passed G1. Version 2 changes the rate and the client interface; only the validations of the changed fields are reopened."
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "entities/evidence.schema.json",
+  "title": "evidence",
+  "description": "Test result or acceptance proof (D15).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "tenant_id",
+    "service_order_id",
+    "kind",
+    "covers_requirement",
+    "is_synthetic"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "tenant_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "service_order_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "kind": {
+      "enum": [
+        "test_result",
+        "acceptance",
+        "other"
+      ]
+    },
+    "document_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid"
+    },
+    "covers_requirement": {
+      "type": "string"
+    },
+    "verified_by": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "is_synthetic": {
+      "type": "boolean",
+      "description": "True for every synthetic row (CLAUDE.md rule 3)."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

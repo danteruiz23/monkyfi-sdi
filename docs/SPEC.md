@@ -1,6 +1,6 @@
 # Monkyfi Service Delivery Intelligence — SPEC
 
-Version 1.1 · 2026-11-09 · Owner: Dante Ruiz · Status: approved by Dante on 2026-11-09 (Phase 0 done); v1.1 applies amendments D19–D23; Phase 1 partially done (see `docs/HANDOFF.md`)
+Version 1.2 · 2026-11-09 · Owner: Dante Ruiz · Status: approved by Dante on 2026-11-09 (Phase 0 done); v1.1 applies amendments D19–D23; v1.2 applies D25–D32 (review of the two example orders); Phase 1 done (D33; see `docs/HANDOFF.md`)
 
 This is the single source of truth for the build plan. It is `docs/PRD.md` (v0.1) with the 11 improvements from `docs/REVIEW.md` applied and the definitions from `docs/DEFINITIONS.md` incorporated. Section 18 maps each improvement to where it lands.
 
@@ -167,6 +167,8 @@ Availability of orders and annexes; authorized owner of each data item; source s
 | G4: accepted | Acceptance evidence per contract | Authorized customer and carrier representatives | 6 |
 | G5: closure | Observation complete, pending items handled, NOC handover | SDM / operations | Post-demo |
 
+**G1 pass rule (Decided: D28).** G1 passes when the critical fields are consistent across their authoritative sources, with no missing or contradictory values. G1 does **not** require a field to be `verified`: a consistent, extracted value is `pending` until its data owner verifies it, and `pending` is enough to pass. Every missing or contradictory field raises a finding; the finding blocks G1 when its severity is critical (8.3), and lower severities are reported without blocking (this reading of "critical fields" is Proposed — section 17). Machine-readable form: `rules/gates.json`.
+
 The agent may recommend blocking or advancing; the official transition depends on the carrier's permissions and authority policy. A human override requires reason, approver and a record; it does not delete the original discrepancy.
 
 ---
@@ -254,6 +256,8 @@ Names are in English because they are Supabase tables. Every table carries `tena
 
 Deferred: `hypercare_event` (with UC09). Site is not a separate entity; site data are `field_value` rows on `endpoint`.
 
+**As built in Phase 1.** One JSON Schema per entity in `schemas/entities/` and one migration in `supabase/migrations/`; a test checks that they agree. Every foreign key includes `tenant_id`, so a row cannot reference another tenant's row. `approval` and `audit_event` are append-only. Fields added beyond the table above (Proposed): `service_order.blocked_reason / blocked_since / blocked_owner`; `finding.service_order_id / order_version_id`; `milestone.is_critical / forecast_status`; `dependency.service_order_id / description`; `communication.approval_id / channel_confirmation`; `approval.entity_id`; `audit_event.entity_id`. Database checks enforce: no `field_value` with a value and no source; no forecast date without assumptions; no committed date without an approval; no communication `approved` or `sent` without an approval, and none `sent` without channel confirmation; no override without a reason.
+
 **Segregation (Decided: D16).** RLS by `tenant_id`, tested with a second synthetic tenant. Within a tenant, customer-level scoping is enforced by validators (a document naming another customer is a finding) and by the audience filter in communications.
 
 ### 8.2 `field_value`: the value-with-source
@@ -282,6 +286,8 @@ No order data is stored loose.
 
 Severity is configurable per rule in `rules/`. A critical finding blocks a pass recommendation at its gate.
 
+The severity of a missing field is set per field (`missing_severity` in `rules/fields.*.json`); these values are accepted as defaults (Decided: D29). A contradictory field takes the same severity as a missing one (Proposed). Route diversity required without a reference circuit is critical (Decided: D27).
+
 ### 8.4 Critical fields per product (Validated by Dante: D19)
 
 Machine-readable form: `rules/fields.common.json`, `rules/fields.epl.json`, `rules/fields.wavelength.json`. "(conditional)" means the field is required only when its condition holds; otherwise it is recorded as `not_applicable`, never silently omitted.
@@ -297,14 +303,14 @@ Machine-readable form: `rules/fields.common.json`, `rules/fields.epl.json`, `rul
 | Site access (per end) | Access hours, notice lead time, escort required |
 | Contacts by role | Technical contact at A, technical contact at Z, escalation contact |
 | Acceptance terms | Required tests; deemed-acceptance clause and its period |
-| Dates | Requested; forecast (with assumptions); committed (with its approval). "FOC date" is extracted as committed date |
+| Dates | Requested; forecast (with assumptions); committed (with its approval). "FOC date" is extracted as committed date. Only the carrier's commitment to the customer is the order's committed date; a supplier's FOC stays on the supplier dependency (Decided: D26) |
 
 **EPL only**
 
 | Group | Fields |
 |---|---|
 | Capacity | Port speed and CIR, stored as separate fields |
-| Interface | Handoff interface type, optic, connector, fiber type (single-mode / multimode), optic wavelength (1310 / 1550 nm) |
+| Interface (**per end**: A and Z can differ — Decided: D25) | Handoff interface type, optic, connector; fiber type (single-mode / multimode) and optic wavelength (1310 / 1550 nm), also per end because they follow the optic (Proposed) |
 | Parameters | MTU; VLAN (conditional: only if the contract requires it — EPL is normally port-based); L2CP transparency, e.g. LACP pass-through (conditional) |
 | Acceptance test | RFC 2544 or ITU-T Y.1564 |
 
@@ -313,7 +319,8 @@ Machine-readable form: `rules/fields.common.json`, `rules/fields.epl.json`, `rul
 | Group | Fields |
 |---|---|
 | Capacity | Rate (10G / 100G / 400G) and client protocol (Ethernet or OTN) |
-| Interface | Client interface (e.g. 100GBASE-LR4 or OTU4), optic, optic reach (e.g. LR4, ER4, ZR), connector; FEC (conditional: when the client protocol is OTN) |
+| Interface (**per end**: A and Z can differ — Decided: D25) | Client interface (e.g. 100GBASE-LR4 or OTU4), optic, optic reach (e.g. LR4, ER4, ZR), connector |
+| Service parameter | FEC (conditional: when the client protocol is OTN) |
 | Protection | Protected / unprotected; protection switching time (conditional: when protected) |
 | Route diversity | Required or not; when required, the circuit IDs it must be diverse from and the required evidence (e.g. route map). **Diversity without a reference is a finding** |
 | Latency (conditional: if contracted) | Maximum latency, definition (one-way or round-trip), measurement method |
@@ -366,9 +373,13 @@ Total: **44 orders** — 36 in the split plus 8 adversarial.
 
 **Split:** 24 development and 12 evaluation orders, separated by customer so the agent never sees evaluation customers during development. The 3-wavelength project stays whole on one side.
 
-**Package per order:** quote, signed order form (PDF), technical annex with A/Z sites, LOA-CFA when applicable, and 1 to 3 emails. Orders with a version change carry v1 and v2.
+**Package per order (Decided: D31):** every package has the full set — quote, signed order form, technical annex with A/Z sites, LOA-CFA when applicable, and 1 to 3 emails. Orders with a version change carry v1 and v2. Orders that test delivery and acceptance (cases 9, 15, 16) add a test report.
 
-**Golden labels per order (one JSON next to the documents):** expected value of every critical field with its source location; expected findings with field, severity and conflicting values; expected G1 recommendation; and the type of each date.
+**Format (Decided: D30):** every document is a PDF, and Phase 2 extraction is evaluated on the PDFs. A Markdown copy of each document is kept next to it for review and diffs only.
+
+**As built:** 44 orders, 48 order versions, 259 PDFs. At least 3 orders have different handoffs at A and Z, and in one of them that difference is the seeded defect (D25).
+
+**Golden labels per order version (one JSON next to the documents):** expected value of every critical field with its source document, page and location; expected findings with field, severity and conflicting values; expected G1 recommendation; the type of each date; and, where they apply, supplier dependencies, the fields reopened by a new version, the expected G3/G4 recommendation and the adversarial content with its forbidden outcomes.
 
 ### 11.2 Dataset rules
 
@@ -379,9 +390,9 @@ Total: **44 orders** — 36 in the split plus 8 adversarial.
 ### 11.3 Generation process (Phase 1, Proposed)
 
 1. Dante validates the critical-field list (8.4). Done: D19.
-2. Two sample orders are generated, one per product; Dante reviews them as an SDM would.
+2. Two sample orders are generated, one per product; Dante reviews them as an SDM would. Done: approved with changes (D25–D32).
 3. With the corrections, the script generates the rest.
-4. Dante reviews a sample of 6 orders (about 17% of the 36 in the split) before the phase closes.
+4. Dante reviews a sample of 6 orders (about 17% of the 36 in the split) before the phase closes. Done: `docs/PHASE1_SAMPLE.md` approved (D33).
 
 ---
 
@@ -466,12 +477,12 @@ Each session opens with `/prime phase N` and closes with `/hand-off`. A phase ca
 
 ### Phase 1 · Schemas, synthetic dataset and eval runner
 
-- **Deliverables:** JSON Schemas for the entities in 8.1; Supabase migrations with RLS; EPL and wavelength rules in `rules/`; the 44 synthetic orders with packages and golden labels; simulated event files; eval runner with a single command; `locales/` skeleton (en, es).
+- **Deliverables:** JSON Schemas for the entities in 8.1; Supabase migrations with RLS; EPL and wavelength rules in `rules/`; the 44 synthetic orders with packages (PDF, D30) and golden labels; simulated event files; eval runner with a single command; `locales/` skeleton (en, es).
 - **Exit criteria:** 100% of orders and golden labels validate against the schemas. All 16 mandatory cases have test data. 100% of documents carry the synthetic mark and 100% of rows have `is_synthetic = true`. No real company names (automated check). The eval runner executes with one command and reports per-eval denominators. Dante has approved the critical-field list and reviewed the 6-order sample.
 
 ### Phase 2 · Ingestion and extraction (UC02 partial, RF01)
 
-- **Deliverables:** PDF/DOCX reading; critical-field extraction with value, source, page, version and date; the six `field_value` statuses; the provider layer with Muse Spark 1.1 (and Gemini, only if kept — D23).
+- **Deliverables:** PDF/DOCX reading (extraction is evaluated on the dataset's PDFs, D30); critical-field extraction with value, source, page, version and date; the six `field_value` statuses; the provider layer with Muse Spark 1.1 (and Gemini, only if kept — D23).
 - **Exit criteria:** per-field accuracy reported on the eval split, with ≥95% on critical fields (Proposed). Zero values without a source. Zero invented values on clean orders. Only if Gemini is kept: the same extraction run completes on both providers with results compared.
 
 ### Phase 3 · Validators and gate G1 (UC02, UC03, RF02–RF03)
@@ -533,6 +544,9 @@ Open items for a pilot offer to a design partner: scope and duration; price or f
 ## 17. Open decisions
 
 - Whether Gemini is kept as the comparison model — Dante decides before Phase 2 (D23).
+- G1 and non-critical gaps: D28 is implemented as "a missing or contradictory field blocks G1 when its severity is critical". The alternative reading is that any missing or contradictory field in the 8.4 list blocks G1. It would change the expected G1 result of 3 orders that currently pass with a medium or high finding (SYN-EPL-0008, SYN-WAV-0011, SYN-WAV-0017).
+- Demo step 1 needs an EPL order with 3 seeded errors, while 11.1 allows one or two per order. Either one order gets a third defect or the demo shows two.
+- The migration has been parsed and checked against the schemas but not executed: there is no local Postgres. Applying it to a Supabase project needs Dante's approval.
 - Phase 2 synthetic accuracy threshold (≥95% Proposed).
 - Web framework and i18n library.
 - Commercial model (section 16).

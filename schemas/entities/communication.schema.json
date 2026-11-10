@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "entities/communication.schema.json",
+  "title": "communication",
+  "description": "Status draft for one audience. Sending is simulated in the MVP.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "tenant_id",
+    "service_order_id",
+    "audience",
+    "language",
+    "status",
+    "body",
+    "source_refs",
+    "is_synthetic"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "tenant_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "service_order_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "audience": {
+      "enum": [
+        "internal",
+        "customer",
+        "supplier"
+      ]
+    },
+    "language": {
+      "enum": [
+        "en",
+        "es"
+      ]
+    },
+    "status": {
+      "enum": [
+        "prepared",
+        "approved",
+        "sent",
+        "failed"
+      ]
+    },
+    "body": {
+      "type": "string"
+    },
+    "source_refs": {},
+    "approval_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid"
+    },
+    "channel_confirmation": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Confirmation returned by the channel; required for 'sent'."
+    },
+    "is_synthetic": {
+      "type": "boolean",
+      "description": "True for every synthetic row (CLAUDE.md rule 3)."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

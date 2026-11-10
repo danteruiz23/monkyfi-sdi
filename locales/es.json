@@ -1,0 +1,61 @@
+{
+  "app": {
+    "name": "Inteligencia de Entrega de Servicios",
+    "synthetic_mark": "SINTÉTICO — NO SON DATOS REALES"
+  },
+  "language": {
+    "en": "Inglés",
+    "es": "Español"
+  },
+  "product": {
+    "EPL": "Línea privada Ethernet (EPL)",
+    "WAVELENGTH": "Longitud de onda"
+  },
+  "date_type": {
+    "requested": "Fecha solicitada",
+    "forecast": "Fecha estimada",
+    "committed": "Fecha comprometida"
+  },
+  "field_status": {
+    "verified": "Verificado",
+    "pending": "Pendiente",
+    "missing": "Faltante",
+    "not_applicable": "No aplica",
+    "contradictory": "Contradictorio",
+    "stale": "Desactualizado"
+  },
+  "severity": {
+    "critical": "Crítica",
+    "high": "Alta",
+    "medium": "Media",
+    "info": "Informativa"
+  },
+  "gate": {
+    "G0": "G0: traspaso de preventa",
+    "G1": "G1: recepción de la orden",
+    "G2": "G2: lista para ejecución",
+    "G3": "G3: lista para entrega",
+    "G4": "G4: aceptada",
+    "G5": "G5: cierre"
+  },
+  "recommendation": {
+    "pass": "Se recomienda avanzar",
+    "block": "Se recomienda bloquear"
+  },
+  "audience": {
+    "internal": "Interno",
+    "customer": "Cliente",
+    "supplier": "Proveedor"
+  },
+  "communication_status": {
+    "prepared": "Preparado",
+    "approved": "Aprobado",
+    "sent": "Enviado",
+    "failed": "Fallido"
+  },
+  "forecast_status": {
+    "pending": "Pendiente",
+    "estimated": "Estimada",
+    "not_estimable": "No estimable"
+  }
+}

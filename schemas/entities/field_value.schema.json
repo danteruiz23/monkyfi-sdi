@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "entities/field_value.schema.json",
+  "title": "field_value",
+  "description": "A value stored with its source, version and status (SPEC 8.2). No value without a source.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "tenant_id",
+    "order_version_id",
+    "field_key",
+    "status",
+    "ingested_at",
+    "extracted_by",
+    "is_synthetic"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "tenant_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "order_version_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "endpoint_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid",
+      "description": "Set for per-end fields (a_end.*, z_end.*)."
+    },
+    "field_key": {
+      "type": "string"
+    },
+    "raw_value": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Text exactly as it appears in the source."
+    },
+    "normalized_value": {},
+    "status": {
+      "enum": [
+        "verified",
+        "pending",
+        "missing",
+        "not_applicable",
+        "contradictory",
+        "stale"
+      ]
+    },
+    "source_document_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uuid"
+    },
+    "source_location": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Page, section or cell in the source document."
+    },
+    "fact_timestamp": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time",
+      "description": "When the fact happened."
+    },
+    "ingested_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the fact arrived."
+    },
+    "extracted_by": {
+      "enum": [
+        "model",
+        "rule",
+        "human"
+      ]
+    },
+    "is_synthetic": {
+      "type": "boolean",
+      "description": "True for every synthetic row (CLAUDE.md rule 3)."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

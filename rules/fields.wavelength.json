@@ -1,15 +1,15 @@
 {
-  "rules_version": "0.1.0",
+  "rules_version": "0.2.0",
   "applies_to": ["WAVELENGTH"],
-  "status": "Field list validated by Dante (D19). authoritative_source and missing_severity are Proposed defaults.",
+  "status": "Field list validated by Dante (D19). Handoff interface fields are per endpoint (D25). missing_severity values accepted as defaults (D28); authoritative_source is a Proposed default.",
   "fields": [
     {"key": "rate", "group": "capacity", "scope": "order", "requirement": "required", "value_type": "speed", "authoritative_source": "order_form", "gate": "G1", "missing_severity": "critical"},
     {"key": "client_protocol", "group": "capacity", "scope": "order", "requirement": "required", "value_type": "enum", "enum": ["Ethernet", "OTN"], "authoritative_source": "order_form", "gate": "G1", "missing_severity": "critical"},
 
-    {"key": "interface.client_interface", "group": "interface", "scope": "order", "requirement": "required", "value_type": "string", "authoritative_source": "technical_annex", "gate": "G1", "missing_severity": "critical"},
-    {"key": "interface.optic", "group": "interface", "scope": "order", "requirement": "required", "value_type": "string", "authoritative_source": "technical_annex", "gate": "G1", "missing_severity": "critical"},
-    {"key": "interface.optic_reach", "group": "interface", "scope": "order", "requirement": "required", "value_type": "string", "authoritative_source": "technical_annex", "gate": "G1", "missing_severity": "critical", "examples": ["LR4", "ER4", "ZR"]},
-    {"key": "interface.connector", "group": "interface", "scope": "order", "requirement": "required", "value_type": "string", "authoritative_source": "technical_annex", "gate": "G1", "missing_severity": "critical"},
+    {"key": "interface.client_interface", "group": "interface", "scope": "endpoint", "requirement": "required", "value_type": "string", "authoritative_source": "technical_annex", "gate": "G1", "missing_severity": "critical"},
+    {"key": "interface.optic", "group": "interface", "scope": "endpoint", "requirement": "required", "value_type": "string", "authoritative_source": "technical_annex", "gate": "G1", "missing_severity": "critical"},
+    {"key": "interface.optic_reach", "group": "interface", "scope": "endpoint", "requirement": "required", "value_type": "string", "authoritative_source": "technical_annex", "gate": "G1", "missing_severity": "critical", "examples": ["LR4", "ER4", "ZR"]},
+    {"key": "interface.connector", "group": "interface", "scope": "endpoint", "requirement": "required", "value_type": "string", "authoritative_source": "technical_annex", "gate": "G1", "missing_severity": "critical"},
     {"key": "fec", "group": "interface", "scope": "order", "requirement": "conditional", "applies_when": {"field": "client_protocol", "equals": "OTN"}, "condition": "The client protocol is OTN", "value_type": "string", "authoritative_source": "technical_annex", "gate": "G1", "missing_severity": "critical"},
 
     {"key": "protection.type", "group": "protection", "scope": "order", "requirement": "required", "value_type": "enum", "enum": ["protected", "unprotected"], "authoritative_source": "order_form", "gate": "G1", "missing_severity": "critical"},

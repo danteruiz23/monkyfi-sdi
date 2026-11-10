@@ -1,0 +1,179 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "prediction.schema.json",
+  "title": "Agent output for one version of one order, as scored by the eval runner",
+  "description": "Proposed. The agent (Phase 2 onward) writes one prediction.json per order version; evals/run.py compares it with golden.json. Sections the agent does not produce yet are omitted and reported as not run.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "external_order_id",
+    "version_no"
+  ],
+  "properties": {
+    "external_order_id": {
+      "type": "string"
+    },
+    "version_no": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "fields": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "field_key",
+          "status",
+          "normalized_value",
+          "source_doc_id"
+        ],
+        "properties": {
+          "field_key": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "verified",
+              "pending",
+              "missing",
+              "not_applicable",
+              "contradictory",
+              "stale"
+            ]
+          },
+          "raw_value": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "normalized_value": {},
+          "source_doc_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "source_page": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "source_location": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "field_key",
+          "severity"
+        ],
+        "properties": {
+          "field_key": {
+            "type": "string"
+          },
+          "rule_id": {
+            "type": "string"
+          },
+          "severity": {
+            "enum": [
+              "critical",
+              "high",
+              "medium",
+              "info"
+            ]
+          },
+          "escalated": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "gate",
+        "recommendation"
+      ],
+      "properties": {
+        "gate": {
+          "const": "G1"
+        },
+        "recommendation": {
+          "enum": [
+            "pass",
+            "block"
+          ]
+        }
+      }
+    },
+    "dates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "doc_id",
+          "date",
+          "type",
+          "scope"
+        ],
+        "properties": {
+          "doc_id": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "type": {
+            "enum": [
+              "requested",
+              "forecast",
+              "committed"
+            ]
+          },
+          "scope": {
+            "enum": [
+              "order",
+              "supplier_dependency"
+            ]
+          }
+        }
+      }
+    },
+    "reopened_validations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "security": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "flagged_untrusted_content": {
+          "type": "boolean"
+        },
+        "forbidden_outcomes_observed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

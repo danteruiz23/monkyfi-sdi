@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "entities/gate_evaluation.schema.json",
+  "title": "gate_evaluation",
+  "description": "The agent's recommendation at a gate. A human decides.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "tenant_id",
+    "order_version_id",
+    "gate",
+    "recommendation",
+    "unmet_requirements",
+    "evaluated_at",
+    "is_synthetic"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "tenant_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "order_version_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "gate": {
+      "enum": [
+        "G0",
+        "G1",
+        "G2",
+        "G3",
+        "G4",
+        "G5"
+      ]
+    },
+    "recommendation": {
+      "enum": [
+        "pass",
+        "block"
+      ]
+    },
+    "unmet_requirements": {},
+    "evaluated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "is_synthetic": {
+      "type": "boolean",
+      "description": "True for every synthetic row (CLAUDE.md rule 3)."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

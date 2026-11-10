@@ -1,7 +1,7 @@
 {
-  "rules_version": "0.1.0",
+  "rules_version": "0.2.0",
   "applies_to": ["EPL", "WAVELENGTH"],
-  "status": "Field list validated by Dante (D19). authoritative_source and missing_severity are Proposed defaults.",
+  "status": "Field list validated by Dante (D19). missing_severity values accepted as defaults (D28); authoritative_source is a Proposed default.",
   "notes": [
     "scope=endpoint fields are stored once per end, as a_end.<key> and z_end.<key>.",
     "requirement=conditional fields are required only when applies_when holds (or, when applies_when is null, when the contract requires them). Otherwise they are recorded as not_applicable, never omitted.",

@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "entities/document.schema.json",
+  "title": "document",
+  "description": "Each file in an order package.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "tenant_id",
+    "order_version_id",
+    "doc_type",
+    "filename",
+    "file_hash",
+    "ingested_at",
+    "is_synthetic"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "tenant_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "order_version_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "doc_type": {
+      "enum": [
+        "quote",
+        "order_form",
+        "technical_annex",
+        "loa_cfa",
+        "email",
+        "test_report",
+        "other"
+      ]
+    },
+    "filename": {
+      "type": "string"
+    },
+    "file_hash": {
+      "type": "string",
+      "description": "SHA-256 of the file."
+    },
+    "ingested_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "is_synthetic": {
+      "type": "boolean",
+      "description": "True for every synthetic row (CLAUDE.md rule 3)."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

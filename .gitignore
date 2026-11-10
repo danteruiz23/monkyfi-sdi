@@ -45,3 +45,6 @@ evals/results/
 .DS_Store
 .idea/
 .vscode/
+
+# Generated database rows (rebuild with data/synthetic/seed.py)
+data/synthetic/seed/

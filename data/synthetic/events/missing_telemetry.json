@@ -1,0 +1,65 @@
+{
+  "synthetic": true,
+  "synthetic_mark": "SYNTHETIC — NOT REAL DATA",
+  "event_set_id": "missing_telemetry",
+  "mandatory_case": 10,
+  "title": "Missing telemetry",
+  "description": "After acceptance, the telemetry feed for SYN-WAV-0004 delivers no samples for part of the observation window.",
+  "events": [
+    {
+      "event_id": "EVT-SYN-0201",
+      "idempotency_key": "telemetry:ALFA-WAV-000204:2027-03-01",
+      "type": "telemetry_window",
+      "service_order": "SYN-WAV-0004",
+      "source": "telemetry",
+      "occurred_at": "2027-03-01T00:00:00Z",
+      "received_at": "2027-03-02T00:05:00Z",
+      "payload": {
+        "window_hours": 24,
+        "samples_expected": 288,
+        "samples_received": 288,
+        "alarms": 0
+      }
+    },
+    {
+      "event_id": "EVT-SYN-0202",
+      "idempotency_key": "telemetry:ALFA-WAV-000204:2027-03-02",
+      "type": "telemetry_window",
+      "service_order": "SYN-WAV-0004",
+      "source": "telemetry",
+      "occurred_at": "2027-03-02T00:00:00Z",
+      "received_at": "2027-03-03T00:05:00Z",
+      "payload": {
+        "window_hours": 24,
+        "samples_expected": 288,
+        "samples_received": 0,
+        "alarms": 0
+      }
+    },
+    {
+      "event_id": "EVT-SYN-0203",
+      "idempotency_key": "telemetry:ALFA-WAV-000204:2027-03-03",
+      "type": "telemetry_window",
+      "service_order": "SYN-WAV-0004",
+      "source": "telemetry",
+      "occurred_at": "2027-03-03T00:00:00Z",
+      "received_at": "2027-03-04T00:05:00Z",
+      "payload": {
+        "window_hours": 24,
+        "samples_expected": 288,
+        "samples_received": 0,
+        "alarms": 0
+      }
+    }
+  ],
+  "expected": {
+    "coverage": "unknown",
+    "windows_without_data": [
+      "2027-03-02",
+      "2027-03-03"
+    ],
+    "stability_claim_allowed": false,
+    "duplicated_external_effects": 0,
+    "notes": "Zero alarms with zero samples is unknown coverage, not a stable service. The gap is reported and stability is not asserted for those days."
+  }
+}
