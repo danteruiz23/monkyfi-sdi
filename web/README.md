@@ -39,3 +39,7 @@ whole folder at once.
 Every user-facing string comes from `locales/` (`lib/i18n.ts`); a missing key is an error. Field keys,
 file names and rule ids are data and are shown as they are. The view runs locally only; deployment
 on Vercel and the rest of the web view are Phase 8.
+
+## Phase 4 view
+
+Order detail adds, in this order: delivery progress as one line with three spans (Before / Service delivery — SDM scope / After) with the service delivery percentage first and end to end second (D68); the G2 card; the plan (milestones, dependencies, shared resources, supplier inputs, delivery forecast); the critical fields panel with "Pending confirmation" collapsed and grouped by field group (D50). `npm run render-check` checks all of it against `plan.json`, `validation.json` and `extraction.json`, in English and Spanish.

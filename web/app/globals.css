@@ -125,6 +125,13 @@ td > .badge:first-child, p > .badge:first-child { margin-left: 0; }
 .progress-value { font-size: 17px; font-weight: 700; margin: 0 0 6px; }
 .bar { height: 12px; background: var(--neutral-bg); border-radius: 999px; overflow: hidden; }
 .bar-fill { height: 100%; background: var(--ok); border-radius: 999px; }
+/* D68: one line, three spans; Service delivery (SDM scope) is the primary span. */
+.span-bar { display: flex; gap: 4px; align-items: flex-end; margin: 8px 0; }
+.span { flex-basis: 0; min-width: 0; }
+.span-label { display: block; font-size: 0.75rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.span-service_delivery .span-label { color: inherit; font-weight: 600; }
+.span-service_delivery .bar { height: 14px; }
+.span-before .bar, .span-after .bar { height: 8px; opacity: 0.7; }
 .stages {
   list-style: none; padding: 0; margin: 12px 0;
   display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px;
@@ -163,3 +170,8 @@ div.bucket-needs_action h3 { margin-top: 0; font-size: 17px; }
 .compact li { padding: 3px 0; border-bottom: 1px solid var(--line); }
 
 .block { display: block; }
+
+/* D50: the pending block is collapsed by default and grouped by field group. */
+details.bucket > summary { cursor: pointer; list-style: revert; }
+details.bucket > summary h3 { display: inline; }
+.field-group h4 { margin: 12px 0 4px; }

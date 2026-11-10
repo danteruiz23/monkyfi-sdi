@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { loadVersion, stageRules, versionsOf } from "@/lib/data";
+import { STAGE_SCOPES, loadVersion, stageRules, versionsOf } from "@/lib/data";
 import { isLanguage, translator } from "@/lib/i18n";
 import {
   BUCKETS,
   capacityOf,
   customerOf,
   fieldBuckets,
+  groupFields,
   isApprovedCommitment,
   keyDate,
   openFindings,
@@ -16,6 +17,7 @@ import {
   severityCounts,
 } from "@/lib/model";
 import { GateBadge, SeverityBadge, SeverityCounts } from "@/lib/ui";
+import { PlanSection } from "./PlanSection";
 
 export const dynamic = "force-dynamic";
 
@@ -52,6 +54,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
   const change = validation.version_change;
   const decision = validation.gate.human_decision;
   const buckets = fieldBuckets(extraction);
+  const pendingGroups = groupFields(buckets.pending, extraction.product);
   const blockers = otherBlockers(order);
   const actions = (order.plan?.actions ?? []).filter((a) => a.status === "open");
   const needsActionCount = buckets.needs_action.length + blockers.length;
@@ -106,18 +109,40 @@ export default async function OrderPage({ params, searchParams }: Props) {
 
       <section className="card" data-testid="progress">
         <h2>{t("ui.progress_title")}</h2>
-        <p className="progress-value">
-          {t("ui.progress_value", { done: progress.done, total: progress.total, percent: progress.percent })}
-        </p>
-        <div
-          className="bar"
-          role="progressbar"
-          aria-valuemin={0}
-          aria-valuemax={progress.total}
-          aria-valuenow={progress.done}
-          aria-label={t("ui.progress_title")}
+        <p
+          className="progress-value"
+          data-progress="service_delivery"
+          data-done={progress.scopes.service_delivery.done}
+          data-total={progress.scopes.service_delivery.total}
         >
-          <div className="bar-fill" style={{ width: `${progress.percent}%` }} />
+          {t("ui.progress_service_delivery", {
+            done: progress.scopes.service_delivery.done,
+            total: progress.scopes.service_delivery.total,
+            percent: progress.scopes.service_delivery.percent,
+          })}
+        </p>
+        <p className="muted small" data-progress="end_to_end" data-done={progress.done} data-total={progress.total}>
+          {t("ui.progress_end_to_end", { done: progress.done, total: progress.total, percent: progress.percent })}
+        </p>
+        <div className="span-bar" aria-label={t("ui.progress_title")}>
+          {STAGE_SCOPES.map((scope) => {
+            const part = progress.scopes[scope];
+            return (
+              <div key={scope} className={`span span-${scope}`} style={{ flexGrow: part.total }} data-scope={scope}>
+                <span className="span-label">{t(`stage_scope.${scope}`)}</span>
+                <div
+                  className="bar"
+                  role="progressbar"
+                  aria-valuemin={0}
+                  aria-valuemax={part.total}
+                  aria-valuenow={part.done}
+                  aria-label={t(`stage_scope.${scope}`)}
+                >
+                  <div className="bar-fill" style={{ width: `${part.percent}%` }} />
+                </div>
+              </div>
+            );
+          })}
         </div>
         <ol className="stages">
           {progress.stages.map((stage) => (
@@ -317,6 +342,8 @@ export default async function OrderPage({ params, searchParams }: Props) {
           </>
         )}
       </section>
+
+      <PlanSection plan={order.plan} t={t} />
 
       <section className="card" data-testid="findings">
         <h2>{t("ui.findings_title")}</h2>
@@ -547,16 +574,22 @@ export default async function OrderPage({ params, searchParams }: Props) {
           )}
         </div>
 
-        {(["pending", "verified"] as const).map((bucket) =>
-          bucket === "verified" && buckets.verified.length === 0 ? null : (
-            <div key={bucket} id={`fields-${bucket}`} className={`bucket bucket-${bucket}`} data-bucket={bucket}>
-              <h3>
-                {t(`ui.bucket_${bucket}`)} <span className="badge neutral">{buckets[bucket].length}</span>
-              </h3>
-              <p className="muted small">{t(`ui.bucket_${bucket}_note`)}</p>
-              {buckets[bucket].length === 0 ? (
-                <p>{t("ui.bucket_empty")}</p>
-              ) : (
+        <details id="fields-pending" className="bucket bucket-pending" data-bucket="pending">
+          <summary>
+            <h3>
+              {t("ui.bucket_pending")} <span className="badge neutral">{buckets.pending.length}</span>
+            </h3>
+            <span className="muted small">{t("ui.bucket_pending_collapsed")}</span>
+          </summary>
+          <p className="muted small">{t("ui.bucket_pending_note")}</p>
+          {buckets.pending.length === 0 ? (
+            <p>{t("ui.bucket_empty")}</p>
+          ) : (
+            pendingGroups.map(([group, fields]) => (
+              <div key={group} className="field-group" data-field-group={group} data-count={fields.length}>
+                <h4>
+                  {t(`field_group.${group}`)} <span className="badge neutral">{fields.length}</span>
+                </h4>
                 <div className="table-wrap">
                   <table className="fields">
                     <thead>
@@ -567,7 +600,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
                       </tr>
                     </thead>
                     <tbody>
-                      {buckets[bucket].map((field) => (
+                      {fields.map((field) => (
                         <tr key={field.field_key} data-field={field.field_key}>
                           <td>
                             <code>{field.field_key}</code>
@@ -595,9 +628,32 @@ export default async function OrderPage({ params, searchParams }: Props) {
                     </tbody>
                   </table>
                 </div>
-              )}
+              </div>
+            ))
+          )}
+        </details>
+
+        {buckets.verified.length > 0 && (
+          <div id="fields-verified" className="bucket bucket-verified" data-bucket="verified">
+            <h3>
+              {t("ui.bucket_verified")} <span className="badge neutral">{buckets.verified.length}</span>
+            </h3>
+            <p className="muted small">{t("ui.bucket_verified_note")}</p>
+            <div className="table-wrap">
+              <table className="fields">
+                <tbody>
+                  {buckets.verified.map((field) => (
+                    <tr key={field.field_key} data-field={field.field_key}>
+                      <td>
+                        <code>{field.field_key}</code>
+                      </td>
+                      <td className="value">{field.raw_value}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          ),
+          </div>
         )}
 
         <div id="fields-not_set" className="bucket bucket-not_set" data-bucket="not_set">

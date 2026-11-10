@@ -89,6 +89,53 @@ export interface Plan {
   };
   actions?: PlanAction[];
   g2?: G2;
+  milestones?: Milestone[];
+  dependencies?: Dependency[];
+  shared_resources?: SharedResource[];
+  supplier_inputs?: { status: "complete" | "missing"; missing: string[]; delay_assessment: string };
+  delivery_forecast?: { status: string; date: string | null; reason: string | null };
+}
+export interface Milestone {
+  key: string;
+  owner: string;
+  is_critical: boolean;
+  applicability: "applies" | "not_applicable" | "unknown";
+  state: string;
+  blocked_by: string[];
+  requested_date: string | null;
+  requested_conflict: string[];
+  forecast_date: string | null;
+  forecast_status: string;
+  forecast_reason: string | null;
+  forecast_assumptions: string[];
+  committed_date: string | null;
+  commitment_approval_id: string | null;
+  committed_awaiting_approval: string | null;
+}
+export interface Dependency {
+  dependency_id: string;
+  supplier: string;
+  description: string | null;
+  source_doc_id: string;
+  supplier_date: string | null;
+  supplier_date_type: "forecast" | "committed" | null;
+  supplier_input: "complete" | "missing";
+  delay_assessment: string;
+  assumptions: string[];
+  follow_up: {
+    anchor: string | null;
+    first_follow_up_on: string | null;
+    escalation_on: string | null;
+    state: string;
+  } | null;
+}
+export interface SharedResource {
+  shared_resource_id: string;
+  kind: string;
+  state: string;
+  is_blocked: boolean;
+  linked_order_ids: string[];
+  linked_not_in_run: string[];
 }
 export interface G2Requirement {
   id: string;
@@ -127,9 +174,12 @@ export interface OrderVersion {
   validation: Validation;
   plan: Plan | null;
 }
+export type StageScope = "before" | "service_delivery" | "after";
+export const STAGE_SCOPES: StageScope[] = ["before", "service_delivery", "after"];
 export interface StageRule {
   key: string;
   weight: number;
+  scope: StageScope;
   exit_gate: string | null;
   assumed_complete?: string;
 }

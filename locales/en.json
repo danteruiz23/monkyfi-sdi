@@ -143,7 +143,8 @@
     "protection": "Protection",
     "route_diversity": "Route diversity",
     "latency": "Latency",
-    "customer_scoping": "Customer scoping"
+    "customer_scoping": "Customer scoping",
+    "other": "Other"
   },
   "ui": {
     "orders_title": "Orders",
@@ -163,7 +164,7 @@
     "current_version": "current",
     "progress_title": "Delivery progress",
     "progress_value": "{done} of {total} stages completed ({percent}%)",
-    "progress_method": "Method: completed stages ÷ {total}. Every stage has the same weight (rules/stages.json). A stage is completed only by a human decision at its gate. Parallel work inside the current stage does not change the percentage.",
+    "progress_method": "Method: completed stages ÷ stages in the span; every stage has the same weight (rules/stages.json). Service delivery is Order received through Accepted (8 stages, the SDM scope, D68); end to end counts all {total}. A stage is completed only by a human decision at its gate. Parallel work inside the current stage does not change the percentage.",
     "stage_blocked_by_gate": "Blocked: {gate} recommends block",
     "workstreams_title": "Parallel workstreams in the current stage",
     "workstreams_note": "One row per open finding or open plan action (D60). These rows do not change the percentage.",
@@ -260,7 +261,39 @@
     "gate_human_approved": "Human decision: pass, approved by {approver}. Reason: {reason}",
     "requirement_not_applicable": "Not applicable",
     "g2_records_note": "Requirements are checked against gate records (approvals, assignments, confirmations, evidence). Records are seeded synthetic data; the agent never creates one.",
-    "g2_not_evaluated": "G2 has not been evaluated for this order version."
+    "g2_not_evaluated": "G2 has not been evaluated for this order version.",
+    "progress_service_delivery": "Service delivery (SDM scope): {done} of {total} stages ({percent}%)",
+    "progress_end_to_end": "End to end: {done} of {total} stages ({percent}%)",
+    "plan_title": "Plan: milestones, dependencies and dates",
+    "plan_not_built": "No plan for this order version yet.",
+    "col_milestone": "Milestone",
+    "col_applies": "Applies",
+    "col_state": "State",
+    "col_requested": "Requested",
+    "col_forecast": "Forecast",
+    "col_committed": "Committed",
+    "supplier_inputs_complete": "Supplier inputs: complete",
+    "supplier_inputs_missing": "Supplier inputs: missing ({items}). Delay: unknown, not a delay.",
+    "delivery_forecast_not_estimable": "Delivery forecast: not estimable — {reason}",
+    "delivery_forecast_estimated": "Delivery forecast: {date} (forecast)",
+    "dependencies_title": "Supplier dependencies",
+    "dependencies_none": "No supplier dependency in the package.",
+    "col_supplier": "Supplier",
+    "col_what": "What",
+    "col_supplier_date": "Supplier date",
+    "col_supplier_input": "Supplier input",
+    "col_follow_up": "Follow-up",
+    "supplier_firm_foc": "Supplier firm FOC (dependency only)",
+    "no_supplier_date": "No date given",
+    "follow_up_dates": "first {first}, escalation {escalation}",
+    "follow_up_not_needed": "Not needed: firm FOC",
+    "shared_title": "Shared resources",
+    "shared_linked": "Linked orders: {orders}",
+    "shared_not_in_run": "not in this view: {orders}",
+    "assumptions": "Assumptions",
+    "conflict_quote": "Quote differs: {dates}",
+    "approval_record": "approval {id}",
+    "bucket_pending_collapsed": "Collapsed by default: these fields are consistent and need no action. Open to review by field group."
   },
   "milestone": {
     "intake_g1": "Order intake (G1)",
@@ -327,5 +360,31 @@
     "diversity_evidence": "No accepted diversity evidence",
     "protection_type_not_stated": "Protection type not stated",
     "protection_design_approval": "No protection design approval"
+  },
+  "stage_scope": {
+    "before": "Before",
+    "service_delivery": "Service delivery — SDM scope",
+    "after": "After"
+  },
+  "forecast_reason": {
+    "no_dated_evidence": "no dated evidence",
+    "no_standard_interval": "no standard interval (D61)",
+    "conflicting_dates": "conflicting dates",
+    "supplier_without_date": "supplier without a date"
+  },
+  "follow_up_state": {
+    "not_due": "not due yet",
+    "follow_up_due": "follow-up due",
+    "escalation_due": "escalation due",
+    "anchor_unknown": "no date to count from"
+  },
+  "shared_state": {
+    "blocked": "Blocked",
+    "cleared": "Cleared",
+    "unknown": "State unknown"
+  },
+  "supplier_input": {
+    "complete": "Complete",
+    "missing": "Missing"
   }
 }

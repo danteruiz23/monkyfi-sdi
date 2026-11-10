@@ -143,7 +143,8 @@
     "protection": "Protección",
     "route_diversity": "Diversidad de ruta",
     "latency": "Latencia",
-    "customer_scoping": "Segregación por cliente"
+    "customer_scoping": "Segregación por cliente",
+    "other": "Otros"
   },
   "ui": {
     "orders_title": "Órdenes",
@@ -163,7 +164,7 @@
     "current_version": "vigente",
     "progress_title": "Avance de la entrega",
     "progress_value": "{done} de {total} etapas completadas ({percent}%)",
-    "progress_method": "Método: etapas completadas ÷ {total}. Todas las etapas pesan lo mismo (rules/stages.json). Una etapa se completa solo con una decisión humana en su gate. El trabajo en paralelo dentro de la etapa actual no cambia el porcentaje.",
+    "progress_method": "Método: etapas completadas ÷ etapas del tramo; todas las etapas pesan lo mismo (rules/stages.json). Entrega del servicio va de Orden recibida a Aceptada (8 etapas, el alcance del SDM, D68); de punta a punta cuenta las {total}. Una etapa se completa solo con una decisión humana en su puerta. El trabajo paralelo dentro de la etapa actual no cambia el porcentaje.",
     "stage_blocked_by_gate": "Bloqueada: {gate} recomienda bloquear",
     "workstreams_title": "Frentes en paralelo en la etapa actual",
     "workstreams_note": "Una fila por hallazgo abierto o acción abierta del plan (D60). Estas filas no cambian el porcentaje.",
@@ -260,7 +261,39 @@
     "gate_human_approved": "Decisión humana: aprobado, por {approver}. Motivo: {reason}",
     "requirement_not_applicable": "No aplica",
     "g2_records_note": "Los requisitos se verifican con registros de puerta (aprobaciones, asignaciones, confirmaciones, evidencia). Los registros son datos sintéticos sembrados; el agente nunca crea uno.",
-    "g2_not_evaluated": "G2 no fue evaluada para esta versión de la orden."
+    "g2_not_evaluated": "G2 no fue evaluada para esta versión de la orden.",
+    "progress_service_delivery": "Entrega del servicio (alcance del SDM): {done} de {total} etapas ({percent}%)",
+    "progress_end_to_end": "De punta a punta: {done} de {total} etapas ({percent}%)",
+    "plan_title": "Plan: hitos, dependencias y fechas",
+    "plan_not_built": "Aún no hay plan para esta versión de la orden.",
+    "col_milestone": "Hito",
+    "col_applies": "Aplica",
+    "col_state": "Estado",
+    "col_requested": "Solicitada",
+    "col_forecast": "Estimada",
+    "col_committed": "Comprometida",
+    "supplier_inputs_complete": "Insumos del proveedor: completos",
+    "supplier_inputs_missing": "Insumos del proveedor: faltantes ({items}). Retraso: desconocido, no es un retraso.",
+    "delivery_forecast_not_estimable": "Estimación de entrega: no estimable — {reason}",
+    "delivery_forecast_estimated": "Estimación de entrega: {date} (estimada)",
+    "dependencies_title": "Dependencias de proveedor",
+    "dependencies_none": "No hay dependencias de proveedor en el paquete.",
+    "col_supplier": "Proveedor",
+    "col_what": "Qué",
+    "col_supplier_date": "Fecha del proveedor",
+    "col_supplier_input": "Insumo del proveedor",
+    "col_follow_up": "Seguimiento",
+    "supplier_firm_foc": "FOC firme del proveedor (solo la dependencia)",
+    "no_supplier_date": "Sin fecha",
+    "follow_up_dates": "primero {first}, escalamiento {escalation}",
+    "follow_up_not_needed": "No hace falta: FOC firme",
+    "shared_title": "Recursos compartidos",
+    "shared_linked": "Órdenes vinculadas: {orders}",
+    "shared_not_in_run": "no están en esta vista: {orders}",
+    "assumptions": "Supuestos",
+    "conflict_quote": "La cotización difiere: {dates}",
+    "approval_record": "aprobación {id}",
+    "bucket_pending_collapsed": "Cerrado por defecto: estos campos son consistentes y no requieren acción. Ábralo para revisarlos por grupo."
   },
   "milestone": {
     "intake_g1": "Recepción de la orden (G1)",
@@ -327,5 +360,31 @@
     "diversity_evidence": "Sin evidencia de diversidad aceptada",
     "protection_type_not_stated": "Tipo de protección no indicado",
     "protection_design_approval": "Sin aprobación del diseño de protección"
+  },
+  "stage_scope": {
+    "before": "Antes",
+    "service_delivery": "Entrega del servicio — alcance del SDM",
+    "after": "Después"
+  },
+  "forecast_reason": {
+    "no_dated_evidence": "sin evidencia con fecha",
+    "no_standard_interval": "sin intervalo estándar (D61)",
+    "conflicting_dates": "fechas en conflicto",
+    "supplier_without_date": "proveedor sin fecha"
+  },
+  "follow_up_state": {
+    "not_due": "aún no vence",
+    "follow_up_due": "seguimiento vencido",
+    "escalation_due": "escalamiento vencido",
+    "anchor_unknown": "sin fecha desde la cual contar"
+  },
+  "shared_state": {
+    "blocked": "Bloqueado",
+    "cleared": "Liberado",
+    "unknown": "Estado desconocido"
+  },
+  "supplier_input": {
+    "complete": "Completo",
+    "missing": "Faltante"
   }
 }

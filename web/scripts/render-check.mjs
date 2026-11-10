@@ -37,6 +37,24 @@ function checkCommitments(where, rawHtml, approved, lang) {
   if (labels !== all) problems.push(`${where}: "${locale(lang).date_type.committed}" appears ${labels} time(s), ${all} approved commitment(s)`);
   commitmentChecks += 1;
 }
+const stageRules = JSON.parse(fs.readFileSync(path.join(root, "rules", "stages.json"), "utf8")).stages;
+/** D68, computed here independently of the view: completed stages end to end and within the service
+ *  delivery span. A stage counts when assumed complete, when a human passed its gate (G1 in validation.json,
+ *  G2 in plan.json), or, without a gate, when a later gate was passed by a human; counting stops at the
+ *  first stage that is not complete. */
+function expectedProgress(validation, plan) {
+  const passed = new Set();
+  if (validation.gate.human_decision?.outcome === "pass") passed.add(validation.gate.gate);
+  if (plan?.g2?.human_decision?.outcome === "pass") passed.add("G2");
+  const done = [];
+  for (const [i, stage] of stageRules.entries()) {
+    const later = stageRules.slice(i + 1).some((s) => s.exit_gate && passed.has(s.exit_gate));
+    if (stage.assumed_complete || (stage.exit_gate && passed.has(stage.exit_gate)) || (!stage.exit_gate && later)) done.push(stage);
+    else break;
+  }
+  const sd = stageRules.filter((s) => s.scope === "service_delivery");
+  return { all: [done.length, stageRules.length], sd: [done.filter((s) => s.scope === "service_delivery").length, sd.length] };
+}
 const escape = (text) => String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#x27;");
 
 const server = spawn("npx", ["next", "start", "-p", String(PORT)], { stdio: "ignore" });
@@ -63,6 +81,8 @@ let awaitingShown = 0;
 let actionRows = 0;
 let sharedRows = 0;
 let g2Pages = 0;
+let progressPages = 0;
+let planPages = 0;
 for (const lang of ["en", "es"]) {
   const list = await get(`http://localhost:${PORT}/${lang}`);
   if (list.status !== 200 || !list.html.includes(mark(lang))) problems.push(`${lang} orders list: status ${list.status} or no synthetic mark`);
@@ -83,6 +103,58 @@ for (const lang of ["en", "es"]) {
       if (page.status !== 200) problems.push(`${where}: status ${page.status}`);
       if (!page.html.includes(mark(lang))) problems.push(`${where}: no synthetic mark`);
       const plan = readPlan(order, version);
+      const expected = expectedProgress(validation, plan);
+      for (const [name, [done, total]] of [["service_delivery", expected.sd], ["end_to_end", expected.all]]) {
+        const percent = Math.round((100 * done) / total);
+        const key = name === "service_delivery" ? "progress_service_delivery" : "progress_end_to_end";
+        const text = escape(locale(lang).ui[key].replace("{done}", done).replace("{total}", total).replace("{percent}", percent));
+        if (!page.html.includes(`data-progress="${name}" data-done="${done}" data-total="${total}"`) || !page.html.includes(text)) {
+          problems.push(`${where}: ${name} progress should read ${done} of ${total} (${percent}%)`);
+        }
+      }
+      if (order === "SYN-EPL-0013" && (expected.sd.join("/") !== "3/8" || expected.all.join("/") !== "4/11")) {
+        problems.push(`${where}: D68 example expects service delivery 3 of 8 and end to end 4 of 11`);
+      }
+      for (const scope of ["before", "service_delivery", "after"]) {
+        if (!page.html.includes(`data-scope="${scope}"`)) problems.push(`${where}: progress span ${scope} missing`);
+      }
+      progressPages += 1;
+
+      // D50: "Pending confirmation" is collapsed by default and grouped by field group with a count per group.
+      const pendingStart = page.html.indexOf('data-bucket="pending"');
+      const pendingTag = page.html.slice(page.html.lastIndexOf("<", pendingStart), page.html.indexOf(">", pendingStart) + 1);
+      if (!pendingTag.startsWith("<details") || /\sopen(=|\s|>)/.test(pendingTag)) problems.push(`${where}: pending block is not collapsed by default`);
+      const pendingFields = JSON.parse(fs.readFileSync(path.join(dataDir, order, version, "extraction.json"), "utf8")).fields.filter((f) => f.status === "pending" && f.raw_value !== null);
+      const groupCounts = [...page.html.matchAll(/data-field-group="(\w+)" data-count="(\d+)"/g)];
+      if (groupCounts.reduce((sum, m) => sum + Number(m[2]), 0) !== pendingFields.length) {
+        problems.push(`${where}: pending group counts do not add up to ${pendingFields.length}`);
+      }
+
+      // Plan section (step 7): every milestone with its owner; dependencies; never "estimable" wording (D62).
+      if (plan?.milestones) {
+        const section = page.html.slice(page.html.indexOf('data-testid="plan"'), page.html.indexOf('data-testid="findings"'));
+        for (const m of plan.milestones) {
+          const start = section.indexOf(`data-milestone="${m.key}"`);
+          const row = start < 0 ? "" : section.slice(start, section.indexOf("</tr>", start));
+          if (!row || !row.includes(`data-owner="${m.owner}"`) || !row.includes(escape(locale(lang).owner_role[m.owner]))) {
+            problems.push(`${where}: milestone ${m.key} is not shown with its owner`);
+          }
+          if (m.is_critical && !m.owner) problems.push(`${where}: critical milestone ${m.key} has no owner`);
+          if (m.forecast_date && !row.includes(m.forecast_date)) problems.push(`${where}: forecast of ${m.key} not shown`);
+        }
+        for (const d of plan.dependencies ?? []) {
+          if (!section.includes(`data-dependency="${d.dependency_id}" data-supplier-input="${d.supplier_input}"`)) {
+            problems.push(`${where}: dependency ${d.dependency_id} not shown with its supplier input`);
+          }
+        }
+        for (const r of plan.shared_resources ?? []) {
+          if (!section.includes(`data-shared="${r.shared_resource_id}" data-blocked="${r.is_blocked}"`)) {
+            problems.push(`${where}: shared resource ${r.shared_resource_id} not shown on this order`);
+          }
+        }
+        if (/estimable \/|"estimable"/i.test(section)) problems.push(`${where}: "estimable" wording shown (D62)`);
+        planPages += 1;
+      }
       if (plan?.g2) {
         const card = page.html.slice(page.html.indexOf('data-testid="g2"'), page.html.indexOf('data-testid="findings"'));
         const text = locale(lang);
@@ -198,7 +270,7 @@ for (const lang of ["en", "es"]) {
   }
 }
 stop();
-console.log(`SYNTHETIC — NOT REAL DATA. Render check: ${orders.join(", ")}; ${checked} finding renderings and ${blockerRows} package-level blocker rows, ${commitmentChecks} pages checked for unapproved commitments (${awaitingShown} shown awaiting approval), ${actionRows} plan action rows (${sharedRows} shared-resource rows), ${g2Pages} G2 cards, in en and es.`);
+console.log(`SYNTHETIC — NOT REAL DATA. Render check: ${orders.join(", ")}; ${checked} finding renderings and ${blockerRows} package-level blocker rows, ${commitmentChecks} pages checked for unapproved commitments (${awaitingShown} shown awaiting approval), ${actionRows} plan action rows (${sharedRows} shared-resource rows), ${g2Pages} G2 cards, ${progressPages} pages with both progress numbers, ${planPages} plan sections, in en and es.`);
 for (const problem of problems) console.log(`  - ${problem}`);
 console.log(problems.length ? "FAIL" : "PASS");
 process.exit(problems.length ? 1 : 0);

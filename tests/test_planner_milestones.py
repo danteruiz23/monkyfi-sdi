@@ -135,3 +135,14 @@ def test_every_unknown_access_milestone_has_an_engineering_action(directory):
     assert len(plan["actions"]) == sum(1 for m in plan["milestones"] if m["actions"])
     for locale in LOCALES.values():
         assert all(a["action"] in locale["plan_action"] for a in plan["actions"])
+
+
+def test_stage_scopes_are_1_8_2_with_service_delivery_from_order_received_to_accepted():
+    """D68: Before / Service delivery (SDM scope) / After."""
+    stages = load(ROOT / "rules" / "stages.json")["stages"]
+    scopes = [s["scope"] for s in stages]
+    assert scopes.count("before") == 1 and scopes.count("service_delivery") == 8 and scopes.count("after") == 2
+    sd = [s["key"] for s in stages if s["scope"] == "service_delivery"]
+    assert (sd[0], sd[-1]) == ("order_received", "accepted")
+    assert all(s["key"] in LOCALES["en"]["stage"] for s in stages)
+    assert set(LOCALES["en"]["stage_scope"]) == set(LOCALES["es"]["stage_scope"]) == {"before", "service_delivery", "after"}

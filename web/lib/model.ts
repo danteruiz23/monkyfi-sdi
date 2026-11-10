@@ -7,6 +7,8 @@ import {
   OrderVersion,
   Plan,
   SEVERITIES,
+  STAGE_SCOPES,
+  StageScope,
   Severity,
   StageRule,
   Validation,
@@ -60,11 +62,20 @@ export function openFindings(validation: Validation): Finding[] {
 }
 
 export type StageState = "completed" | "assumed_complete" | "current" | "blocked" | "upcoming";
-export interface Progress {
-  stages: { key: string; state: StageState; assumption?: string; gate: string | null }[];
+export interface ScopeProgress {
+  scope: StageScope;
   done: number;
   total: number;
   percent: number;
+}
+export interface Progress {
+  stages: { key: string; state: StageState; assumption?: string; gate: string | null; scope: StageScope }[];
+  /** End to end: completed stages out of all 11 (secondary number, D68). */
+  done: number;
+  total: number;
+  percent: number;
+  /** Before / Service delivery (SDM scope, primary number) / After (D68). */
+  scopes: Record<StageScope, ScopeProgress>;
   current: string;
 }
 
@@ -101,18 +112,32 @@ export function progressOf(validation: Validation, rules: StageRule[], plan: Pla
       const blocked = gate !== undefined && gate.recommendation === "block" && !gate.decided;
       state = blocked ? "blocked" : "current";
     }
-    stages.push({ key: rule.key, state, assumption: rule.assumed_complete, gate: rule.exit_gate });
+    stages.push({ key: rule.key, state, assumption: rule.assumed_complete, gate: rule.exit_gate, scope: rule.scope });
   }
   const weight = (key: string) => rules.find((r) => r.key === key)?.weight ?? 0;
   const total = rules.reduce((sum, r) => sum + r.weight, 0);
   const doneStages = stages.filter((s) => s.state === "completed" || s.state === "assumed_complete");
   const doneWeight = doneStages.reduce((sum, s) => sum + weight(s.key), 0);
   const current = stages.find((s) => s.state === "current" || s.state === "blocked") ?? stages[stages.length - 1];
+  const scopes = {} as Record<StageScope, ScopeProgress>;
+  for (const scope of STAGE_SCOPES) {
+    const inScope = rules.filter((r) => r.scope === scope);
+    const scopeWeight = inScope.reduce((sum, r) => sum + r.weight, 0);
+    const scopeDone = doneStages.filter((s) => s.scope === scope);
+    const scopeDoneWeight = scopeDone.reduce((sum, s) => sum + weight(s.key), 0);
+    scopes[scope] = {
+      scope,
+      done: scopeDone.length,
+      total: inScope.length,
+      percent: scopeWeight ? Math.round((100 * scopeDoneWeight) / scopeWeight) : 0,
+    };
+  }
   return {
     stages,
     done: doneStages.length,
     total: rules.length,
     percent: total ? Math.round((100 * doneWeight) / total) : 0,
+    scopes,
     current: current.key,
   };
 }
@@ -204,6 +229,19 @@ export function otherBlockers(order: OrderVersion): { finding: Finding; triggers
       const differing = finding.conflicting_values.filter((v) => v.raw_value !== current);
       return { finding, triggers: differing.length ? differing : finding.conflicting_values };
     });
+}
+
+/** D50: fields grouped by their field group, in the order of the rules files, with "other" last. */
+export function groupFields(fields: Field[], product: Extraction["product"]): [string, Field[]][] {
+  const rules = product ? fieldRules(product) : new Map();
+  const order = [...new Set([...rules.values()].map((r) => r.group))];
+  const groups = new Map<string, Field[]>();
+  for (const field of fields) {
+    const group = rules.get(field.field_key)?.group ?? "other";
+    groups.set(group, [...(groups.get(group) ?? []), field]);
+  }
+  const rank = (group: string) => (order.includes(group) ? order.indexOf(group) : order.length);
+  return [...groups.entries()].sort((a, b) => rank(a[0]) - rank(b[0]));
 }
 
 export { SEVERITIES };
