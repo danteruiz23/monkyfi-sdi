@@ -80,7 +80,7 @@ Thresholds on synthetic data are a development signal, not production proof. The
 - **Case 8 had no eval-split order.** Its orders are development orders. Handled: Dante approved a model run on them (D41). Unresolved: the eval split still cannot show case 8 by itself.
 - **SYN-WAV-0019 first proven only with a scripted model.** Handled: Dante asked for a real run on that order; it passed. Unresolved: the other 7 adversarial orders have no model run (Phase 7).
 - **"Needs action" can be empty on a blocked order.** In SYN-WAV-0019 the only finding is on `customer_name`, whose field status is pending, so the panel shows 0 fields needing action while G1 blocks. The finding itself is shown above. Decided (D52): fix it as the first task of Phase 4.
-- **No GitHub remote.** The repo has no `origin`, so the push Dante asked for could not run. Unresolved: Dante names the repository or approves creating a private one.
+- **GitHub remote.** Handled: `origin` is a private GitHub repository, pushed at 32fc37c (checked with `git remote -v` in the Phase 4 session).
 - **The view cannot record a human decision.** Every order shows "Order received", 1 of 11 stages. Unresolved by design: recording decisions from the UI is Phase 8.
 - **Key date is almost always "requested".** Forecast and committed dates are printed as "To be confirmed" in most orders. Not a defect; Phase 4 adds forecasts.
 - **Preview launcher location.** The session's working directory is `docs/`, so the app's preview needed `docs/.claude/launch.json`. Handled: the file is git-ignored. `.gitignore` also ignores `next-env.d.ts`.

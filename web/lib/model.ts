@@ -168,4 +168,19 @@ export function fieldBuckets(extraction: Extraction): Record<Bucket, Field[]> {
   return buckets;
 }
 
+/** Open findings that block G1 but whose field is not already a "needs action" row, such as a
+ *  package-level SEG-OTHER-CUSTOMER finding on a consistent customer field (D52). Each comes with the
+ *  sources that triggered it: the ones whose value differs from the field's current value. */
+export function otherBlockers(order: OrderVersion): { finding: Finding; triggers: Finding["conflicting_values"] }[] {
+  const { extraction, validation } = order;
+  const rowFields = new Set(fieldBuckets(extraction).needs_action.map((f) => f.field_key));
+  return openFindings(validation)
+    .filter((f) => f.blocks_gate && !rowFields.has(f.field_key))
+    .map((finding) => {
+      const current = fieldOf(extraction, finding.field_key)?.raw_value ?? null;
+      const differing = finding.conflicting_values.filter((v) => v.raw_value !== current);
+      return { finding, triggers: differing.length ? differing : finding.conflicting_values };
+    });
+}
+
 export { SEVERITIES };

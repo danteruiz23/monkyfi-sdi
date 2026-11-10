@@ -9,6 +9,7 @@ import {
   fieldBuckets,
   keyDate,
   openFindings,
+  otherBlockers,
   progressOf,
   requirementsOf,
   severityCounts,
@@ -49,6 +50,8 @@ export default async function OrderPage({ params, searchParams }: Props) {
   const change = validation.version_change;
   const decision = validation.gate.human_decision;
   const buckets = fieldBuckets(extraction);
+  const blockers = otherBlockers(order);
+  const needsActionCount = buckets.needs_action.length + blockers.length;
 
   return (
     <article data-order={id} data-version={versionNo}>
@@ -346,7 +349,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
         <ul className="bucket-counts" aria-label={t("ui.fields_counts_label")}>
           {BUCKETS.map((bucket) => (
             <li key={bucket} className={`bucket-count bucket-${bucket}`} data-bucket-count={bucket}>
-              <span className="bucket-number">{buckets[bucket].length}</span>
+              <span className="bucket-number">{bucket === "needs_action" ? needsActionCount : buckets[bucket].length}</span>
               <a href={`#fields-${bucket}`}>{t(`ui.bucket_${bucket}`)}</a>
             </li>
           ))}
@@ -354,10 +357,10 @@ export default async function OrderPage({ params, searchParams }: Props) {
 
         <div id="fields-needs_action" className="bucket bucket-needs_action" data-bucket="needs_action">
           <h3>
-            {t("ui.bucket_needs_action")} <span className="badge gate-block">{buckets.needs_action.length}</span>
+            {t("ui.bucket_needs_action")} <span className="badge gate-block">{needsActionCount}</span>
           </h3>
           <p className="muted small">{t("ui.bucket_needs_action_note")}</p>
-          {buckets.needs_action.length === 0 ? (
+          {needsActionCount === 0 ? (
             <p>{t("ui.bucket_empty")}</p>
           ) : (
             <div className="table-wrap">
@@ -414,6 +417,33 @@ export default async function OrderPage({ params, searchParams }: Props) {
                       </tr>
                     );
                   })}
+                  {blockers.map(({ finding, triggers }) => (
+                    <tr key={finding.finding_id} data-blocker={finding.finding_id} data-field={finding.field_key}>
+                      <td>
+                        <code>{finding.rule_id}</code> <code>{finding.field_key}</code>
+                      </td>
+                      <td>
+                        <span className="badge gate-block">{t("ui.package_finding")}</span>
+                      </td>
+                      <td>
+                        {t(finding.description.key, finding.description.params)} {t("ui.explain_triggered_by")}{" "}
+                        {triggers
+                          .map((source) =>
+                            t("ui.conflict_item", {
+                              value: source.raw_value,
+                              document: source.filename,
+                              page: t("ui.page_abbrev", { page: source.page }),
+                            }),
+                          )
+                          .join(" · ")}
+                      </td>
+                      <td>
+                        <a href={`#${finding.finding_id}`} className="finding-ref">
+                          {finding.finding_id} <SeverityBadge severity={finding.severity} t={t} />
+                        </a>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>

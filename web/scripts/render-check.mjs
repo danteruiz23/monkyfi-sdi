@@ -1,4 +1,6 @@
 // Phase 3 exit criterion (D45): SYN-EPL-0001 and SYN-WAV-0016 render with all their findings visible.
+// D52: when G1 recommends block, "needs action" is never empty, and every open finding that blocks G1 has a
+// row there that links to it; a package-level finding shows the document and page that triggered it.
 // Starts the built view, fetches the pages in both languages and compares them with validation.json.
 // Usage, from web/: npm run build && npm run render-check [-- ORDER_ID ...]
 import { spawn } from "node:child_process";
@@ -30,6 +32,7 @@ async function get(url) {
 
 const problems = [];
 let checked = 0;
+let blockerRows = 0;
 for (const lang of ["en", "es"]) {
   const list = await get(`http://localhost:${PORT}/${lang}`);
   if (list.status !== 200 || !list.html.includes(mark(lang))) problems.push(`${lang} orders list: status ${list.status} or no synthetic mark`);
@@ -58,10 +61,31 @@ for (const lang of ["en", "es"]) {
           if (row && !row.includes(escape(source.raw_value))) problems.push(`${where}: ${field.field_key} value "${source.raw_value}" is not explained`);
         }
       }
-      const counts = [...page.html.matchAll(/data-bucket-count="(\w+)"[^>]*><span[^>]*>(\d+)</g)].map((m) => Number(m[2]));
-      if (counts.length !== 4 || counts[0] !== needsAction.length || counts.reduce((a, b) => a + b, 0) !== extraction.fields.length) {
-        problems.push(`${where}: status counts ${counts.join("+")} do not add up to ${extraction.fields.length} fields`);
+      const rowFields = new Set(needsAction.map((f) => f.field_key));
+      const blocking = validation.findings.filter((f) => f.blocks_gate && ["open", "in_progress"].includes(f.status));
+      const blockers = blocking.filter((f) => !rowFields.has(f.field_key));
+      for (const finding of blockers) {
+        const rowStart = panel.indexOf(`data-blocker="${finding.finding_id}"`);
+        const row = rowStart < 0 ? "" : panel.slice(rowStart, panel.indexOf("</tr>", rowStart));
+        if (!row) { problems.push(`${where}: blocking ${finding.finding_id} (${finding.rule_id}) is not in "needs action"`); continue; }
+        if (!row.includes(`href="#${finding.finding_id}"`)) problems.push(`${where}: blocker row has no link to ${finding.finding_id}`);
+        const current = extraction.fields.find((f) => f.field_key === finding.field_key)?.raw_value ?? null;
+        const differing = finding.conflicting_values.filter((v) => v.raw_value !== current);
+        for (const source of differing.length ? differing : finding.conflicting_values) {
+          for (const text of [source.filename, source.raw_value]) {
+            if (!row.includes(escape(text))) problems.push(`${where}: blocker ${finding.finding_id} does not show "${text}"`);
+          }
+        }
       }
+      const rows = (panel.match(/<tr[^>]*data-field="/g) || []).length;
+      if (validation.gate.recommendation === "block" && rows === 0) problems.push(`${where}: G1 recommends block and "needs action" is empty`);
+      if (rows !== needsAction.length + blockers.length) problems.push(`${where}: ${rows} "needs action" rows, ${needsAction.length + blockers.length} expected`);
+      const counts = [...page.html.matchAll(/data-bucket-count="(\w+)"[^>]*><span[^>]*>(\d+)</g)].map((m) => Number(m[2]));
+      const expectedTotal = extraction.fields.length + blockers.length;
+      if (counts.length !== 4 || counts[0] !== needsAction.length + blockers.length || counts.reduce((a, b) => a + b, 0) !== expectedTotal) {
+        problems.push(`${where}: status counts ${counts.join("+")} do not add up to ${extraction.fields.length} fields + ${blockers.length} other blockers`);
+      }
+      blockerRows += blockers.length;
       for (const finding of validation.findings) {
         checked += 1;
         const start = page.html.indexOf(`data-finding="${finding.finding_id}"`);
@@ -77,7 +101,7 @@ for (const lang of ["en", "es"]) {
   }
 }
 stop();
-console.log(`SYNTHETIC — NOT REAL DATA. Render check: ${orders.join(", ")}; ${checked} finding renderings checked in en and es.`);
+console.log(`SYNTHETIC — NOT REAL DATA. Render check: ${orders.join(", ")}; ${checked} finding renderings and ${blockerRows} package-level blocker rows checked in en and es.`);
 for (const problem of problems) console.log(`  - ${problem}`);
 console.log(problems.length ? "FAIL" : "PASS");
 process.exit(problems.length ? 1 : 0);

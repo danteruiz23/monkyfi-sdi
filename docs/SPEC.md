@@ -1,6 +1,6 @@
 # Monkyfi Service Delivery Intelligence — SPEC
 
-Version 1.4 · 2026-11-10 · Owner: Dante Ruiz · Status: approved by Dante on 2026-11-09 (Phase 0 done); v1.1 applies amendments D19–D23; v1.2 applies D25–D32 (review of the two example orders); Phase 1 done (D33); v1.3 applies D34–D40; Phase 2 done (D37); v1.4 applies D41–D52 (Phase 3 review); Phase 3 done (D51); see `docs/HANDOFF.md`
+Version 1.5 · 2026-11-10 · Owner: Dante Ruiz · Status: approved by Dante on 2026-11-09 (Phase 0 done); v1.1 applies amendments D19–D23; v1.2 applies D25–D32 (review of the two example orders); Phase 1 done (D33); v1.3 applies D34–D40; Phase 2 done (D37); v1.4 applies D41–D52 (Phase 3 review); Phase 3 done (D51); v1.5 applies D53–D56 (Phase 4 plan); see `docs/HANDOFF.md`
 
 This is the single source of truth for the build plan. It is `docs/PRD.md` (v0.1) with the 11 improvements from `docs/REVIEW.md` applied and the definitions from `docs/DEFINITIONS.md` incorporated. Section 18 maps each improvement to where it lands.
 
@@ -496,7 +496,7 @@ Each session opens with `/prime phase N` and closes with `/hand-off`. A phase ca
 
 ### Phase 4 · Milestones, dependencies, dates and gate G2 (UC04, UC05, RF04; UC07 minimal slice)
 
-- **Deliverables:** milestone plan with owners; dependency graph; requested, forecast and committed dates; supplier follow-up threshold; *not estimable* status; G2 evaluation; blocked `shared_resource` flags all linked orders. Web view, first task (D52): "Needs action" lists everything that blocks G1, including package-level findings such as `SEG-OTHER-CUSTOMER` with the document and page that triggered them; it is never empty when G1 recommends block, and the render check enforces it. Web view backlog (D50): the "Pending confirmation" block of the critical fields panel is collapsed by default and grouped by field group, with a count per group.
+- **Deliverables:** milestone plan with owners; dependency graph; requested, forecast and committed dates; supplier follow-up threshold; *not estimable* status; G2 evaluation; blocked `shared_resource` flags all linked orders. Web view, first task (D52): "Needs action" lists everything that blocks G1, including package-level findings such as `SEG-OTHER-CUSTOMER` with the document and page that triggered them; it is never empty when G1 recommends block, and the render check enforces it. Web view backlog (D50): the "Pending confirmation" block of the critical fields panel is collapsed by default and grouped by field group, with a count per group. Milestone templates per product (Proposed, D56) in `rules/milestones.json`. Supplier follow-up threshold (Proposed, configurable per supplier, D55): first follow-up after 3 business days without an answer, escalation after 5. G2 per product on the basis decided in D54; the rules in `rules/gates.json` are approved by Dante before they are coded. Cases 5–7 are shown with real Muse Spark extraction on their development orders and SYN-WAV-0017 (D53).
 - **Exit criteria:** 100% of applicable cases distinguish the three dates. Zero forecasts or informal dates stored or shown as committed. Zero critical milestones without an owner. The 3-wavelength project shows the shared blocker on all 3 orders. Mandatory cases 5, 6 and 7 pass.
 
 ### Phase 5 · Status per audience and approvals (UC06, RF05–RF06)
