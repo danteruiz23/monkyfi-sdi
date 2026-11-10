@@ -10,6 +10,7 @@ MARK = "SYNTHETIC — NOT REAL DATA"
 
 sys.path.insert(0, str(DATA))
 sys.path.insert(0, str(ROOT / "evals"))
+sys.path.append(str(ROOT))  # the src package
 
 
 def load(path: Path):

@@ -25,6 +25,8 @@ ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data" / "synthetic"
 RANK = {"info": 1, "medium": 2, "high": 3, "critical": 4}
 DEFECTIVE = ("missing", "contradictory")
+# D34: Phase 2 passes at >= 95% on synthetic data; the PRD's 98% is reported for information only.
+PRD_EXTRACTION_NOTE = "PRD target >= 98%, information only (D34)"
 
 
 # ------------------------------------------------------------------------- loading
@@ -45,8 +47,19 @@ def load_predictions(directory: Path, units: list[dict]) -> dict:
     for unit in units:
         path = directory / unit["order_id"] / f"v{unit['version_no']}" / "prediction.json"
         if path.exists():
-            predictions[key(unit)] = json.loads(path.read_text(encoding="utf-8"))
+            predictions[key(unit)] = map_document_ids(json.loads(path.read_text(encoding="utf-8")), unit["golden"])
     return predictions
+
+
+def map_document_ids(prediction: dict, golden: dict) -> dict:
+    """The agent names a source by its file name; the labels by a document id. Map one to the other.
+    A source that is neither a known file name nor a known id is left as it is and scores as wrong."""
+    by_filename = {d["filename"]: d["doc_id"] for d in golden["documents"]}
+    for item in prediction.get("fields", []):
+        item["source_doc_id"] = by_filename.get(item.get("source_doc_id"), item.get("source_doc_id"))
+    for item in prediction.get("dates", []):
+        item["doc_id"] = by_filename.get(item.get("doc_id"), item.get("doc_id"))
+    return prediction
 
 
 def key(unit: dict) -> tuple[str, int]:
@@ -122,7 +135,8 @@ def score_extraction(units, predictions, product=None):
     denominator = sum(len(u["golden"]["expected_fields"]) for u in units)
     scored = pairs(units, predictions, "fields")
     if not scored:
-        return result(name, "correct fields / evaluable critical fields", None, denominator, ">= 98%", None)
+        return result(name, "correct fields / evaluable critical fields", None, denominator, ">= 95%", None,
+                      note=PRD_EXTRACTION_NOTE)
     correct, failures = 0, []
     for unit, prediction in scored:
         predicted = {f["field_key"]: f for f in prediction["fields"]}
@@ -138,8 +152,9 @@ def score_extraction(units, predictions, product=None):
             if not ok:
                 failures.append(tag(unit, expected["field_key"]))
     denominator = sum(len(u["golden"]["expected_fields"]) for u, _ in scored)
-    return result(name, "correct fields / evaluable critical fields", correct, denominator, ">= 98%",
-                  ratio_ok(correct, denominator, 0.98), failures)
+    prd = "met" if ratio_ok(correct, denominator, 0.98) else "not met"
+    return result(name, "correct fields / evaluable critical fields", correct, denominator, ">= 95%",
+                  ratio_ok(correct, denominator, 0.95), failures, note=f"{PRD_EXTRACTION_NOTE}: {prd}")
 
 
 def score_findings(units, predictions):

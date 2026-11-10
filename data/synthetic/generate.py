@@ -486,10 +486,13 @@ def build_golden(spec: dict, version: dict, rules: dict[str, dict], appearances:
             "description": f["description"],
         })
 
-    # Labels are known by construction only if defects and findings line up exactly.
+    # Labels are known by construction only if defects and findings line up exactly. A segregation
+    # finding (SEG-*, Phase 7) can stand without a defective field: an email naming another
+    # customer is a finding, not a field contradiction (D35).
     defective = {f["field_key"] for f in expected_fields if f["expected_status"] in G1_RULE["blocking_statuses"]}
     reported = {f["field_key"] for f in findings}
-    if defective != reported:
+    segregation_only = {f["field_key"] for f in findings if f["rule_id"].startswith("SEG-")} - defective
+    if defective != reported - segregation_only:
         raise ValueError(f"{order_id} v{truth['order_version']}: defective fields {sorted(defective)} "
                          f"do not match findings {sorted(reported)}")
 

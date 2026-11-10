@@ -1,0 +1,22 @@
+{
+  "rules_version": "0.1.0",
+  "status": "Proposed (Phase 2). Not decided by Dante.",
+  "notes": [
+    "doc_types: a document's type is set from its title, deterministically. The first pattern that matches wins; no match gives 'other'.",
+    "field_source_doc_types: only these document types can set an order's field values. Emails and other informal messages never set or contradict a field value (SPEC 8: a new email does not automatically modify a contract); what they say is kept as an observation for later phases.",
+    "placeholders: printed text that is not a value. 'not_applicable' text records the field as not applicable; 'awaited' text records it as pending with no value (for example a committed date not given yet). Matching ignores case and surrounding punctuation."
+  ],
+  "doc_types": [
+    {"doc_type": "email", "title_patterns": ["email:", "e-mail:"]},
+    {"doc_type": "order_form", "title_patterns": ["order form"]},
+    {"doc_type": "technical_annex", "title_patterns": ["technical annex"]},
+    {"doc_type": "loa_cfa", "title_patterns": ["letter of authorization", "loa-cfa", "loa cfa"]},
+    {"doc_type": "test_report", "title_patterns": ["test report", "acceptance test"]},
+    {"doc_type": "quote", "title_patterns": ["quote", "quotation"]}
+  ],
+  "field_source_doc_types": ["quote", "order_form", "technical_annex", "loa_cfa"],
+  "placeholders": {
+    "not_applicable": ["not applicable", "n/a", "na"],
+    "awaited": ["to be confirmed", "tbc", "tbd", "to be determined", "pending"]
+  }
+}

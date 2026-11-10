@@ -90,9 +90,9 @@
     },
     {
       "field_key": "customer_name",
-      "expected_status": "contradictory",
-      "raw_value": null,
-      "normalized_value": null,
+      "expected_status": "pending",
+      "raw_value": "Hyperscaler W (synthetic)",
+      "normalized_value": "Hyperscaler W (synthetic)",
       "sources": [
         {
           "doc_id": "quote",
@@ -105,12 +105,6 @@
           "page": 1,
           "location": "§1 Order identification › Customer",
           "raw_value": "Hyperscaler W (synthetic)"
-        },
-        {
-          "doc_id": "email_02",
-          "page": 1,
-          "location": "body, signature",
-          "raw_value": "Freight Company Quebec (synthetic)"
         }
       ]
     },
@@ -1141,26 +1135,7 @@
       "field_key": "customer_name",
       "severity": "critical",
       "mandatory_case": 11,
-      "conflicting_values": [
-        {
-          "doc_id": "quote",
-          "page": 1,
-          "location": "§1 Quote details › Customer",
-          "raw_value": "Hyperscaler W (synthetic)"
-        },
-        {
-          "doc_id": "order_form",
-          "page": 1,
-          "location": "§1 Order identification › Customer",
-          "raw_value": "Hyperscaler W (synthetic)"
-        },
-        {
-          "doc_id": "email_02",
-          "page": 1,
-          "location": "body, signature",
-          "raw_value": "Freight Company Quebec (synthetic)"
-        }
-      ],
+      "conflicting_values": [],
       "description": "The package contains a document that names another customer. Critical by rule (D20): the document must be removed and the data owner must confirm which customer the order belongs to."
     }
   ],

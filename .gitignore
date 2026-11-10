@@ -48,3 +48,6 @@ evals/results/
 
 # Generated database rows (rebuild with data/synthetic/seed.py)
 data/synthetic/seed/
+
+# Extraction runs and recorded model answers (rebuild with src/extract/cli.py)
+runs/

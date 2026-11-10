@@ -192,7 +192,10 @@ class TestOrderVersion:
         golden = GOLDENS[version_dir]
         status = {f["field_key"]: f["expected_status"] for f in golden["expected_fields"]}
         defective = {key for key, value in status.items() if value in G1["blocking_statuses"]}
-        assert {f["field_key"] for f in golden["expected_findings"]} == defective
+        # A segregation finding (SEG-*, Phase 7) can stand without a defective field (D35).
+        field_findings = {f["field_key"] for f in golden["expected_findings"]
+                          if not f["rule_id"].startswith("SEG-") or f["field_key"] in defective}
+        assert field_findings == defective
         for finding in golden["expected_findings"]:
             if status[finding["field_key"]] == "contradictory":
                 assert len({s["raw_value"] for s in finding["conflicting_values"]}) > 1
@@ -205,10 +208,13 @@ class TestOrderVersion:
                     if f["severity"] in G1["blocking_severities"]]
         assert golden["expected_gate"]["blocking_finding_ids"] == blocking
         assert golden["expected_gate"]["recommendation"] == ("block" if blocking else "pass")
-        if not statuses & set(G1["blocking_statuses"]):
+        segregation = [f for f in golden["expected_findings"] if f["rule_id"].startswith("SEG-")]
+        if not statuses & set(G1["blocking_statuses"]) and not segregation:
             # Every field is consistent and merely pending (or not applicable): G1 passes.
             assert statuses <= {"pending", "not_applicable"}
             assert golden["expected_gate"]["recommendation"] == "pass"
+        for finding in segregation:  # another customer's data is critical by rule (D20)
+            assert finding["severity"] == "critical" and golden["expected_gate"]["recommendation"] == "block"
 
     def test_clean_orders_have_no_findings(self, version_dir):
         golden = GOLDENS[version_dir]

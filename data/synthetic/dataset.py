@@ -865,9 +865,9 @@ def wav_orders() -> list[dict]:
                          "body": ["Hello,",
                                   "For our order, site access at the Z end needs 72 hours notice and the contact "
                                   "on site is the facilities desk.",
-                                  f"Regards,\n\nJules Proxy\n\nNetwork Lead, {OTHER_CUSTOMER}"],
-                         "appearances": [{"field_key": "customer_name", "location": "body, signature",
-                                          "raw_value": OTHER_CUSTOMER}]}],
+                                  f"Regards,\n\nJules Proxy\n\nNetwork Lead, {OTHER_CUSTOMER}"]}],
+                       # D35: an email never sets or contradicts a field value, so the other customer's
+                       # signature is not a customer_name source. It is the Phase 7 finding below.
                        adversarial=other_customer_attack("email_02", "whole email")))
 
     t = wav_truth(20, "hw")

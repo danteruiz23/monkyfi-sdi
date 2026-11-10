@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "extraction.schema.json",
+  "title": "Extraction record for one version of one order (Phase 2)",
+  "description": "Proposed. Written by src/extract next to prediction.json. Each entry in fields maps onto a field_value row (schemas/entities/field_value.schema.json): source.filename and the document sha256 identify the source document; ids are assigned when rows are written to the database (not built). Every value has a source; extraction never sets verified or stale.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["synthetic", "order_dir_id", "version_no", "product", "run", "documents", "fields", "observations",
+               "rejected_mentions", "model_calls", "warnings"],
+  "properties": {
+    "synthetic": {"const": true},
+    "order_dir_id": {"type": "string"},
+    "version_no": {"type": "integer", "minimum": 1},
+    "product": {"enum": ["EPL", "WAVELENGTH", null]},
+    "run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider", "model", "prompt_version", "rules_version", "extractor_version", "extracted_at"],
+      "properties": {
+        "provider": {"type": "string"},
+        "model": {"type": "string"},
+        "prompt_version": {"type": "string"},
+        "rules_version": {"type": "string"},
+        "extractor_version": {"type": "string"},
+        "extracted_at": {"type": "string", "format": "date-time"}
+      }
+    },
+    "documents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["filename", "sha256", "doc_type", "title", "format", "pages", "ingested_at", "has_synthetic_mark",
+                     "warnings", "mentions_proposed", "mentions_kept"],
+        "properties": {
+          "filename": {"type": "string"},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "doc_type": {"type": "string"},
+          "title": {"type": "string"},
+          "format": {"enum": ["pdf", "docx"]},
+          "pages": {"type": "integer", "minimum": 0},
+          "ingested_at": {"type": "string", "format": "date-time"},
+          "has_synthetic_mark": {"type": "boolean"},
+          "warnings": {"type": "array", "items": {"type": "string"}},
+          "mentions_proposed": {"type": "integer", "minimum": 0},
+          "mentions_kept": {"type": "integer", "minimum": 0}
+        }
+      }
+    },
+    "fields": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["field_key", "status", "raw_value", "normalized_value", "source", "sources", "extracted_by",
+                     "notes", "ingested_at", "fact_timestamp"],
+        "properties": {
+          "field_key": {"type": "string"},
+          "status": {"enum": ["pending", "missing", "not_applicable", "contradictory"]},
+          "raw_value": {"type": ["string", "null"]},
+          "normalized_value": {},
+          "source": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/ref"}]},
+          "sources": {"type": "array", "items": {"$ref": "#/$defs/mention_source"}},
+          "extracted_by": {"enum": ["model", "rule"]},
+          "notes": {"type": "array", "items": {"type": "string"}},
+          "ingested_at": {"type": "string", "format": "date-time"},
+          "fact_timestamp": {"type": ["string", "null"], "format": "date-time"}
+        },
+        "allOf": [
+          {"if": {"properties": {"raw_value": {"type": "string"}}, "required": ["raw_value"]},
+           "then": {"properties": {"source": {"$ref": "#/$defs/ref"}}},
+           "description": "No value without a source."},
+          {"if": {"properties": {"status": {"enum": ["missing", "contradictory"]}}},
+           "then": {"properties": {"raw_value": {"type": "null"}, "normalized_value": {"type": "null"}}}}
+        ]
+      }
+    },
+    "observations": {"type": "array", "items": {"type": "object"}},
+    "rejected_mentions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["field_key", "raw_value", "page", "filename", "reason"],
+        "properties": {
+          "field_key": {"type": "string"},
+          "raw_value": {"type": "string"},
+          "page": {"type": ["integer", "null"]},
+          "filename": {"type": "string"},
+          "reason": {"type": "string"}
+        }
+      }
+    },
+    "model_calls": {"type": "array", "items": {"type": "object"}},
+    "warnings": {"type": "array", "items": {"type": "string"}}
+  },
+  "$defs": {
+    "ref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["filename", "doc_type", "page", "location"],
+      "properties": {
+        "filename": {"type": "string"},
+        "doc_type": {"type": "string"},
+        "page": {"type": "integer", "minimum": 1},
+        "location": {"type": "string"}
+      }
+    },
+    "mention_source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["filename", "doc_type", "page", "location", "raw_value", "normalized_value", "placeholder",
+                   "stale_source"],
+      "properties": {
+        "filename": {"type": "string"},
+        "doc_type": {"type": "string"},
+        "page": {"type": "integer", "minimum": 1},
+        "location": {"type": "string"},
+        "raw_value": {"type": "string"},
+        "normalized_value": {},
+        "placeholder": {"enum": ["not_applicable", "awaited", null]},
+        "stale_source": {"type": "boolean"},
+        "normalization_error": {"type": "string"},
+        "notes": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  }
+}
