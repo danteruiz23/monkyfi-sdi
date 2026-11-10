@@ -5,7 +5,7 @@
 - **Project:** Monkyfi Service Delivery Intelligence
 - **Phase:** 0 · SPEC, decisions and repository
 - **Date:** 2026-11-09
-- **Status:** Partially done — all deliverables are written and committed; the exit criterion "Dante approves the SPEC" is still open.
+- **Status:** Done — all deliverables are committed and Dante approved `docs/SPEC.md` on 2026-11-09 (D18).
 
 ## a) Summary of tasks
 
@@ -17,13 +17,13 @@
 - [x] Wrote `docs/DECISIONS.md` (D01–D17, dated 2026-11-09).
 - [x] Wrote `.gitignore` and `.env.example` (names only).
 - [x] Committed (`c280c5c`, branch `main`, no remote configured).
-- [ ] Dante reviews and approves `docs/SPEC.md`.
+- [x] Dante approved `docs/SPEC.md`.
 
 **Tests / build:** none exist yet; there is no product code. Checks run: `grep -n -i "google" docs/SPEC.md docs/DECISIONS.md CLAUDE.md` returned no matches (no real prospect name in the new docs). No evals exist until Phase 1.
 
 ## b) Next steps for the next session
 
-1. Dante reviews `docs/SPEC.md` and approves it or sends corrections. Phase 0 is "Done" only then.
+1. Dante approves starting Phase 1 (approval of the SPEC is not approval to start the next phase).
 2. Dante validates the items in SPEC section 17 that Phase 1 depends on: critical fields (8.4), default severity (8.3), demo script (3.3).
 3. Confirm whether Gemini stays as the comparison model (see section d).
 4. After approval, start Phase 1: JSON Schemas, Supabase migrations with RLS, EPL and wavelength rules, the 44 synthetic orders with golden labels, simulated events, eval runner.
@@ -55,7 +55,6 @@ All of these are already in `docs/SPEC.md` and `docs/DECISIONS.md`.
 **Open questions for Dante:**
 
 - Mid-session message: "the model to use would be muse meta API". Recorded as confirming D06 (Muse Spark 1.1 is the agent model). Should Gemini remain as the comparison model, or be removed?
-- Approve `docs/SPEC.md`?
 - The other open decisions are listed in SPEC section 17.
 
 ## e) File paths
@@ -99,4 +98,4 @@ All of these are already in `docs/SPEC.md` and `docs/DECISIONS.md`.
 
 ## History
 
-- Phase 0 · 2026-11-09 · Partially done — deliverables committed, SPEC approval pending.
+- Phase 0 · 2026-11-09 · Done — deliverables committed, SPEC approved.
