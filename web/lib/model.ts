@@ -69,23 +69,36 @@ export interface Progress {
 }
 
 /** Completed stages over all stages, equal weights from rules/stages.json. A stage with an exit gate is
- *  completed only by a human decision; the agent's recommendation never completes it. */
-export function progressOf(validation: Validation, rules: StageRule[]): Progress {
-  const passedByHuman = (gate: string | null) =>
-    gate !== null && gate === validation.gate.gate && validation.gate.human_decision?.outcome === "pass";
+ *  completed only by a human decision; the agent's recommendation never completes it. A stage without a
+ *  gate is completed when a later gate has been passed by a human (G1 from validation.json, G2 from plan.json). */
+export function progressOf(validation: Validation, rules: StageRule[], plan: Plan | null = null): Progress {
+  const gates: Record<string, { recommendation: string; passed: boolean; decided: boolean }> = {
+    [validation.gate.gate]: {
+      recommendation: validation.gate.recommendation,
+      passed: validation.gate.human_decision?.outcome === "pass",
+      decided: validation.gate.human_decision !== null,
+    },
+  };
+  if (plan?.g2) {
+    gates.G2 = {
+      recommendation: plan.g2.recommendation,
+      passed: plan.g2.human_decision?.outcome === "pass",
+      decided: plan.g2.human_decision !== null,
+    };
+  }
+  const passedByHuman = (gate: string | null) => gate !== null && gates[gate]?.passed === true;
+  const laterGatePassed = (index: number) => rules.slice(index + 1).some((r) => passedByHuman(r.exit_gate));
   const stages: Progress["stages"] = [];
   let reachedCurrent = false;
-  for (const rule of rules) {
+  for (const [index, rule] of rules.entries()) {
     let state: StageState;
     if (reachedCurrent) state = "upcoming";
     else if (rule.assumed_complete) state = "assumed_complete";
-    else if (passedByHuman(rule.exit_gate)) state = "completed";
+    else if (passedByHuman(rule.exit_gate) || (rule.exit_gate === null && laterGatePassed(index))) state = "completed";
     else {
       reachedCurrent = true;
-      const blocked =
-        rule.exit_gate === validation.gate.gate &&
-        validation.gate.recommendation === "block" &&
-        validation.gate.human_decision === null;
+      const gate = rule.exit_gate ? gates[rule.exit_gate] : undefined;
+      const blocked = gate !== undefined && gate.recommendation === "block" && !gate.decided;
       state = blocked ? "blocked" : "current";
     }
     stages.push({ key: rule.key, state, assumption: rule.assumed_complete, gate: rule.exit_gate });

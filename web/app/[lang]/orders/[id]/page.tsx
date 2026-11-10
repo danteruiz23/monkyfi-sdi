@@ -43,7 +43,8 @@ export default async function OrderPage({ params, searchParams }: Props) {
   }
 
   const { extraction, validation } = order;
-  const progress = progressOf(validation, stageRules());
+  const progress = progressOf(validation, stageRules(), order.plan);
+  const g2 = order.plan?.g2 ?? null;
   const requirements = requirementsOf(order);
   const open = openFindings(validation);
   const capacity = capacityOf(extraction);
@@ -212,7 +213,10 @@ export default async function OrderPage({ params, searchParams }: Props) {
         </p>
         <p className="small">
           {decision
-            ? t("ui.gate_human_decision", { approver: decision.approval.approver, reason: decision.approval.reason })
+            ? t(decision.decision === "approved" ? "ui.gate_human_approved" : "ui.gate_human_decision", {
+                approver: decision.approval.approver,
+                reason: decision.approval.reason,
+              })
             : t("ui.gate_no_human_decision")}
         </p>
         <h3>{t("ui.requirements_title")}</h3>
@@ -254,6 +258,64 @@ export default async function OrderPage({ params, searchParams }: Props) {
             </tbody>
           </table>
         </div>
+      </section>
+
+      <section className="card" data-testid="g2">
+        <h2>{t("ui.g2_title")}</h2>
+        {g2 === null ? (
+          <p className="muted">{t("ui.g2_not_evaluated")}</p>
+        ) : (
+          <>
+            <p>
+              <GateBadge recommendation={g2.recommendation} t={t} />{" "}
+              <span className="muted">{t("ui.gate_human_decides")}</span>
+            </p>
+            <p className="small" data-g2-decision={g2.human_decision ? g2.human_decision.outcome : "none"}>
+              {g2.human_decision
+                ? t("ui.gate_human_approved", {
+                    approver: g2.human_decision.approval.approver,
+                    reason: g2.human_decision.approval.reason,
+                  })
+                : t("ui.gate_no_human_decision")}
+            </p>
+            <p className="muted small">{t("ui.g2_records_note")}</p>
+            <div className="table-wrap">
+              <table data-testid="g2-requirements">
+                <thead>
+                  <tr>
+                    <th>{t("ui.col_requirement")}</th>
+                    <th>{t("ui.col_result")}</th>
+                    <th>{t("ui.col_detail")}</th>
+                    <th>{t("ui.col_internal_owner")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {g2.requirements.map((row) => (
+                    <tr key={row.id} data-g2-requirement={row.id} data-result={row.result} className={`requirement-${row.result}`}>
+                      <td>{t(`g2_requirement.${row.id}`)}</td>
+                      <td>
+                        <span className={`badge requirement-${row.result}`}>{t(`ui.requirement_${row.result}`)}</span>
+                      </td>
+                      <td>
+                        {row.missing.length > 0
+                          ? row.missing
+                              .map((item) => {
+                                const at = item.indexOf(":");
+                                const kind = at < 0 ? item : item.slice(0, at);
+                                const detail = at < 0 ? "" : item.slice(at + 1).replace(/:/g, " · ");
+                                return t(`g2_missing.${kind}`, { detail });
+                              })
+                              .join(" · ")
+                          : row.evidence.join(", ")}
+                      </td>
+                      <td>{t(`owner_role.${row.owner}`)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
       </section>
 
       <section className="card" data-testid="findings">

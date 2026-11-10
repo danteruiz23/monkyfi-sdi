@@ -1,6 +1,6 @@
 {
-  "rules_version": "0.2.0",
-  "status": "G1 pass condition decided by Dante (D28). Reading 'critical fields' as fields whose finding has critical severity is Proposed. Other gates are added in their phases.",
+  "rules_version": "0.3.0",
+  "status": "G1 pass condition decided by Dante (D28). Reading 'critical fields' as fields whose finding has critical severity is Proposed. G2 requirements approved (D54, D65). Other gates are added in their phases.",
   "gates": {
     "G1": {
       "name": "Order intake",
@@ -12,6 +12,32 @@
       "notes": [
         "G1 never requires a field to be 'verified'. 'verified' is set by the data owner and is not a gate condition (D28).",
         "A missing or contradictory field always raises a finding. The finding blocks G1 when its severity is in blocking_severities (SPEC 8.3); lower severities are reported and do not block."
+      ]
+    },
+    "G2": {
+      "name": "Ready for execution",
+      "status": "Requirements approved by Dante (D54, D65). The agent recommends; a human decides. Every applicable requirement blocks.",
+      "decided_by_role": "engineering",
+      "records": "data/synthetic/gate_records.json (seeded, D65). The agent never creates a record.",
+      "requirements": [
+        {"id": "g1_passed", "products": ["EPL", "WAVELENGTH"], "owner": "order_management",
+         "met_when": "a human recorded G1 pass and no critical finding is open"},
+        {"id": "design_approved", "products": ["EPL", "WAVELENGTH"], "owner": "engineering",
+         "met_when": "a design_approval record by Engineering with decision approved and a named approver"},
+        {"id": "ports_assigned", "products": ["EPL"], "owner": "provisioning",
+         "met_when": "a port_assignment record for the A end and for the Z end"},
+        {"id": "optical_path_assigned", "products": ["WAVELENGTH"], "owner": "engineering",
+         "met_when": "an optical_path_assignment record, and a port_or_transponder_assignment record for the A end and for the Z end"},
+        {"id": "cross_connects", "products": ["EPL", "WAVELENGTH"], "owner": "provisioning",
+         "met_when": "for each end that needs a cross-connect: the LOA-CFA reference is present, a cross_connect_request record exists, and no blocked shared resource is linked to the order"},
+        {"id": "third_party_segments", "products": ["EPL", "WAVELENGTH"], "owner": "supplier_management",
+         "met_when": "access type is known (an access_type record or a supplier in the package), and every supplier dependency has a firm FOC (committed); a forecast or no date blocks (D65)"},
+        {"id": "site_access", "products": ["EPL", "WAVELENGTH"], "owner": "sdm",
+         "met_when": "a site_access_confirmation record and an access_contacts_confirmation record by the SDM for each end (D65)"},
+        {"id": "route_diversity", "products": ["WAVELENGTH"], "owner": "engineering", "applies_when": "route_diversity.required is true",
+         "met_when": "reference circuits are present and a diversity_evidence record by Engineering with decision accepted"},
+        {"id": "protection_design", "products": ["WAVELENGTH"], "owner": "engineering", "applies_when": "protection.type is not unprotected",
+         "met_when": "a protection_design_approval record by Engineering with decision approved"}
       ]
     }
   }

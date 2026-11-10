@@ -16,13 +16,14 @@ import sys
 from datetime import date
 from pathlib import Path
 
-from ..extract.prediction import to_prediction
+from ..extract.prediction import check, to_prediction
 from ..i18n import LANGUAGES
 from .. import ROOT
 from ..ingest import read_package
 from ..ingest.documents import now_utc
 from .segregation import load_register
 from .evaluate import add_to_prediction, render_finding, validate_version
+from .gate import record_decision
 
 
 def _read(path: Path) -> dict:
@@ -44,6 +45,8 @@ def main(argv=None) -> int:
     parser.add_argument("--quiet", action="store_true", help="one line per order version")
     parser.add_argument("--data", type=Path, default=ROOT / "data" / "synthetic",
                         help="dataset with manifest.json (where each order's documents are)")
+    parser.add_argument("--gate-records", type=Path, default=None,
+                        help="seeded human gate decisions (default: <data>/gate_records.json, D65)")
     parser.add_argument("--customers", type=Path, default=None,
                         help="customer register of the tenant (default: <data>/customers.json)")
     args = parser.parse_args(argv)
@@ -57,6 +60,8 @@ def main(argv=None) -> int:
     paths = {o["order_id"]: args.data / o["path"] for o in manifest["orders"]}
     customers = load_register(args.customers or args.data / "customers.json")[manifest["tenant"]]
     suppliers = [s["name"] for s in _read(args.data / "seed" / "supplier.json")]
+    records_path = args.gate_records or args.data / "gate_records.json"
+    gate_records = _read(records_path)["records"] if records_path.exists() else []
     print("SYNTHETIC — NOT REAL DATA", flush=True)
     failures = 0
     for directory in directories:
@@ -71,6 +76,14 @@ def main(argv=None) -> int:
             validation = validate_version(extraction, as_of=as_of, evaluated_at=evaluated_at, previous=previous,
                                           previous_validation=previous_validation, documents=documents,
                                           customers=customers, suppliers=suppliers)
+            for record in gate_records:
+                if (record["kind"], record.get("gate"), record["order_id"], record["version_no"]) == (
+                        "gate_decision", "G1", order_id, version_no):
+                    try:
+                        validation = record_decision(validation, record)
+                    except ValueError as exc:
+                        validation["warnings"].append(f"gate record {record['record_id']} not applied: {exc}")
+            check("validation.schema.json", validation)
             prediction = add_to_prediction(to_prediction(extraction), validation)
         except (ValueError, KeyError, OSError) as exc:
             failures += 1

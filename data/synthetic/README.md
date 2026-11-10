@@ -25,3 +25,7 @@ From the repo root:
 
     .venv/bin/python data/synthetic/generate.py     # regenerate orders/, events/ and manifest.json
     .venv/bin/python -m pytest -q
+
+## Gate records (Phase 4, D65)
+
+`gate_records.json` holds hand-written synthetic gate records (G1 and G2 decisions, design approvals, assignments, cross-connect requests, access type, site access and contact confirmations, diversity evidence) for SYN-EPL-0013 and SYN-WAV-0013 (pass G1 and G2) and SYN-WAV-0003 (passes G1, fails G2 only on the blocked shared cross-connect). Approvers are fictional, marked `(synthetic)`. The agent reads these records and never creates one.

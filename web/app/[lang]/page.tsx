@@ -37,7 +37,7 @@ export default async function OrdersPage({ params }: { params: Promise<{ lang: s
             </thead>
             <tbody>
               {orders.map(({ orderId, versionNo, extraction, validation, plan }) => {
-                const progress = progressOf(validation, stages);
+                const progress = progressOf(validation, stages, plan);
                 const current = progress.stages.find((s) => s.key === progress.current);
                 const capacity = capacityOf(extraction);
                 const date = keyDate(extraction, plan);

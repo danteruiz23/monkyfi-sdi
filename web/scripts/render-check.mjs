@@ -62,6 +62,7 @@ let commitmentChecks = 0;
 let awaitingShown = 0;
 let actionRows = 0;
 let sharedRows = 0;
+let g2Pages = 0;
 for (const lang of ["en", "es"]) {
   const list = await get(`http://localhost:${PORT}/${lang}`);
   if (list.status !== 200 || !list.html.includes(mark(lang))) problems.push(`${lang} orders list: status ${list.status} or no synthetic mark`);
@@ -82,6 +83,29 @@ for (const lang of ["en", "es"]) {
       if (page.status !== 200) problems.push(`${where}: status ${page.status}`);
       if (!page.html.includes(mark(lang))) problems.push(`${where}: no synthetic mark`);
       const plan = readPlan(order, version);
+      if (plan?.g2) {
+        const card = page.html.slice(page.html.indexOf('data-testid="g2"'), page.html.indexOf('data-testid="findings"'));
+        const text = locale(lang);
+        if (!card.includes(escape(text.recommendation[plan.g2.recommendation]))) problems.push(`${where}: G2 recommendation not shown`);
+        for (const r of plan.g2.requirements) {
+          const start = card.indexOf(`data-g2-requirement="${r.id}"`);
+          const row = start < 0 ? "" : card.slice(start, card.indexOf("</tr>", start));
+          if (!row.includes(`data-result="${r.result}"`)) problems.push(`${where}: G2 ${r.id} not shown as ${r.result}`);
+          for (const item of r.missing) {
+            const kind = item.split(":")[0];
+            const label = text.g2_missing[kind].split("{")[0].trim();
+            if (!row.includes(escape(label))) problems.push(`${where}: G2 ${r.id} does not explain ${item}`);
+          }
+        }
+        const decided = plan.g2.human_decision ? plan.g2.human_decision.outcome : "none";
+        if (!card.includes(`data-g2-decision="${decided}"`)) problems.push(`${where}: G2 human decision not shown`);
+        const stageName = escape(text.stage.design_and_dependencies);
+        const stageAt = page.html.indexOf(`<span class="stage-name">${stageName}</span>`);
+        const stageLi = page.html.slice(page.html.lastIndexOf("<li", stageAt), stageAt);
+        if (decided === "pass" && !stageLi.includes("stage-completed")) problems.push(`${where}: G2 passed but design stage not completed`);
+        if (decided !== "pass" && stageLi.includes("stage-completed")) problems.push(`${where}: design stage completed without a human G2 pass`);
+        g2Pages += 1;
+      }
       const approved = plan?.dates.order.committed ?? [];
       const workstreams = page.html.slice(page.html.indexOf('data-testid="workstreams"'), page.html.indexOf('data-testid="gate"'));
       for (const action of (plan?.actions ?? []).filter((a) => a.status === "open")) {
@@ -174,7 +198,7 @@ for (const lang of ["en", "es"]) {
   }
 }
 stop();
-console.log(`SYNTHETIC — NOT REAL DATA. Render check: ${orders.join(", ")}; ${checked} finding renderings and ${blockerRows} package-level blocker rows, ${commitmentChecks} pages checked for unapproved commitments (${awaitingShown} shown awaiting approval), ${actionRows} plan action rows (${sharedRows} shared-resource rows), in en and es.`);
+console.log(`SYNTHETIC — NOT REAL DATA. Render check: ${orders.join(", ")}; ${checked} finding renderings and ${blockerRows} package-level blocker rows, ${commitmentChecks} pages checked for unapproved commitments (${awaitingShown} shown awaiting approval), ${actionRows} plan action rows (${sharedRows} shared-resource rows), ${g2Pages} G2 cards, in en and es.`);
 for (const problem of problems) console.log(`  - ${problem}`);
 console.log(problems.length ? "FAIL" : "PASS");
 process.exit(problems.length ? 1 : 0);

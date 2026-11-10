@@ -102,6 +102,7 @@ td > .badge:first-child, p > .badge:first-child { margin-left: 0; }
   background: var(--critical-bg); color: var(--critical);
 }
 .gate-pass, .badge.requirement-met { background: var(--ok-bg); color: var(--ok); }
+.badge.requirement-not_applicable { background: var(--neutral-bg); color: var(--muted); }
 .badge.requirement-met_with_findings { background: var(--medium-bg); color: var(--medium); }
 .badge.status-pending, .badge.status-not_applicable, .badge.status-stale { background: var(--neutral-bg); color: var(--muted); }
 .badge.status-verified { background: var(--ok-bg); color: var(--ok); }

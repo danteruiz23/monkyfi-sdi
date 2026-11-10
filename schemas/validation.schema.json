@@ -74,6 +74,10 @@
         "created_at": {
           "type": "string",
           "format": "date-time"
+        },
+        "record_id": {
+          "type": "string",
+          "description": "The gate record the decision comes from (D65)."
         }
       }
     }
@@ -407,7 +411,10 @@
               ],
               "properties": {
                 "decision": {
-                  "const": "override"
+                  "enum": [
+                    "override",
+                    "approved"
+                  ]
                 },
                 "outcome": {
                   "const": "pass"

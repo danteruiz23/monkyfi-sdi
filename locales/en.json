@@ -167,7 +167,7 @@
     "stage_blocked_by_gate": "Blocked: {gate} recommends block",
     "workstreams_title": "Parallel workstreams in the current stage",
     "workstreams_note": "One row per open finding or open plan action (D60). These rows do not change the percentage.",
-    "workstreams_none": "No open findings in this stage.",
+    "workstreams_none": "Nothing open in this stage: no open finding or plan action.",
     "col_workstream": "Workstream",
     "col_status": "Status",
     "col_internal_owner": "Internal owner",
@@ -255,7 +255,12 @@
     "due_not_set": "Not set",
     "follow_up_anchor_last_supplier_email": "Counted from last supplier email ({date}) — no request record",
     "follow_up_history_not_answered": "First follow-up was due {date} and not answered",
-    "shared_with": "Shared with {orders}"
+    "shared_with": "Shared with {orders}",
+    "g2_title": "Gate G2: ready for execution",
+    "gate_human_approved": "Human decision: pass, approved by {approver}. Reason: {reason}",
+    "requirement_not_applicable": "Not applicable",
+    "g2_records_note": "Requirements are checked against gate records (approvals, assignments, confirmations, evidence). Records are seeded synthetic data; the agent never creates one.",
+    "g2_not_evaluated": "G2 has not been evaluated for this order version."
   },
   "milestone": {
     "intake_g1": "Order intake (G1)",
@@ -290,5 +295,37 @@
     "follow_up_supplier": "Follow up with the supplier for a firm date (FOC)",
     "escalate_supplier_follow_up": "Escalate: the supplier has not given a firm date after the follow-up",
     "resolve_shared_resource": "Resolve the shared resource once for all linked orders"
+  },
+  "g2_requirement": {
+    "g1_passed": "G1 passed by a human, no open critical finding",
+    "design_approved": "Design approved by Engineering",
+    "ports_assigned": "Ports assigned at A and Z",
+    "optical_path_assigned": "Optical path and A/Z ports or transponders assigned",
+    "cross_connects": "Cross-connects requested (LOA-CFA submitted)",
+    "third_party_segments": "Third-party segments with a firm FOC; access type known",
+    "site_access": "Site access and access contacts confirmed at each end",
+    "route_diversity": "Route diversity evidenced against the reference circuits",
+    "protection_design": "Protection design approved"
+  },
+  "g2_missing": {
+    "g1_human_pass": "No human G1 pass recorded",
+    "open_critical_finding": "Open critical finding {detail}",
+    "design_approval": "No design approval record",
+    "port_assignment": "No port assignment ({detail})",
+    "optical_path_assignment": "No optical path assignment",
+    "port_or_transponder_assignment": "No port or transponder assignment ({detail})",
+    "cross_connect_required_not_stated": "Not stated whether a cross-connect is needed ({detail})",
+    "loa_cfa_reference": "No LOA-CFA reference ({detail})",
+    "cross_connect_request": "No cross-connect request recorded ({detail})",
+    "shared_resource_blocked": "Shared resource {detail} is blocked",
+    "access_type_unknown": "On-net or off-net access not confirmed",
+    "supplier_firm_foc": "No firm FOC from the supplier ({detail})",
+    "site_access_confirmation": "Site access not confirmed ({detail})",
+    "access_contacts_confirmation": "Access contacts not confirmed ({detail})",
+    "route_diversity_required_not_stated": "Not stated whether route diversity is required",
+    "reference_circuit_ids": "No reference circuits",
+    "diversity_evidence": "No accepted diversity evidence",
+    "protection_type_not_stated": "Protection type not stated",
+    "protection_design_approval": "No protection design approval"
   }
 }

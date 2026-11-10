@@ -17,6 +17,7 @@ from ..ingest.documents import SYNTHETIC_MARK, now_utc, read_package
 from .dates import PLANNER_VERSION, classify_dates, to_prediction_dates
 from .dependencies import dependency_graph, supplier_dependencies
 from .milestones import build_milestones
+from .g2 import apply_access_type, evaluate_g2, g2_milestone_state, order_records
 from .shared import attach_to_plan, link_resources, resource_mentions
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -149,6 +150,12 @@ def show(plan: dict) -> None:
         print(f"      shared {r['shared_resource_id']} ({r['kind']}): {r['state']} · linked {r['linked_order_ids']}"
               f"{' (not in run: ' + ', '.join(r['linked_not_in_run']) + ')' if r['linked_not_in_run'] else ''}"
               f" · action {r['action_id']}")
+    if "g2" in plan:
+        g = plan["g2"]
+        print(f"      G2: recommend {g['recommendation']}"
+              f"{' · human ' + g['human_decision']['outcome'] + ' by ' + g['human_decision']['approval']['approver'] if g['human_decision'] else ''}")
+        for r in g["requirements"]:
+            print(f"        {r['result']:<14} {r['id']:<22} {', '.join(r['missing'])}")
     i, f = plan["supplier_inputs"], plan["delivery_forecast"]
     print(f"      supplier inputs: {i['status']} {i['missing'] or ''} · delay {i['delay_assessment']}"
           f" · delivery forecast: {f['status']} ({f['reason']})")
@@ -170,6 +177,8 @@ def main(argv=None) -> int:
     manifest = _read(args.data / "manifest.json")
     paths = {o["order_id"]: args.data / o["path"] for o in manifest["orders"]}
     register = supplier_register(args.data)
+    records_path = args.data / "gate_records.json"
+    gate_records = _read(records_path)["records"] if records_path.exists() else []
     directories = sorted(p.parent for p in args.run.glob("*/v*/extraction.json")
                          if not args.orders or p.parent.parent.name in args.orders)
     if not directories:
@@ -191,15 +200,21 @@ def main(argv=None) -> int:
             failures += 1
             print(f"  {order_id} v{version_no}: FAILED — {exc}", flush=True)
             continue
-        built.append((directory, order_id, version_no, plan))
+        built.append((directory, order_id, version_no, plan, extraction, validation))
         latest = max(int(p.name[1:]) for p in directory.parent.glob("v*") if (p / "extraction.json").exists())
         if version_no == latest:  # a shared resource is read from each order's current version
             mentions += resource_mentions(order_id, documents)
     # UC07: one record per shared resource across the run, flagged on every linked order.
     records = link_resources(mentions, as_of)
-    run_orders = {order_id for _, order_id, _, _ in built}
-    for directory, order_id, version_no, plan in built:
+    run_orders = {b[1] for b in built}
+    for directory, order_id, version_no, plan, extraction, validation in built:
         attach_to_plan(plan, order_id, records, run_orders)
+        # G2 (D54, D65) from the plan and the seeded gate records of this order version.
+        mine = order_records(gate_records, order_id, version_no)
+        apply_access_type(plan, mine)
+        plan["g2"] = evaluate_g2(extraction.get("product"), extraction, validation, plan, mine, evaluated_at)
+        g2_milestone_state(plan, plan["g2"])
+        plan["warnings"] += plan["g2"]["warnings"]
         _write(directory / "plan.json", plan)
         prediction_path = directory / "prediction.json"
         if prediction_path.exists():

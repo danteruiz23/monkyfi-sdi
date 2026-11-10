@@ -49,3 +49,25 @@ def override_gate(validation: dict, approver: str, reason: str, decided_at: str)
             finding["status"] = "overridden"
     out["approvals"] = out.get("approvals", []) + [approval]
     return out
+
+
+def record_decision(validation: dict, record: dict) -> dict:
+    """A human decision on G1 taken from a gate record (D65: seeded, never created by the agent).
+    'approved' confirms a pass recommendation. A blocked order needs an override with a reason
+    (override_gate); an 'approved' record on a block recommendation is not applied."""
+    if record.get("gate") != "G1" or record.get("decision") != "approved":
+        raise ValueError("only an approved G1 record can be applied here")
+    if not record.get("recorded_by", "").strip() or not record.get("reason", "").strip():
+        raise ValueError("a gate decision needs a named approver and a reason")
+    gate = validation["gate"]
+    if gate["recommendation"] != "pass":
+        raise ValueError("an approval cannot pass a blocked G1; it needs an override with a reason")
+    if gate["human_decision"] is not None:
+        raise ValueError("this gate evaluation already has a human decision")
+    out = copy.deepcopy(validation)
+    approval = {"entity": "gate_evaluation", "decision": "approved", "approver": record["recorded_by"].strip(),
+                "reason": record["reason"].strip(), "created_at": record["recorded_at"],
+                "record_id": record["record_id"]}
+    out["gate"]["human_decision"] = {"decision": "approved", "outcome": "pass", "approval": approval}
+    out["approvals"] = out.get("approvals", []) + [approval]
+    return out

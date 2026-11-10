@@ -66,7 +66,7 @@ export interface Validation {
     gate: string;
     recommendation: "pass" | "block";
     unmet_requirements: { finding_id: string; field_key: string; severity: Severity }[];
-    human_decision: { outcome: string; approval: Approval } | null;
+    human_decision: { decision: string; outcome: string; approval: Approval } | null;
   };
   version_change: {
     previous_version_no: number;
@@ -88,6 +88,21 @@ export interface Plan {
     };
   };
   actions?: PlanAction[];
+  g2?: G2;
+}
+export interface G2Requirement {
+  id: string;
+  owner: string;
+  result: "met" | "unmet" | "not_applicable";
+  missing: string[];
+  evidence: string[];
+}
+export interface G2 {
+  gate: "G2";
+  recommendation: "pass" | "block";
+  requirements: G2Requirement[];
+  unmet_requirements: string[];
+  human_decision: { decision: string; outcome: string; approval: Approval & { record_id?: string } } | null;
 }
 /** An open question in the plan with an owner (D60), shown as a workstream. */
 export interface PlanAction {

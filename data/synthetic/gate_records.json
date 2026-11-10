@@ -1,0 +1,435 @@
+{
+  "synthetic": true,
+  "synthetic_mark": "SYNTHETIC — NOT REAL DATA",
+  "status": "Seeded gate records (D65). Written by hand as test data; the agent never creates, edits or infers a record. People are fictional.",
+  "notes": [
+    "SYN-EPL-0013 and SYN-WAV-0013 pass G1 and G2 by human decision.",
+    "SYN-WAV-0003 passes G1 by human decision and should fail G2 on exactly one requirement: its A-end cross-connect is the shared request XC-SYN-AURORA-A, which the data center operator has not accepted (case 7)."
+  ],
+  "records": [
+    {
+      "record_id": "REC-SYN-001",
+      "order_id": "SYN-EPL-0013",
+      "version_no": 1,
+      "kind": "gate_decision",
+      "recorded_by": "Casey Sample (synthetic)",
+      "role": "order_management",
+      "recorded_at": "2026-11-09T15:00:00Z",
+      "gate": "G1",
+      "decision": "approved",
+      "reason": "Intake reviewed; agent recommendation pass confirmed."
+    },
+    {
+      "record_id": "REC-SYN-002",
+      "order_id": "SYN-EPL-0013",
+      "version_no": 1,
+      "kind": "design_approval",
+      "recorded_by": "Robin Stub (synthetic)",
+      "role": "engineering",
+      "recorded_at": "2026-11-09T16:00:00Z",
+      "decision": "approved",
+      "reference": "DES-SYN-0113"
+    },
+    {
+      "record_id": "REC-SYN-003",
+      "order_id": "SYN-EPL-0013",
+      "version_no": 1,
+      "kind": "cross_connect_request",
+      "recorded_by": "Jules Proxy (synthetic)",
+      "role": "provisioning",
+      "recorded_at": "2026-11-09T16:30:00Z",
+      "end": "a_end",
+      "reference": "XC-SYN-0113-A"
+    },
+    {
+      "record_id": "REC-SYN-004",
+      "order_id": "SYN-EPL-0013",
+      "version_no": 1,
+      "kind": "cross_connect_request",
+      "recorded_by": "Jules Proxy (synthetic)",
+      "role": "provisioning",
+      "recorded_at": "2026-11-09T16:30:00Z",
+      "end": "z_end",
+      "reference": "XC-SYN-0113-Z"
+    },
+    {
+      "record_id": "REC-SYN-005",
+      "order_id": "SYN-EPL-0013",
+      "version_no": 1,
+      "kind": "access_type",
+      "recorded_by": "Robin Stub (synthetic)",
+      "role": "engineering",
+      "recorded_at": "2026-11-09T16:45:00Z",
+      "value": "on_net"
+    },
+    {
+      "record_id": "REC-SYN-006",
+      "order_id": "SYN-EPL-0013",
+      "version_no": 1,
+      "kind": "site_access_confirmation",
+      "recorded_by": "Morgan Draft (synthetic)",
+      "role": "sdm",
+      "recorded_at": "2026-11-09T17:00:00Z",
+      "end": "a_end"
+    },
+    {
+      "record_id": "REC-SYN-007",
+      "order_id": "SYN-EPL-0013",
+      "version_no": 1,
+      "kind": "access_contacts_confirmation",
+      "recorded_by": "Morgan Draft (synthetic)",
+      "role": "sdm",
+      "recorded_at": "2026-11-09T17:00:00Z",
+      "end": "a_end"
+    },
+    {
+      "record_id": "REC-SYN-008",
+      "order_id": "SYN-EPL-0013",
+      "version_no": 1,
+      "kind": "site_access_confirmation",
+      "recorded_by": "Morgan Draft (synthetic)",
+      "role": "sdm",
+      "recorded_at": "2026-11-09T17:00:00Z",
+      "end": "z_end"
+    },
+    {
+      "record_id": "REC-SYN-009",
+      "order_id": "SYN-EPL-0013",
+      "version_no": 1,
+      "kind": "access_contacts_confirmation",
+      "recorded_by": "Morgan Draft (synthetic)",
+      "role": "sdm",
+      "recorded_at": "2026-11-09T17:00:00Z",
+      "end": "z_end"
+    },
+    {
+      "record_id": "REC-SYN-010",
+      "order_id": "SYN-EPL-0013",
+      "version_no": 1,
+      "kind": "port_assignment",
+      "recorded_by": "Jules Proxy (synthetic)",
+      "role": "provisioning",
+      "recorded_at": "2026-11-09T16:15:00Z",
+      "end": "a_end",
+      "reference": "PORT-SYN-0113-A"
+    },
+    {
+      "record_id": "REC-SYN-011",
+      "order_id": "SYN-EPL-0013",
+      "version_no": 1,
+      "kind": "port_assignment",
+      "recorded_by": "Jules Proxy (synthetic)",
+      "role": "provisioning",
+      "recorded_at": "2026-11-09T16:15:00Z",
+      "end": "z_end",
+      "reference": "PORT-SYN-0113-Z"
+    },
+    {
+      "record_id": "REC-SYN-012",
+      "order_id": "SYN-EPL-0013",
+      "version_no": 1,
+      "kind": "gate_decision",
+      "recorded_by": "Robin Stub (synthetic)",
+      "role": "engineering",
+      "recorded_at": "2026-11-10T09:00:00Z",
+      "gate": "G2",
+      "decision": "approved",
+      "reason": "Design, ports and dependencies verified."
+    },
+    {
+      "record_id": "REC-SYN-013",
+      "order_id": "SYN-WAV-0013",
+      "version_no": 1,
+      "kind": "gate_decision",
+      "recorded_by": "Casey Sample (synthetic)",
+      "role": "order_management",
+      "recorded_at": "2026-11-09T15:00:00Z",
+      "gate": "G1",
+      "decision": "approved",
+      "reason": "Intake reviewed; agent recommendation pass confirmed."
+    },
+    {
+      "record_id": "REC-SYN-014",
+      "order_id": "SYN-WAV-0013",
+      "version_no": 1,
+      "kind": "design_approval",
+      "recorded_by": "Robin Stub (synthetic)",
+      "role": "engineering",
+      "recorded_at": "2026-11-09T16:00:00Z",
+      "decision": "approved",
+      "reference": "DES-SYN-0213"
+    },
+    {
+      "record_id": "REC-SYN-015",
+      "order_id": "SYN-WAV-0013",
+      "version_no": 1,
+      "kind": "cross_connect_request",
+      "recorded_by": "Jules Proxy (synthetic)",
+      "role": "provisioning",
+      "recorded_at": "2026-11-09T16:30:00Z",
+      "end": "a_end",
+      "reference": "XC-SYN-0213-A"
+    },
+    {
+      "record_id": "REC-SYN-016",
+      "order_id": "SYN-WAV-0013",
+      "version_no": 1,
+      "kind": "cross_connect_request",
+      "recorded_by": "Jules Proxy (synthetic)",
+      "role": "provisioning",
+      "recorded_at": "2026-11-09T16:30:00Z",
+      "end": "z_end",
+      "reference": "XC-SYN-0213-Z"
+    },
+    {
+      "record_id": "REC-SYN-017",
+      "order_id": "SYN-WAV-0013",
+      "version_no": 1,
+      "kind": "access_type",
+      "recorded_by": "Robin Stub (synthetic)",
+      "role": "engineering",
+      "recorded_at": "2026-11-09T16:45:00Z",
+      "value": "on_net"
+    },
+    {
+      "record_id": "REC-SYN-018",
+      "order_id": "SYN-WAV-0013",
+      "version_no": 1,
+      "kind": "site_access_confirmation",
+      "recorded_by": "Morgan Draft (synthetic)",
+      "role": "sdm",
+      "recorded_at": "2026-11-09T17:00:00Z",
+      "end": "a_end"
+    },
+    {
+      "record_id": "REC-SYN-019",
+      "order_id": "SYN-WAV-0013",
+      "version_no": 1,
+      "kind": "access_contacts_confirmation",
+      "recorded_by": "Morgan Draft (synthetic)",
+      "role": "sdm",
+      "recorded_at": "2026-11-09T17:00:00Z",
+      "end": "a_end"
+    },
+    {
+      "record_id": "REC-SYN-020",
+      "order_id": "SYN-WAV-0013",
+      "version_no": 1,
+      "kind": "site_access_confirmation",
+      "recorded_by": "Morgan Draft (synthetic)",
+      "role": "sdm",
+      "recorded_at": "2026-11-09T17:00:00Z",
+      "end": "z_end"
+    },
+    {
+      "record_id": "REC-SYN-021",
+      "order_id": "SYN-WAV-0013",
+      "version_no": 1,
+      "kind": "access_contacts_confirmation",
+      "recorded_by": "Morgan Draft (synthetic)",
+      "role": "sdm",
+      "recorded_at": "2026-11-09T17:00:00Z",
+      "end": "z_end"
+    },
+    {
+      "record_id": "REC-SYN-022",
+      "order_id": "SYN-WAV-0013",
+      "version_no": 1,
+      "kind": "optical_path_assignment",
+      "recorded_by": "Robin Stub (synthetic)",
+      "role": "engineering",
+      "recorded_at": "2026-11-09T16:15:00Z",
+      "reference": "OCH-SYN-0213"
+    },
+    {
+      "record_id": "REC-SYN-023",
+      "order_id": "SYN-WAV-0013",
+      "version_no": 1,
+      "kind": "port_or_transponder_assignment",
+      "recorded_by": "Jules Proxy (synthetic)",
+      "role": "provisioning",
+      "recorded_at": "2026-11-09T16:20:00Z",
+      "end": "a_end",
+      "reference": "TPD-SYN-0213-A"
+    },
+    {
+      "record_id": "REC-SYN-024",
+      "order_id": "SYN-WAV-0013",
+      "version_no": 1,
+      "kind": "port_or_transponder_assignment",
+      "recorded_by": "Jules Proxy (synthetic)",
+      "role": "provisioning",
+      "recorded_at": "2026-11-09T16:20:00Z",
+      "end": "z_end",
+      "reference": "TPD-SYN-0213-Z"
+    },
+    {
+      "record_id": "REC-SYN-025",
+      "order_id": "SYN-WAV-0013",
+      "version_no": 1,
+      "kind": "diversity_evidence",
+      "recorded_by": "Robin Stub (synthetic)",
+      "role": "engineering",
+      "recorded_at": "2026-11-09T16:40:00Z",
+      "decision": "accepted",
+      "reference": "KMZ-SYN-0213",
+      "against": [
+        "ALFA-WAV-000713"
+      ]
+    },
+    {
+      "record_id": "REC-SYN-026",
+      "order_id": "SYN-WAV-0013",
+      "version_no": 1,
+      "kind": "gate_decision",
+      "recorded_by": "Robin Stub (synthetic)",
+      "role": "engineering",
+      "recorded_at": "2026-11-10T09:30:00Z",
+      "gate": "G2",
+      "decision": "approved",
+      "reason": "Route diversity evidenced; path and transponders assigned."
+    },
+    {
+      "record_id": "REC-SYN-027",
+      "order_id": "SYN-WAV-0003",
+      "version_no": 1,
+      "kind": "gate_decision",
+      "recorded_by": "Casey Sample (synthetic)",
+      "role": "order_management",
+      "recorded_at": "2026-11-09T15:00:00Z",
+      "gate": "G1",
+      "decision": "approved",
+      "reason": "Intake reviewed; agent recommendation pass confirmed."
+    },
+    {
+      "record_id": "REC-SYN-028",
+      "order_id": "SYN-WAV-0003",
+      "version_no": 1,
+      "kind": "design_approval",
+      "recorded_by": "Robin Stub (synthetic)",
+      "role": "engineering",
+      "recorded_at": "2026-11-09T16:00:00Z",
+      "decision": "approved",
+      "reference": "DES-SYN-0203"
+    },
+    {
+      "record_id": "REC-SYN-029",
+      "order_id": "SYN-WAV-0003",
+      "version_no": 1,
+      "kind": "cross_connect_request",
+      "recorded_by": "Jules Proxy (synthetic)",
+      "role": "provisioning",
+      "recorded_at": "2026-11-09T16:30:00Z",
+      "end": "a_end",
+      "reference": "XC-SYN-AURORA-A"
+    },
+    {
+      "record_id": "REC-SYN-030",
+      "order_id": "SYN-WAV-0003",
+      "version_no": 1,
+      "kind": "cross_connect_request",
+      "recorded_by": "Jules Proxy (synthetic)",
+      "role": "provisioning",
+      "recorded_at": "2026-11-09T16:30:00Z",
+      "end": "z_end",
+      "reference": "XC-SYN-0203-Z"
+    },
+    {
+      "record_id": "REC-SYN-031",
+      "order_id": "SYN-WAV-0003",
+      "version_no": 1,
+      "kind": "access_type",
+      "recorded_by": "Robin Stub (synthetic)",
+      "role": "engineering",
+      "recorded_at": "2026-11-09T16:45:00Z",
+      "value": "on_net"
+    },
+    {
+      "record_id": "REC-SYN-032",
+      "order_id": "SYN-WAV-0003",
+      "version_no": 1,
+      "kind": "site_access_confirmation",
+      "recorded_by": "Morgan Draft (synthetic)",
+      "role": "sdm",
+      "recorded_at": "2026-11-09T17:00:00Z",
+      "end": "a_end"
+    },
+    {
+      "record_id": "REC-SYN-033",
+      "order_id": "SYN-WAV-0003",
+      "version_no": 1,
+      "kind": "access_contacts_confirmation",
+      "recorded_by": "Morgan Draft (synthetic)",
+      "role": "sdm",
+      "recorded_at": "2026-11-09T17:00:00Z",
+      "end": "a_end"
+    },
+    {
+      "record_id": "REC-SYN-034",
+      "order_id": "SYN-WAV-0003",
+      "version_no": 1,
+      "kind": "site_access_confirmation",
+      "recorded_by": "Morgan Draft (synthetic)",
+      "role": "sdm",
+      "recorded_at": "2026-11-09T17:00:00Z",
+      "end": "z_end"
+    },
+    {
+      "record_id": "REC-SYN-035",
+      "order_id": "SYN-WAV-0003",
+      "version_no": 1,
+      "kind": "access_contacts_confirmation",
+      "recorded_by": "Morgan Draft (synthetic)",
+      "role": "sdm",
+      "recorded_at": "2026-11-09T17:00:00Z",
+      "end": "z_end"
+    },
+    {
+      "record_id": "REC-SYN-036",
+      "order_id": "SYN-WAV-0003",
+      "version_no": 1,
+      "kind": "optical_path_assignment",
+      "recorded_by": "Robin Stub (synthetic)",
+      "role": "engineering",
+      "recorded_at": "2026-11-09T16:15:00Z",
+      "reference": "OCH-SYN-0203"
+    },
+    {
+      "record_id": "REC-SYN-037",
+      "order_id": "SYN-WAV-0003",
+      "version_no": 1,
+      "kind": "port_or_transponder_assignment",
+      "recorded_by": "Jules Proxy (synthetic)",
+      "role": "provisioning",
+      "recorded_at": "2026-11-09T16:20:00Z",
+      "end": "a_end",
+      "reference": "TPD-SYN-0203-A"
+    },
+    {
+      "record_id": "REC-SYN-038",
+      "order_id": "SYN-WAV-0003",
+      "version_no": 1,
+      "kind": "port_or_transponder_assignment",
+      "recorded_by": "Jules Proxy (synthetic)",
+      "role": "provisioning",
+      "recorded_at": "2026-11-09T16:20:00Z",
+      "end": "z_end",
+      "reference": "TPD-SYN-0203-Z"
+    },
+    {
+      "record_id": "REC-SYN-039",
+      "order_id": "SYN-WAV-0003",
+      "version_no": 1,
+      "kind": "diversity_evidence",
+      "recorded_by": "Robin Stub (synthetic)",
+      "role": "engineering",
+      "recorded_at": "2026-11-09T16:40:00Z",
+      "decision": "accepted",
+      "reference": "KMZ-SYN-0203",
+      "against": [
+        "ALFA-WAV-000201",
+        "ALFA-WAV-000202"
+      ]
+    }
+  ]
+}
