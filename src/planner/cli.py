@@ -17,6 +17,7 @@ from ..ingest.documents import SYNTHETIC_MARK, now_utc, read_package
 from .dates import PLANNER_VERSION, classify_dates, to_prediction_dates
 from .dependencies import dependency_graph, supplier_dependencies
 from .milestones import build_milestones
+from .shared import attach_to_plan, link_resources, resource_mentions
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -144,6 +145,10 @@ def show(plan: dict) -> None:
                  f" → {f['state']}" if f else " · no follow-up (firm commitment)"))
     for a in plan["actions"]:
         print(f"      action {a['action_id']} {a['action']} → {a['owner']} due {a['due_date']}")
+    for r in plan.get("shared_resources", []):
+        print(f"      shared {r['shared_resource_id']} ({r['kind']}): {r['state']} · linked {r['linked_order_ids']}"
+              f"{' (not in run: ' + ', '.join(r['linked_not_in_run']) + ')' if r['linked_not_in_run'] else ''}"
+              f" · action {r['action_id']}")
     i, f = plan["supplier_inputs"], plan["delivery_forecast"]
     print(f"      supplier inputs: {i['status']} {i['missing'] or ''} · delay {i['delay_assessment']}"
           f" · delivery forecast: {f['status']} ({f['reason']})")
@@ -172,6 +177,8 @@ def main(argv=None) -> int:
         return 2
     print(SYNTHETIC_MARK, flush=True)
     evaluated_at, failures = now_utc(), 0
+    as_of = args.as_of or date.today()
+    built, mentions = [], []
     for directory in directories:
         order_id, version_no = directory.parent.name, int(directory.name[1:])
         try:
@@ -179,17 +186,29 @@ def main(argv=None) -> int:
             package = paths[order_id] / f"v{version_no}" / "documents"
             documents = read_package(package) if package.is_dir() else None
             validation = _read(directory / "validation.json") if (directory / "validation.json").exists() else None
-            plan = build_plan(extraction, documents, register, evaluated_at, validation, args.as_of)
+            plan = build_plan(extraction, documents, register, evaluated_at, validation, as_of)
         except (ValueError, KeyError, OSError) as exc:
             failures += 1
             print(f"  {order_id} v{version_no}: FAILED — {exc}", flush=True)
             continue
+        built.append((directory, order_id, version_no, plan))
+        latest = max(int(p.name[1:]) for p in directory.parent.glob("v*") if (p / "extraction.json").exists())
+        if version_no == latest:  # a shared resource is read from each order's current version
+            mentions += resource_mentions(order_id, documents)
+    # UC07: one record per shared resource across the run, flagged on every linked order.
+    records = link_resources(mentions, as_of)
+    run_orders = {order_id for _, order_id, _, _ in built}
+    for directory, order_id, version_no, plan in built:
+        attach_to_plan(plan, order_id, records, run_orders)
         _write(directory / "plan.json", plan)
         prediction_path = directory / "prediction.json"
         if prediction_path.exists():
             prediction = _read(prediction_path)
             prediction["dates"] = to_prediction_dates(plan["dates"])
             prediction["dependencies"] = [to_prediction_dependency(d) for d in plan["dependencies"]]
+            prediction["shared_resources"] = [{k: r[k] for k in ("shared_resource_id", "kind", "is_blocked",
+                                                                  "linked_order_ids")}
+                                              for r in plan["shared_resources"]]
             _write(prediction_path, prediction)
         counts = {}
         for m in plan["dates"]["mentions"]:

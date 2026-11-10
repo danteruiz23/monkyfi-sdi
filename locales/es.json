@@ -254,7 +254,8 @@
     "reason_not_set": "Todavía no se ha dado un valor.",
     "due_not_set": "Sin fijar",
     "follow_up_anchor_last_supplier_email": "Contado desde el último correo del proveedor ({date}) — sin registro de la solicitud",
-    "follow_up_history_not_answered": "El primer seguimiento vencía el {date} y no tuvo respuesta"
+    "follow_up_history_not_answered": "El primer seguimiento vencía el {date} y no tuvo respuesta",
+    "shared_with": "Compartido con {orders}"
   },
   "milestone": {
     "intake_g1": "Recepción de la orden (G1)",
@@ -287,6 +288,7 @@
   "plan_action": {
     "confirm_access_type": "Confirmar si el acceso es on-net u off-net",
     "follow_up_supplier": "Hacer seguimiento con el proveedor para obtener una fecha firme (FOC)",
-    "escalate_supplier_follow_up": "Escalar: el proveedor no dio una fecha firme tras el seguimiento"
+    "escalate_supplier_follow_up": "Escalar: el proveedor no dio una fecha firme tras el seguimiento",
+    "resolve_shared_resource": "Resolver el recurso compartido una sola vez para todas las órdenes vinculadas"
   }
 }

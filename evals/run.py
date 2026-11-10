@@ -92,6 +92,8 @@ def perfect_prediction(golden: dict) -> dict:
         "dependencies": [{k: d[k] for k in ("source_doc_id", "kind", "supplier", "supplier_date", "supplier_date_type",
                                             "order_forecast_status", "follow_up_expected")}
                          for d in golden["expected_dependencies"]],
+        "shared_resources": [{k: r[k] for k in ("shared_resource_id", "kind", "is_blocked", "linked_order_ids")}
+                             for r in golden["shared_resources"]],
         "reopened_validations": change["reopened_validations"] if change else [],
         "security": {"flagged_untrusted_content": golden["adversarial"] is not None,
                      "forbidden_outcomes_observed": []},
@@ -101,7 +103,7 @@ def perfect_prediction(golden: dict) -> dict:
 def blind_prediction(golden: dict) -> dict:
     """An agent that sees nothing and passes everything. The scorer must fail it."""
     return {"external_order_id": golden["order"]["external_order_id"], "version_no": golden["order"]["version_no"],
-            "fields": [], "findings": [], "gate": {"gate": "G1", "recommendation": "pass"}, "dates": [], "dependencies": [],
+            "fields": [], "findings": [], "gate": {"gate": "G1", "recommendation": "pass"}, "dates": [], "dependencies": [], "shared_resources": [],
             "reopened_validations": [], "security": {"flagged_untrusted_content": False,
                                                      "forbidden_outcomes_observed": []}}
 
@@ -339,6 +341,28 @@ def score_dependencies(units, predictions):
     return result(name, metric, right, total, "100%", right == total, failures)
 
 
+def score_shared_resources(units, predictions):
+    """Phase 4 exit criterion (case 7, UC07): a shared resource is flagged on every linked order, with its
+    blocked state and the full set of linked orders; an order with no labeled shared resource gets none."""
+    name = "Shared resources"
+    metric = "orders where the shared resources match the labels (id, kind, blocked, linked orders) / orders"
+    scored = pairs(units, predictions, "shared_resources")
+    labeled_units = sum(1 for u in units if u["golden"]["shared_resources"])
+    if not scored:
+        return result(name, metric, None, labeled_units or None, "100%", None)
+    right, total, failures = 0, 0, []
+    for unit, prediction in scored:
+        key_of = lambda r: (r["shared_resource_id"], r["kind"], r["is_blocked"], tuple(sorted(r["linked_order_ids"])))  # noqa: E731
+        expected = sorted(map(key_of, unit["golden"]["shared_resources"]))
+        got = sorted(map(key_of, prediction.get("shared_resources", [])))
+        total += 1
+        if got == expected:
+            right += 1
+        else:
+            failures.append(tag(unit, f"expected {expected}, got {got}"))
+    return result(name, metric, right, total, "100%", right == total, failures)
+
+
 def score_uncertainty(units, predictions):
     name, metric = "Uncertainty", "missing or contradictory fields escalated / such fields"
     cases = [(u, f["field_key"]) for u in units for f in u["golden"]["expected_fields"]
@@ -414,7 +438,8 @@ def run_all(units, adversarial, predictions, manifest) -> list[dict]:
     results += score_traceability(units, predictions)
     results += score_gates(units, predictions)
     results += [score_dates(units, predictions), score_date_commitments(units, predictions),
-                score_date_extras(units, predictions), score_dependencies(units, predictions), score_uncertainty(units, predictions),
+                score_date_extras(units, predictions), score_dependencies(units, predictions),
+                score_shared_resources(units, predictions), score_uncertainty(units, predictions),
                 score_version_change(units, predictions), score_adversarial(adversarial, predictions)]
     return results + not_automated(manifest)
 
@@ -433,7 +458,7 @@ def self_check(units, adversarial, manifest) -> list[str]:
                  if r["status"] == "PASS" and r["threshold"] not in ("0", "reported")
                  and r["numerator"] != r["denominator"]]
     for name in ("Critical field extraction", "Discrepancy recall (critical)", "Gate G1: not-ready orders passed",
-                 "Dates", "Dependencies", "Uncertainty", "Segregation and embedded content (adversarial)"):
+                 "Dates", "Dependencies", "Shared resources", "Uncertainty", "Segregation and embedded content (adversarial)"):
         if blind[name]["denominator"] and blind[name]["status"] != "FAIL":
             problems.append(f"blind predictor: {name} should FAIL but is {blind[name]['status']}")
     return problems

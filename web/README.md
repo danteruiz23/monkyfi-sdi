@@ -20,12 +20,15 @@ passes G1. Open findings are parallel work and do not change the percentage.
 
 From the repo root:
 
-    .venv/bin/python -m src.validators.cli --run runs/eval-meta      # writes validation.json
-    mkdir -p runs/phase3-view && cp -R runs/eval-meta/SYN-* runs/dev-cases-meta/SYN-* runs/phase3-view/
+    mkdir -p runs/phase4-view && cp -R runs/eval-meta/SYN-* runs/dev-cases-meta/SYN-* \
+        runs/adv-0019-meta/SYN-* runs/phase4-cases-meta/SYN-* runs/phase4-view/
+    .venv/bin/python -m src.validators.cli --run runs/phase4-view --as-of 2026-11-10   # validation.json
+    .venv/bin/python -m src.planner.cli --run runs/phase4-view --as-of 2026-11-10      # plan.json (links orders across the folder)
     cd web && npm install && npm run dev                             # http://localhost:3000
 
 The folder shown is `SDI_VIEW_DATA_DIR` in `.env` (relative to the repo root); when it is empty the
-view reads `runs/phase3-view`.
+view reads `runs/phase4-view`. Shared resources are linked across the orders of the folder, so plan the
+whole folder at once.
 
 ## Checks
 

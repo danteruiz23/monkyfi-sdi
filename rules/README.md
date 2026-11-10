@@ -19,3 +19,5 @@ The field files are checked against `schemas/field_rules.schema.json` by the tes
 - `milestones.json` — Phase 4: milestone templates per product (D56) with owner role, criticality, predecessors and applicability conditions (Proposed). A conditional milestone with no evidence either way is listed as `unknown`, never dropped. No duration is assumed anywhere.
 
 - `dependencies.json` — Phase 4: supplier follow-up defaults (D55: first follow-up after 3 business days, escalation after 5; per supplier in the register), the anchor (the supplier's last email, Proposed) and the follow-up states. A dependency without a date is not estimable and its delay unknown (UC05).
+
+- `shared_resources.json` — Phase 4, UC07 minimal slice (Proposed): how a shared resource is recognized by its reference (cross-connect `XC-…`), which orders it links (orders named next to it, and every order whose package names it), blocked and cleared cues (the latest email decides; blocked wins within it), the owner and one shared action.

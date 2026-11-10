@@ -170,7 +170,12 @@ export default async function OrderPage({ params, searchParams }: Props) {
                     <td>
                       {action.action_id} {t(`plan_action.${action.action}`)}{" "}
                       <span className="muted small">
-                        · {action.milestone ? t(`milestone.${action.milestone}`) : `${action.dependency} ${action.supplier}`}
+                        ·{" "}
+                        {action.milestone
+                          ? t(`milestone.${action.milestone}`)
+                          : action.shared_resource
+                            ? `${action.shared_resource} · ${t("ui.shared_with", { orders: (action.linked_order_ids ?? []).join(", ") })}`
+                            : `${action.dependency} ${action.supplier}`}
                       </span>
                     </td>
                     <td>{t(`finding_status.${action.status}`)}</td>

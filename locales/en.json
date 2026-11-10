@@ -254,7 +254,8 @@
     "reason_not_set": "No value has been given yet.",
     "due_not_set": "Not set",
     "follow_up_anchor_last_supplier_email": "Counted from last supplier email ({date}) — no request record",
-    "follow_up_history_not_answered": "First follow-up was due {date} and not answered"
+    "follow_up_history_not_answered": "First follow-up was due {date} and not answered",
+    "shared_with": "Shared with {orders}"
   },
   "milestone": {
     "intake_g1": "Order intake (G1)",
@@ -287,6 +288,7 @@
   "plan_action": {
     "confirm_access_type": "Confirm on-net or off-net access",
     "follow_up_supplier": "Follow up with the supplier for a firm date (FOC)",
-    "escalate_supplier_follow_up": "Escalate: the supplier has not given a firm date after the follow-up"
+    "escalate_supplier_follow_up": "Escalate: the supplier has not given a firm date after the follow-up",
+    "resolve_shared_resource": "Resolve the shared resource once for all linked orders"
   }
 }

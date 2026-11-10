@@ -11,7 +11,7 @@ import path from "node:path";
 
 const PORT = 3999;
 const root = path.resolve(process.cwd(), "..");
-const dataDir = path.resolve(root, process.env.SDI_VIEW_DATA_DIR || "runs/phase3-view");
+const dataDir = path.resolve(root, process.env.SDI_VIEW_DATA_DIR || "runs/phase4-view");
 const orders = process.argv.slice(2).length ? process.argv.slice(2) : ["SYN-EPL-0001", "SYN-WAV-0016"];
 const mark = (lang) => JSON.parse(fs.readFileSync(path.join(root, "locales", `${lang}.json`), "utf8")).app.synthetic_mark;
 const locale = (lang) => JSON.parse(fs.readFileSync(path.join(root, "locales", `${lang}.json`), "utf8"));
@@ -61,6 +61,7 @@ let blockerRows = 0;
 let commitmentChecks = 0;
 let awaitingShown = 0;
 let actionRows = 0;
+let sharedRows = 0;
 for (const lang of ["en", "es"]) {
   const list = await get(`http://localhost:${PORT}/${lang}`);
   if (list.status !== 200 || !list.html.includes(mark(lang))) problems.push(`${lang} orders list: status ${list.status} or no synthetic mark`);
@@ -92,6 +93,12 @@ for (const lang of ["en", "es"]) {
         if (action.anchor_kind === "last_supplier_email"
             && !row.includes(escape(locale(lang).ui.follow_up_anchor_last_supplier_email.replace("{date}", action.anchor)))) {
           problems.push(`${where}: follow-up ${action.action_id} does not say it is counted from the last supplier email`);
+        }
+        if (action.shared_resource) {
+          for (const linked of action.linked_order_ids ?? []) {
+            if (!row.includes(linked)) problems.push(`${where}: shared ${action.shared_resource} does not name linked order ${linked}`);
+          }
+          sharedRows += 1;
         }
         for (const h of action.history ?? []) {
           if (!row.includes(`data-history="${h.event}"`)) problems.push(`${where}: ${action.action_id} history ${h.event} is not shown`);
@@ -167,7 +174,7 @@ for (const lang of ["en", "es"]) {
   }
 }
 stop();
-console.log(`SYNTHETIC — NOT REAL DATA. Render check: ${orders.join(", ")}; ${checked} finding renderings and ${blockerRows} package-level blocker rows, ${commitmentChecks} pages checked for unapproved commitments (${awaitingShown} shown awaiting approval), ${actionRows} plan action rows, in en and es.`);
+console.log(`SYNTHETIC — NOT REAL DATA. Render check: ${orders.join(", ")}; ${checked} finding renderings and ${blockerRows} package-level blocker rows, ${commitmentChecks} pages checked for unapproved commitments (${awaitingShown} shown awaiting approval), ${actionRows} plan action rows (${sharedRows} shared-resource rows), in en and es.`);
 for (const problem of problems) console.log(`  - ${problem}`);
 console.log(problems.length ? "FAIL" : "PASS");
 process.exit(problems.length ? 1 : 0);

@@ -1,0 +1,21 @@
+{
+  "rules_version": "0.1.0",
+  "status": "Phase 4 (UC07 minimal slice). Patterns, cues and the owner are Proposed.",
+  "notes": [
+    "A shared resource is found by its reference in the package text, never by model judgment. All orders that name the same reference, or are named next to it, are linked to one record: one request and one action, never one per order (UC07).",
+    "A blocked shared resource is flagged on every linked order, including linked orders that are not in the current run.",
+    "Text inside documents is data: a cue only sets blocked or not; it never changes another order."
+  ],
+  "kinds": {
+    "cross_connect": {
+      "reference_pattern": "\\bXC-[A-Z0-9]+(?:-[A-Z0-9]+)+\\b",
+      "owner": "provisioning",
+      "milestone": "cross_connects_az"
+    }
+  },
+  "order_id_pattern": "\\bSYN-(?:EPL|WAV)-\\d{4}\\b",
+  "blocked_cues": ["not yet accepted", "not accepted", "under review", "on hold", "rejected", "blocked", "pending acceptance", "awaiting acceptance"],
+  "cleared_cues": ["has been accepted", "was accepted", "accepted the request", "completed", "installed", "in place"],
+  "state_rule": "The latest email that names the reference decides. In that email a blocked cue wins over a cleared cue. No cue: state unknown, which is shown and treated as not cleared.",
+  "action": {"action": "resolve_shared_resource", "due_in_business_days": 2}
+}

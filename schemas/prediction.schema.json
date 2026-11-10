@@ -212,6 +212,37 @@
         }
       }
     },
+    "shared_resources": {
+      "type": "array",
+      "description": "Phase 4, UC07: shared resources linked to this order.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "shared_resource_id",
+          "kind",
+          "is_blocked",
+          "linked_order_ids"
+        ],
+        "properties": {
+          "shared_resource_id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "is_blocked": {
+            "type": "boolean"
+          },
+          "linked_order_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
     "reopened_validations": {
       "type": "array",
       "items": {

@@ -96,6 +96,8 @@ export interface PlanAction {
   milestone: string | null;
   dependency?: string;
   supplier?: string;
+  shared_resource?: string;
+  linked_order_ids?: string[];
   owner: string;
   status: string;
   due_date: string | null;
