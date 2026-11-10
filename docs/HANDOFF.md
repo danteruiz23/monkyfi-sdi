@@ -3,101 +3,138 @@
 ## 0. Header
 
 - **Project:** Monkyfi Service Delivery Intelligence
-- **Phase:** 0 · SPEC, decisions and repository
+- **Session:** Phase 0 session (ran over into Phase 1 by mistake)
 - **Date:** 2026-11-09
-- **Status:** Done — all deliverables are committed and Dante approved `docs/SPEC.md` on 2026-11-09 (D18).
-
-> **Update, same day — Phase 1 started (D24), paused for review.** SPEC v1.1 applies amendments D19–D23. Done so far in Phase 1: `rules/fields.common.json`, `rules/fields.epl.json`, `rules/fields.wavelength.json`, `rules/severity.json`, `rules/synonyms.json`; `schemas/field_rules.schema.json`, `schemas/golden_label.schema.json`; generator `data/synthetic/generate.py` with `data/synthetic/example_orders.py`; two example orders in `data/synthetic/examples/SYN-EPL-0001/` and `data/synthetic/examples/SYN-WAV-0001/`; `tests/test_synthetic_examples.py` (`.venv/bin/python -m pytest -q` → 23 passed). **Waiting on:** Dante's review of the two examples. **Not started:** entity schemas, Supabase migrations, the other 42 orders, simulated events, eval runner, `locales/` skeleton. Setup: `python3 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt`. The sections below describe Phase 0 and are superseded for next steps by this note; a full hand-off is written when the session closes.
+- **Phase 0:** Done — SPEC approved (D18); amendments D19–D23 applied as SPEC v1.1.
+- **Phase 1:** Partially done — started in this session because the amendment message, which also said "build Phase 1", was pasted here by mistake. Stopped on Dante's instruction. Exactly what exists is listed in section a) and e). Nothing was built after the stop.
 
 ## a) Summary of tasks
 
-- [x] Read the PRD, the review and the definitions; raised 9 contradictions; Dante accepted all 9 recommendations (D09–D17).
-- [x] Renamed the three source documents to stable names, content unchanged.
-- [x] Created the repository structure (READMEs and `.gitkeep` only).
-- [x] Wrote `docs/SPEC.md`.
-- [x] Wrote `CLAUDE.md`.
-- [x] Wrote `docs/DECISIONS.md` (D01–D17, dated 2026-11-09).
-- [x] Wrote `.gitignore` and `.env.example` (names only).
-- [x] Committed (`c280c5c`, branch `main`, no remote configured).
-- [x] Dante approved `docs/SPEC.md`.
+**Phase 0 (Done)**
 
-**Tests / build:** none exist yet; there is no product code. Checks run: `grep -n -i "google" docs/SPEC.md docs/DECISIONS.md CLAUDE.md` returned no matches (no real prospect name in the new docs). No evals exist until Phase 1.
+- [x] Read the PRD, the review and the definitions; raised 9 contradictions; all 9 recommendations accepted (D09–D17).
+- [x] Source documents renamed to `docs/PRD.md`, `docs/REVIEW.md`, `docs/DEFINITIONS.md`, content unchanged.
+- [x] Repository structure, `docs/SPEC.md`, `CLAUDE.md`, `docs/DECISIONS.md`, `.gitignore`, `.env.example`.
+- [x] SPEC approved by Dante (D18).
+- [x] SPEC amendments applied (v1.1): critical fields validated with additions (D19), severity validated with changes (D20), two demo variants (D21), `service_order_id` foreign keys (D22), Gemini stays Proposed until before Phase 2 (D23). D24 records the instruction to start Phase 1 and review two examples first.
+
+**Phase 1 (Partially done — built before the stop)**
+
+- [x] Critical-field rules as JSON for common, EPL and wavelength fields.
+- [x] Severity rules and label synonyms (including FOC date = committed date) as JSON.
+- [x] JSON Schemas for the rules files and for the golden label.
+- [x] Synthetic generator and the specs of two example orders.
+- [x] Two generated example orders: `SYN-EPL-0001` and `SYN-WAV-0001` (documents in Markdown plus `golden.json`).
+- [x] Checks on the rules and the examples.
+- [ ] Dante's review of the two example orders (he answered "Yes, generate rest", then stopped the session; treat the review as not confirmed until the Phase 1 session).
+- [ ] JSON Schemas for the entities in SPEC 8.1.
+- [ ] Supabase migrations with RLS.
+- [ ] The remaining 42 orders (44 total), the other 2 Project Aurora circuits, v1/v2 orders, adversarial orders.
+- [ ] Simulated event files.
+- [ ] Eval runner with a single command.
+- [ ] `locales/` skeleton (en, es).
+- [ ] PDF rendering of documents (Proposed).
+
+**Tests:** `.venv/bin/python -m pytest -q` → 23 passed. No evals exist yet (the eval runner is not built).
 
 ## b) Next steps for the next session
 
-1. Dante approves starting Phase 1 (approval of the SPEC is not approval to start the next phase).
-2. Dante validates the items in SPEC section 17 that Phase 1 depends on: critical fields (8.4), default severity (8.3), demo script (3.3).
-3. Confirm whether Gemini stays as the comparison model (see section d).
-4. After approval, start Phase 1: JSON Schemas, Supabase migrations with RLS, EPL and wavelength rules, the 44 synthetic orders with golden labels, simulated events, eval runner.
+1. Run `/prime phase 1` and review the brief. Decide whether to keep, change or discard the Phase 1 work listed in section e).
+2. Confirm or correct the two example orders, and the open questions in section d).
+3. Continue Phase 1 from SPEC section 14: generate the rest of the dataset, entity schemas, migrations with RLS, simulated events, eval runner, `locales/` skeleton.
+4. Dante reviews a sample of 6 orders before Phase 1 closes.
 
-**Prompt to start the next session:**
+**Prompt to start the next session** (open it at the repo root, not in `docs/`):
 
-> Run /prime phase 1. When I approve the plan, build only Phase 1 as described in docs/SPEC.md, run tests and evals, and finish with /hand-off.
+> /prime phase 1
 
 ## c) Friction points
 
-- **Source file names.** The prompt referenced `docs/PRD.md`, `docs/REVIEW.md` and `docs/DEFINITIONS.md`, but the files had their Spanish export names. Handled: renamed with approval (D09). Resolved.
-- **Session working directory is `docs/`, not the repo root.** Shell commands must `cd /Users/danteruiz7/monkyfi-sdi` first. Unresolved; open the next session at the repo root.
-- **Embedded chart missing from the review.** `docs/REVIEW.md` line 66 has an "embedded content" placeholder for the phase plan. The phase text below it was complete, so nothing was lost that I could detect.
-- **Source documents disagreed in 9 places** (UC07 in the demo, Phase 6 scope, G0/G2, dataset size, missing entities, segregation level, and others). Handled by asking; all resolved in D09–D17.
-- **Meta Model API availability.** The review notes it is in public preview in the US only. Not tested this phase; no credentials exist yet. Unresolved risk for Phase 2.
+- **Amendments pasted in the wrong session.** The message said "then build Phase 1", so Phase 1 work started here. Handled: stopped on instruction, work committed and listed. Unresolved: the next session must decide whether to keep it.
+- **First amendment message arrived truncated.** Handled: asked for a resend before changing anything. Resolved.
+- **No Python packages installed.** `jsonschema` and `pytest` were missing. Handled: created `.venv` (git-ignored) and `requirements-dev.txt`. `reportlab` is not installed, so documents are Markdown, not PDF. Unresolved: PDF rendering.
+- **Session working directory is `docs/`.** Every shell command needs `cd /Users/danteruiz7/monkyfi-sdi` first. Unresolved.
+- **Meta Model API availability** (US-only public preview per the review) is untested; no credentials exist. Unresolved risk for Phase 2.
 
 ## d) Changes in the plan
 
-All of these are already in `docs/SPEC.md` and `docs/DECISIONS.md`.
+Already in `docs/SPEC.md` (v1.1) and `docs/DECISIONS.md`: D19–D24.
 
-- Phase 3 covers G1 only; G2 moved to Phase 4; G0 is post-demo (D13).
-- Phase 6 is UC08 with G3–G4 only; UC09, UC10 and G5 are post-demo (D12).
-- Phase 4 includes a minimal UC07 slice (D11).
-- Dataset total is 44 orders: 36 in the split plus 8 adversarial (D14).
-- Schema adds `evidence` and `supplier` (D15); two-level segregation with a second synthetic tenant (D16).
-- Extra folders: `web/`, `supabase/migrations/`, `locales/`, `prompts/`, `src/providers/` (D10).
-- Proposed, not decided: table `order` renamed `service_order` (reserved word in Postgres); Phase 2 threshold of ≥95% critical-field accuracy on the synthetic eval split; added measurable exit criteria to every phase.
+**Choices made in the Phase 1 work that are not decisions (Proposed, need Dante's answer):**
 
-**Open questions for Dante:**
-
-- Mid-session message: "the model to use would be muse meta API". Recorded as confirming D06 (Muse Spark 1.1 is the agent model). Should Gemini remain as the comparison model, or be removed?
-- The other open decisions are listed in SPEC section 17.
+- A supplier's FOC date: should it stay on the supplier dependency, or map to the order's committed date like a carrier FOC?
+- "Route diversity without a reference" is rated critical (tie-break rule applied).
+- Consistent extracted values are labeled `pending`; `verified` is reserved for the data owner.
+- `missing_severity` and `authoritative_source` per field in `rules/fields.*.json` are defaults.
+- Interface fields are stored once per order, not per end.
+- Documents are Markdown; PDF rendering deferred.
+- Whether Gemini is kept (D23, before Phase 2).
 
 ## e) File paths
 
+Commits on `main` (no remote): `c280c5c`, `beb2458`, `9edceef` (Phase 0); `7771cfe` (amendments + Phase 1 partial); plus the commit containing this handoff.
+
 **Documentation**
 
-- `docs/SPEC.md` — created. Source of truth: adjusted PRD, glossary, scope, data plan, schema, 16 cases, phases 0–8.
-- `docs/DECISIONS.md` — created. Decision log D01–D17.
-- `docs/HANDOFF.md` — created. This file.
-- `docs/PRD.md` — renamed from `docs/Monkyfi_Service_Delivery_PRD.md`. Original PRD v0.1, Spanish, unchanged.
-- `docs/REVIEW.md` — renamed from `docs/Monkyfi SDI — Revisión del PRD y plan de construcción por fases.md`. Unchanged content; file mode set to 644.
-- `docs/DEFINITIONS.md` — renamed from `docs/Definiciones críticas.md`. Unchanged.
+- `docs/SPEC.md` — modified. v1.1: sections 1, 3.3, 7.2, 8.1, 8.3, 8.4, 11.3, 14 (Phase 2), 17, header and labels.
+- `docs/DECISIONS.md` — modified. D18–D24 added; rows sorted D01–D24.
+- `docs/HANDOFF.md` — rewritten. This file.
+- `docs/PRD.md`, `docs/REVIEW.md`, `docs/DEFINITIONS.md` — renamed in Phase 0, unchanged since.
+- `CLAUDE.md` — created in Phase 0, unchanged since.
 
 **Configuration and environment**
 
-- `CLAUDE.md` — created. Permanent rules for every session.
-- `.gitignore` — created. Ignores `.env`, keys, real-data folders, Python/Node/Supabase artifacts.
-- `.env.example` — created. Names only: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_DB_URL`, `MODEL_PROVIDER`, `META_MODEL_API_KEY`, `META_MODEL_API_BASE_URL`, `META_MODEL_NAME`, `GEMINI_API_KEY`, `GEMINI_MODEL_NAME`, `DEFAULT_LANGUAGE`, `DEFAULT_TIMEZONE`.
+- `.gitignore`, `.env.example` — created in Phase 0, unchanged since. Variable names: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_DB_URL`, `MODEL_PROVIDER`, `META_MODEL_API_KEY`, `META_MODEL_API_BASE_URL`, `META_MODEL_NAME`, `GEMINI_API_KEY`, `GEMINI_MODEL_NAME`, `DEFAULT_LANGUAGE`, `DEFAULT_TIMEZONE`.
+- `requirements-dev.txt` — created (Phase 1). `jsonschema`, `pytest`.
 
-**Modules (placeholders only)**
+**Rules (Phase 1)**
 
-- `src/README.md` — created.
-- `src/ingest/.gitkeep`, `src/validators/.gitkeep`, `src/planner/.gitkeep`, `src/comms/.gitkeep`, `src/acceptance/.gitkeep`, `src/audit/.gitkeep`, `src/providers/.gitkeep` — created, empty.
-- `web/README.md` — created.
-- `prompts/README.md` — created.
-- `locales/README.md` — created.
+- `rules/fields.common.json` — created. Critical fields for both products.
+- `rules/fields.epl.json` — created. EPL-only fields.
+- `rules/fields.wavelength.json` — created. Wavelength-only fields.
+- `rules/severity.json` — created. Levels, always-critical cases, tie-break.
+- `rules/synonyms.json` — created. Label synonyms for extraction.
+- `rules/README.md` — modified. Describes the files above.
 
-**Data and schema (placeholders only)**
+**Schemas (Phase 1)**
 
-- `schemas/README.md` — created.
-- `rules/README.md` — created.
-- `data/synthetic/README.md` — created.
-- `supabase/migrations/README.md` — created.
+- `schemas/field_rules.schema.json` — created. Shape of `rules/fields.*.json`.
+- `schemas/golden_label.schema.json` — created. Shape of each `golden.json`.
+- `schemas/README.md` — modified.
 
-**Tests and evals (placeholders only)**
+**Data and generator (Phase 1)**
 
-- `evals/README.md` — created.
-- `tests/README.md` — created.
+- `data/synthetic/generate.py` — created. Builds documents and golden labels from a truth plus seeded defects.
+- `data/synthetic/example_orders.py` — created. Specs of the two example orders.
+- `data/synthetic/README.md` — modified.
+- `data/synthetic/examples/SYN-EPL-0001/golden.json` — created.
+- `data/synthetic/examples/SYN-EPL-0001/documents/01_quote.md` — created.
+- `data/synthetic/examples/SYN-EPL-0001/documents/02_order_form_signed.md` — created.
+- `data/synthetic/examples/SYN-EPL-0001/documents/03_technical_annex.md` — created.
+- `data/synthetic/examples/SYN-EPL-0001/documents/04_loa_cfa.md` — created.
+- `data/synthetic/examples/SYN-EPL-0001/documents/05_email_01.md` — created.
+- `data/synthetic/examples/SYN-WAV-0001/golden.json` — created.
+- `data/synthetic/examples/SYN-WAV-0001/documents/01_quote.md` — created.
+- `data/synthetic/examples/SYN-WAV-0001/documents/02_order_form_signed.md` — created.
+- `data/synthetic/examples/SYN-WAV-0001/documents/03_technical_annex.md` — created.
+- `data/synthetic/examples/SYN-WAV-0001/documents/04_loa_cfa.md` — created.
+- `data/synthetic/examples/SYN-WAV-0001/documents/05_email_01.md` — created.
+- `data/synthetic/examples/SYN-WAV-0001/documents/06_email_02.md` — created.
 
-**Commands:** there is no app, test or eval command yet. Phase 1 delivers the single-command eval runner.
+**Tests (Phase 1)**
+
+- `tests/test_synthetic_examples.py` — created. 23 checks: schema validity, synthetic mark, no real company names, one label per critical field, no value without a source, gate logic, no invented committed date, deterministic generation.
+
+**Placeholders from Phase 0, unchanged:** `src/README.md`, `src/ingest/.gitkeep`, `src/validators/.gitkeep`, `src/planner/.gitkeep`, `src/comms/.gitkeep`, `src/acceptance/.gitkeep`, `src/audit/.gitkeep`, `src/providers/.gitkeep`, `web/README.md`, `prompts/README.md`, `locales/README.md`, `supabase/migrations/README.md`, `evals/README.md`, `tests/README.md`.
+
+**Commands** (from the repo root)
+
+- Setup: `python3 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt`
+- Regenerate examples: `.venv/bin/python data/synthetic/generate.py`
+- Tests: `.venv/bin/python -m pytest -q`
+- App and evals: none yet.
 
 ## History
 
-- Phase 0 · 2026-11-09 · Done — deliverables committed, SPEC approved.
+- Phase 0 · 2026-11-09 · Done — deliverables committed, SPEC approved (D18), amendments D19–D23 applied.
+- Phase 1 · 2026-11-09 · Partially done — rules, two schemas, generator and two example orders; stopped on instruction.

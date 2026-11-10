@@ -1,6 +1,6 @@
 # Monkyfi Service Delivery Intelligence — SPEC
 
-Version 1.1 · 2026-11-09 · Owner: Dante Ruiz · Status: approved by Dante on 2026-11-09 (Phase 0 done); v1.1 applies amendments D19–D23; Phase 1 in progress
+Version 1.1 · 2026-11-09 · Owner: Dante Ruiz · Status: approved by Dante on 2026-11-09 (Phase 0 done); v1.1 applies amendments D19–D23; Phase 1 partially done (see `docs/HANDOFF.md`)
 
 This is the single source of truth for the build plan. It is `docs/PRD.md` (v0.1) with the 11 improvements from `docs/REVIEW.md` applied and the definitions from `docs/DEFINITIONS.md` incorporated. Section 18 maps each improvement to where it lands.
 
