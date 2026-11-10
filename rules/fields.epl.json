@@ -1,0 +1,21 @@
+{
+  "rules_version": "0.1.0",
+  "applies_to": ["EPL"],
+  "status": "Field list validated by Dante (D19). authoritative_source and missing_severity are Proposed defaults.",
+  "fields": [
+    {"key": "port_speed", "group": "capacity", "scope": "order", "requirement": "required", "value_type": "speed", "authoritative_source": "order_form", "gate": "G1", "missing_severity": "critical"},
+    {"key": "cir", "group": "capacity", "scope": "order", "requirement": "required", "value_type": "speed", "authoritative_source": "order_form", "gate": "G1", "missing_severity": "critical"},
+
+    {"key": "interface.type", "group": "interface", "scope": "order", "requirement": "required", "value_type": "string", "authoritative_source": "technical_annex", "gate": "G1", "missing_severity": "critical"},
+    {"key": "interface.optic", "group": "interface", "scope": "order", "requirement": "required", "value_type": "string", "authoritative_source": "technical_annex", "gate": "G1", "missing_severity": "critical"},
+    {"key": "interface.connector", "group": "interface", "scope": "order", "requirement": "required", "value_type": "string", "authoritative_source": "technical_annex", "gate": "G1", "missing_severity": "critical"},
+    {"key": "interface.fiber_type", "group": "interface", "scope": "order", "requirement": "required", "value_type": "enum", "enum": ["single-mode", "multimode"], "authoritative_source": "technical_annex", "gate": "G1", "missing_severity": "critical"},
+    {"key": "interface.optic_wavelength_nm", "group": "interface", "scope": "order", "requirement": "required", "value_type": "enum", "enum": ["1310", "1550"], "authoritative_source": "technical_annex", "gate": "G1", "missing_severity": "critical"},
+
+    {"key": "mtu", "group": "parameters", "scope": "order", "requirement": "required", "value_type": "integer", "authoritative_source": "technical_annex", "gate": "G1", "missing_severity": "high"},
+    {"key": "vlan", "group": "parameters", "scope": "order", "requirement": "conditional", "applies_when": null, "condition": "Only if the contract requires it; EPL is normally port-based", "value_type": "string", "authoritative_source": "technical_annex", "gate": "G1", "missing_severity": "high"},
+    {"key": "l2cp_transparency", "group": "parameters", "scope": "order", "requirement": "conditional", "applies_when": null, "condition": "Only if the contract requires L2CP pass-through (for example LACP)", "value_type": "string", "authoritative_source": "technical_annex", "gate": "G1", "missing_severity": "high"},
+
+    {"key": "acceptance.required_tests", "group": "acceptance", "scope": "order", "requirement": "required", "value_type": "string", "authoritative_source": "order_form", "gate": "G1", "missing_severity": "high", "examples": ["RFC 2544", "ITU-T Y.1564"]}
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "rules_version": "0.1.0",
+  "status": "Validated by Dante (D20).",
+  "levels": [
+    {
+      "level": "critical",
+      "rank": 4,
+      "criterion": "Prevents provisioning or creates a contractual error.",
+      "always_critical": [
+        "another_customer_data_in_package",
+        "signature_missing",
+        "signature_unauthorized"
+      ],
+      "blocks_gate": true
+    },
+    {"level": "high", "rank": 3, "criterion": "Puts a committed date at risk.", "blocks_gate": false},
+    {"level": "medium", "rank": 2, "criterion": "Affects only a forecast date, or causes rework without affecting dates.", "blocks_gate": false},
+    {"level": "info", "rank": 1, "criterion": "Data quality.", "blocks_gate": false}
+  ],
+  "tie_break": {
+    "rule": "When unsure between two levels, assign the higher one and escalate to the data owner.",
+    "agent_may_lower_severity": false,
+    "lowering_requires": ["human approver", "recorded reason"]
+  }
+}

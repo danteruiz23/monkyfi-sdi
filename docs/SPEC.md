@@ -1,12 +1,13 @@
 # Monkyfi Service Delivery Intelligence — SPEC
 
-Version 1.0 · 2026-11-09 · Owner: Dante Ruiz · Status: approved by Dante on 2026-11-09 (Phase 0 done)
+Version 1.1 · 2026-11-09 · Owner: Dante Ruiz · Status: approved by Dante on 2026-11-09 (Phase 0 done); v1.1 applies amendments D19–D23; Phase 1 in progress
 
 This is the single source of truth for the build plan. It is `docs/PRD.md` (v0.1) with the 11 improvements from `docs/REVIEW.md` applied and the definitions from `docs/DEFINITIONS.md` incorporated. Section 18 maps each improvement to where it lands.
 
 **How to read the labels**
 
-- **Decided** — a decision made by Dante, recorded in `docs/DECISIONS.md` (D01–D17).
+- **Decided** — a decision made by Dante, recorded in `docs/DECISIONS.md` (D01 onward; the log is the authoritative list).
+- **Validated** — a proposal Dante reviewed and confirmed from delivery experience (sections 8.3 and 8.4).
 - **Proposed** — a default, number or design that has not been decided. It can change without a decision being reversed. Anything not labeled Decided is Proposed.
 
 This document proposes a product. It does not describe a deployed agent or demonstrated results. Targets, timelines and cadences are proposals, not industry standards or contractual commitments.
@@ -29,6 +30,12 @@ This document proposes a product. It does not describe a deployed agent or demon
 | Cross-connect | Physical cable between two parties inside a data center. |
 | LOA-CFA | Letter of Authorization – Connecting Facility Assignment, the document authorizing a cross-connect. |
 | MTU / VLAN | Maximum Transmission Unit / Virtual LAN. |
+| CIR | Committed Information Rate: the guaranteed throughput, which can be lower than the port speed. |
+| L2CP / LACP | Layer 2 Control Protocol / Link Aggregation Control Protocol. L2CP transparency means the service passes these frames through. |
+| FEC | Forward Error Correction, relevant when the client protocol is OTN. |
+| MMR | Meet-Me Room: the data center room where cross-connects are made. |
+| FOC | Firm Order Commitment. A "FOC date" is treated as a synonym of committed date in extraction. |
+| LR4 / ER4 / ZR | Optic reach classes (long, extended, very long reach). |
 | BER | Bit Error Rate; the acceptance test for wavelengths. |
 | RFC 2544 / ITU-T Y.1564 | Ethernet service test standards. |
 | Requested date | The date the customer asked for. |
@@ -88,7 +95,11 @@ One fictional carrier, one team, two products: **EPL and wavelength**.
 
 A web view of orders, findings, plan and drafts, plus exportable drafts. No email, chat or CRM integration in the MVP.
 
-### 3.3 Demo script (Proposed)
+### 3.3 Demo script (Decided: D21)
+
+Two variants over the same dataset; the second adds no build scope.
+
+**Carrier variant**
 
 1. A signed EPL order arrives with 3 seeded errors; the agent reports each with source, severity and owner, and recommends blocking G1.
 2. The SDM corrects; v2 arrives and the agent reopens only the affected validations.
@@ -96,6 +107,10 @@ A web view of orders, findings, plan and drafts, plus exportable drafts. No emai
 4. An email brings a tentative supplier date; the agent does not turn it into a commitment.
 5. The agent prepares three drafts (internal, customer, supplier), in English and then in Spanish.
 6. Close: a project of 3 wavelengths with one shared blocker.
+
+**Hyperscaler variant**
+
+Open with the project of 3 wavelengths: route diversity (with or without its reference) and the shared blocker across the 3 orders. Then continue with steps 1–5 above.
 
 ### 3.4 Assumptions to confirm with a pilot carrier
 
@@ -181,7 +196,7 @@ A coordinator with specialized functions. In the MVP they run inside a single ag
 | Rules | JSON in `rules/`, read by both languages | Decided (D04) |
 | Database | Supabase (Postgres) with RLS; migrations in `supabase/migrations/` | Decided (D05) |
 | Agent model | Muse Spark 1.1 via Meta Model API (OpenAI SDK-compatible) for development | Decided (D06) |
-| Second model | Gemini, for comparison only; specific model version to be chosen | Decided (D06); version Proposed/open |
+| Second model | Gemini, for comparison only | Proposed (D23); Dante decides before Phase 2 |
 | Provider layer | `src/providers/`: one interface (structured output, tool calls); provider selected by `MODEL_PROVIDER` | Decided (D06); interface design Proposed |
 | Web framework | Next.js | Proposed |
 | Orchestration | Single agent loop with tools; no multi-agent framework | Proposed |
@@ -222,18 +237,18 @@ Names are in English because they are Supabase tables. Every table carries `tena
 | `customer` | The carrier's client | tenant_id, name, type (enterprise / hyperscaler) |
 | `project` (Decided: D03) | Groups orders of one customer | customer_id, name |
 | `service_order` | The service order. Named `service_order` because `order` is a reserved word in Postgres | project_id (optional), customer_id, external_order_id, product (EPL / WAVELENGTH), stage, is_blocked, current_version_id |
-| `order_version` | Each version received | order_id, version_no, received_at, supersedes_id |
+| `order_version` | Each version received | service_order_id, version_no, received_at, supersedes_id |
 | `document` | Each file in the package | order_version_id, doc_type, filename, file_hash, ingested_at |
 | `endpoint` | A or Z end; site data are `field_value` rows | order_version_id, side (A / Z) |
 | `field_value` | Value-with-source (8.2) | see 8.2 |
 | `finding` | Discrepancy, including its resolving action | rule_id, field_key, severity, conflicting_values, evidence, impact (confirmed / possible), owner, due_date, action, status |
 | `gate_evaluation` | Recommendation at each gate | order_version_id, gate (G0–G5), recommendation (pass / block), unmet_requirements |
-| `milestone` | Plan milestone | order_id, name, owner, requested_date, forecast_date, forecast_assumptions, committed_date, commitment_approval_id |
+| `milestone` | Plan milestone | service_order_id, name, owner, requested_date, forecast_date, forecast_assumptions, committed_date, commitment_approval_id |
 | `dependency` | What depends on what | from_milestone_id, to_milestone_id, kind (internal / supplier / customer), shared_resource_id, supplier_id, owner, due_date |
 | `shared_resource` (Decided: D03) | Resource common to several orders (e.g. a cross-connect) | tenant_id, kind, description, is_blocked |
 | `supplier` (Decided: D15) | Third party a dependency waits on | tenant_id, name, follow_up_threshold_days |
-| `evidence` (Decided: D15) | Test result or acceptance proof | order_id, kind (test_result / acceptance / other), document_id, covers_requirement, verified_by |
-| `communication` | Status draft | order_id, audience (internal / customer / supplier), language (en / es), status (prepared / approved / sent / failed), body, source_refs |
+| `evidence` (Decided: D15) | Test result or acceptance proof | service_order_id, kind (test_result / acceptance / other), document_id, covers_requirement, verified_by |
+| `communication` | Status draft | service_order_id, audience (internal / customer / supplier), language (en / es), status (prepared / approved / sent / failed), body, source_refs |
 | `approval` | Approvals and overrides | entity, decision, approver, reason, created_at |
 | `audit_event` | Log (RF09) | actor, action, entity, before, after, model_version, prompt_version, rules_version |
 
@@ -254,31 +269,55 @@ No order data is stored loose.
 | fact_timestamp / ingested_at | When the fact happened and when it arrived |
 | extracted_by | model · rule · human |
 
-### 8.3 Default severity (Proposed)
+### 8.3 Default severity (Validated by Dante: D20)
 
 | Severity | Default criterion |
 |---|---|
-| critical | Prevents provisioning or creates a contractual error |
-| high | Delays a milestone |
-| medium | Causes rework without affecting dates |
+| critical | Prevents provisioning or creates a contractual error. Explicitly includes: another customer's data in the package; a missing or unauthorized signature |
+| high | Puts a **committed** date at risk |
+| medium | Affects only a forecast date, or causes rework without affecting dates |
 | info | Data quality |
+
+**Tie-break rule.** When unsure between two levels, assign the higher one and escalate to the data owner. The agent never lowers a severity on its own; only a human can, with a recorded reason.
 
 Severity is configurable per rule in `rules/`. A critical finding blocks a pass recommendation at its gate.
 
-### 8.4 Critical fields per product (Proposed — to be validated by Dante in Phase 1)
+### 8.4 Critical fields per product (Validated by Dante: D19)
 
-| Group | EPL | Wavelength |
-|---|---|---|
-| Identification | Order ID, customer, product, version | Same |
-| Capacity | Bandwidth (1G / 10G / 100G) | Rate (10G / 100G / 400G) and client protocol (Ethernet or OTN) |
-| Interface | Handoff interface type and optic, connector | Client interface (e.g. 100GBASE-LR4 or OTU4), optic, connector |
-| Parameters | MTU; VLAN only if the contract requires it (EPL is normally port-based) | Protection (protected / unprotected); route diversity relative to other circuits; maximum latency if contracted |
-| A/Z ends | Address, building, floor, suite or room, rack, demarcation point | Same |
-| Access | Cross-connect and LOA-CFA, site access, authorized contacts | Same |
-| Acceptance | Required tests (e.g. RFC 2544 or ITU-T Y.1564) | BER test and its duration per contract |
-| Dates | Requested, forecast and committed (with its approval) | Same |
+Machine-readable form: `rules/fields.common.json`, `rules/fields.epl.json`, `rules/fields.wavelength.json`. "(conditional)" means the field is required only when its condition holds; otherwise it is recorded as `not_applicable`, never silently omitted.
 
-Conditional fields are marked `not_applicable` when the product and contract do not require them; they are never silently omitted. For wavelength, route diversity and protection are the conditional fields that matter most to a hyperscaler.
+**Both products**
+
+| Group | Fields |
+|---|---|
+| Identification | Order ID, customer, product, version, carrier circuit ID / service ID |
+| Authorized signature (needed for G1) | Signatory name, signatory title, signature date, contract / order form reference |
+| A/Z ends | Address, building, floor, suite or room, rack, demarcation point, data center operator, Meet-Me Room (MMR) |
+| Cross-connect | Responsibility (carrier or customer); LOA-CFA reference (conditional: when a cross-connect is needed) |
+| Site access (per end) | Access hours, notice lead time, escort required |
+| Contacts by role | Technical contact at A, technical contact at Z, escalation contact |
+| Acceptance terms | Required tests; deemed-acceptance clause and its period |
+| Dates | Requested; forecast (with assumptions); committed (with its approval). "FOC date" is extracted as committed date |
+
+**EPL only**
+
+| Group | Fields |
+|---|---|
+| Capacity | Port speed and CIR, stored as separate fields |
+| Interface | Handoff interface type, optic, connector, fiber type (single-mode / multimode), optic wavelength (1310 / 1550 nm) |
+| Parameters | MTU; VLAN (conditional: only if the contract requires it — EPL is normally port-based); L2CP transparency, e.g. LACP pass-through (conditional) |
+| Acceptance test | RFC 2544 or ITU-T Y.1564 |
+
+**Wavelength only**
+
+| Group | Fields |
+|---|---|
+| Capacity | Rate (10G / 100G / 400G) and client protocol (Ethernet or OTN) |
+| Interface | Client interface (e.g. 100GBASE-LR4 or OTU4), optic, optic reach (e.g. LR4, ER4, ZR), connector; FEC (conditional: when the client protocol is OTN) |
+| Protection | Protected / unprotected; protection switching time (conditional: when protected) |
+| Route diversity | Required or not; when required, the circuit IDs it must be diverse from and the required evidence (e.g. route map). **Diversity without a reference is a finding** |
+| Latency (conditional: if contracted) | Maximum latency, definition (one-way or round-trip), measurement method |
+| Acceptance test | BER test and its duration per contract |
 
 ---
 
@@ -339,7 +378,7 @@ Total: **44 orders** — 36 in the split plus 8 adversarial.
 
 ### 11.3 Generation process (Phase 1, Proposed)
 
-1. Dante validates the critical-field list (8.4).
+1. Dante validates the critical-field list (8.4). Done: D19.
 2. Two sample orders are generated, one per product; Dante reviews them as an SDM would.
 3. With the corrections, the script generates the rest.
 4. Dante reviews a sample of 6 orders (about 17% of the 36 in the split) before the phase closes.
@@ -432,8 +471,8 @@ Each session opens with `/prime phase N` and closes with `/hand-off`. A phase ca
 
 ### Phase 2 · Ingestion and extraction (UC02 partial, RF01)
 
-- **Deliverables:** PDF/DOCX reading; critical-field extraction with value, source, page, version and date; the six `field_value` statuses; the provider layer with Muse Spark 1.1 and Gemini.
-- **Exit criteria:** per-field accuracy reported on the eval split, with ≥95% on critical fields (Proposed). Zero values without a source. Zero invented values on clean orders. Same extraction run completes on both providers with results compared.
+- **Deliverables:** PDF/DOCX reading; critical-field extraction with value, source, page, version and date; the six `field_value` statuses; the provider layer with Muse Spark 1.1 (and Gemini, only if kept — D23).
+- **Exit criteria:** per-field accuracy reported on the eval split, with ≥95% on critical fields (Proposed). Zero values without a source. Zero invented values on clean orders. Only if Gemini is kept: the same extraction run completes on both providers with results compared.
 
 ### Phase 3 · Validators and gate G1 (UC02, UC03, RF02–RF03)
 
@@ -493,8 +532,7 @@ Open items for a pilot offer to a design partner: scope and duration; price or f
 
 ## 17. Open decisions
 
-- Validation of critical fields (8.4), default severity (8.3) and the demo script (3.3) — Dante, in Phase 1.
-- Gemini model version for comparison.
+- Whether Gemini is kept as the comparison model — Dante decides before Phase 2 (D23).
 - Phase 2 synthetic accuracy threshold (≥95% Proposed).
 - Web framework and i18n library.
 - Commercial model (section 16).

@@ -1,5 +1,8 @@
 # schemas
 
-JSON Schema for each entity (Phase 1). Canonical shape for payloads read by both Python and TypeScript.
+JSON Schema (draft 2020-12).
 
-Empty in Phase 0. See `docs/SPEC.md`.
+- `field_rules.schema.json` — shape of the `rules/fields.*.json` files.
+- `golden_label.schema.json` — shape of each synthetic order's `golden.json`.
+
+Entity schemas (SPEC 8.1) are added later in Phase 1, after the example orders are reviewed.

@@ -1,0 +1,29 @@
+{
+  "rules_version": "0.1.0",
+  "applies_to": ["WAVELENGTH"],
+  "status": "Field list validated by Dante (D19). authoritative_source and missing_severity are Proposed defaults.",
+  "fields": [
+    {"key": "rate", "group": "capacity", "scope": "order", "requirement": "required", "value_type": "speed", "authoritative_source": "order_form", "gate": "G1", "missing_severity": "critical"},
+    {"key": "client_protocol", "group": "capacity", "scope": "order", "requirement": "required", "value_type": "enum", "enum": ["Ethernet", "OTN"], "authoritative_source": "order_form", "gate": "G1", "missing_severity": "critical"},
+
+    {"key": "interface.client_interface", "group": "interface", "scope": "order", "requirement": "required", "value_type": "string", "authoritative_source": "technical_annex", "gate": "G1", "missing_severity": "critical"},
+    {"key": "interface.optic", "group": "interface", "scope": "order", "requirement": "required", "value_type": "string", "authoritative_source": "technical_annex", "gate": "G1", "missing_severity": "critical"},
+    {"key": "interface.optic_reach", "group": "interface", "scope": "order", "requirement": "required", "value_type": "string", "authoritative_source": "technical_annex", "gate": "G1", "missing_severity": "critical", "examples": ["LR4", "ER4", "ZR"]},
+    {"key": "interface.connector", "group": "interface", "scope": "order", "requirement": "required", "value_type": "string", "authoritative_source": "technical_annex", "gate": "G1", "missing_severity": "critical"},
+    {"key": "fec", "group": "interface", "scope": "order", "requirement": "conditional", "applies_when": {"field": "client_protocol", "equals": "OTN"}, "condition": "The client protocol is OTN", "value_type": "string", "authoritative_source": "technical_annex", "gate": "G1", "missing_severity": "critical"},
+
+    {"key": "protection.type", "group": "protection", "scope": "order", "requirement": "required", "value_type": "enum", "enum": ["protected", "unprotected"], "authoritative_source": "order_form", "gate": "G1", "missing_severity": "critical"},
+    {"key": "protection.switching_time", "group": "protection", "scope": "order", "requirement": "conditional", "applies_when": {"field": "protection.type", "equals": "protected"}, "condition": "The service is protected", "value_type": "duration", "authoritative_source": "order_form", "gate": "G1", "missing_severity": "high"},
+
+    {"key": "route_diversity.required", "group": "route_diversity", "scope": "order", "requirement": "required", "value_type": "boolean", "authoritative_source": "order_form", "gate": "G1", "missing_severity": "critical"},
+    {"key": "route_diversity.reference_circuit_ids", "group": "route_diversity", "scope": "order", "requirement": "conditional", "applies_when": {"field": "route_diversity.required", "equals": "yes"}, "condition": "Route diversity is required. Diversity without a reference is a finding (D19)", "value_type": "list", "authoritative_source": "order_form", "gate": "G1", "missing_severity": "critical"},
+    {"key": "route_diversity.required_evidence", "group": "route_diversity", "scope": "order", "requirement": "conditional", "applies_when": {"field": "route_diversity.required", "equals": "yes"}, "condition": "Route diversity is required", "value_type": "string", "authoritative_source": "order_form", "gate": "G1", "missing_severity": "high", "examples": ["route map"]},
+
+    {"key": "latency.max", "group": "latency", "scope": "order", "requirement": "conditional", "applies_when": null, "condition": "Only if a maximum latency is contracted", "value_type": "duration", "authoritative_source": "order_form", "gate": "G1", "missing_severity": "high"},
+    {"key": "latency.definition", "group": "latency", "scope": "order", "requirement": "conditional", "applies_when": {"field": "latency.max", "present": true}, "condition": "A maximum latency is contracted", "value_type": "enum", "enum": ["one-way", "round-trip"], "authoritative_source": "order_form", "gate": "G1", "missing_severity": "high"},
+    {"key": "latency.measurement_method", "group": "latency", "scope": "order", "requirement": "conditional", "applies_when": {"field": "latency.max", "present": true}, "condition": "A maximum latency is contracted", "value_type": "string", "authoritative_source": "order_form", "gate": "G1", "missing_severity": "high"},
+
+    {"key": "acceptance.ber_test", "group": "acceptance", "scope": "order", "requirement": "required", "value_type": "string", "authoritative_source": "order_form", "gate": "G1", "missing_severity": "high"},
+    {"key": "acceptance.ber_test_duration", "group": "acceptance", "scope": "order", "requirement": "required", "value_type": "duration", "authoritative_source": "order_form", "gate": "G1", "missing_severity": "high"}
+  ]
+}

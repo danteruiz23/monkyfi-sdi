@@ -7,6 +7,8 @@
 - **Date:** 2026-11-09
 - **Status:** Done — all deliverables are committed and Dante approved `docs/SPEC.md` on 2026-11-09 (D18).
 
+> **Update, same day — Phase 1 started (D24), paused for review.** SPEC v1.1 applies amendments D19–D23. Done so far in Phase 1: `rules/fields.common.json`, `rules/fields.epl.json`, `rules/fields.wavelength.json`, `rules/severity.json`, `rules/synonyms.json`; `schemas/field_rules.schema.json`, `schemas/golden_label.schema.json`; generator `data/synthetic/generate.py` with `data/synthetic/example_orders.py`; two example orders in `data/synthetic/examples/SYN-EPL-0001/` and `data/synthetic/examples/SYN-WAV-0001/`; `tests/test_synthetic_examples.py` (`.venv/bin/python -m pytest -q` → 23 passed). **Waiting on:** Dante's review of the two examples. **Not started:** entity schemas, Supabase migrations, the other 42 orders, simulated events, eval runner, `locales/` skeleton. Setup: `python3 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt`. The sections below describe Phase 0 and are superseded for next steps by this note; a full hand-off is written when the session closes.
+
 ## a) Summary of tasks
 
 - [x] Read the PRD, the review and the definitions; raised 9 contradictions; Dante accepted all 9 recommendations (D09–D17).

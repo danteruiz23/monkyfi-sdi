@@ -1,0 +1,14 @@
+{
+  "rules_version": "0.1.0",
+  "status": "FOC synonym decided by Dante (D19). Other entries are Proposed.",
+  "field_label_synonyms": {
+    "dates.committed": ["committed date", "FOC date", "Firm Order Commitment date", "FOC"],
+    "dates.requested": ["requested date", "customer requested date", "requested service date", "CRD"],
+    "dates.forecast": ["forecast date", "estimated date", "target date", "tentative date", "ETA"],
+    "cir": ["CIR", "Committed Information Rate"],
+    "meet_me_room": ["MMR", "Meet-Me Room"]
+  },
+  "notes": [
+    "A synonym changes only which field a labeled value maps to. A date is stored as committed only when it is labeled as such in an authoritative document and has a recorded approval; wording such as tentative, target or estimated always maps to forecast."
+  ]
+}

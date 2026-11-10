@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "golden_label.schema.json",
+  "title": "Golden label for one synthetic order (golden.json)",
+  "description": "Known-correct answers, produced by the generator from the seeded defects. expected_status uses the field_value statuses; 'pending' means extracted and consistent but not yet verified by its data owner, or a value that is still awaited.",
+  "type": "object",
+  "required": ["synthetic", "synthetic_mark", "order", "documents", "expected_fields", "expected_findings", "expected_gate", "expected_dates", "shared_resources", "seeded_defects"],
+  "additionalProperties": false,
+  "$defs": {
+    "source": {
+      "type": "object",
+      "required": ["doc_id", "location", "raw_value"],
+      "additionalProperties": false,
+      "properties": {
+        "doc_id": {"type": "string"},
+        "location": {"type": "string"},
+        "raw_value": {"type": "string"}
+      }
+    },
+    "severity": {"enum": ["critical", "high", "medium", "info"]}
+  },
+  "properties": {
+    "synthetic": {"const": true},
+    "synthetic_mark": {"const": "SYNTHETIC — NOT REAL DATA"},
+    "order": {
+      "type": "object",
+      "required": ["external_order_id", "product", "version_no", "tenant", "customer", "customer_type", "project", "split"],
+      "additionalProperties": false,
+      "properties": {
+        "external_order_id": {"type": "string"},
+        "product": {"enum": ["EPL", "WAVELENGTH"]},
+        "version_no": {"type": "integer", "minimum": 1},
+        "tenant": {"type": "string"},
+        "customer": {"type": "string"},
+        "customer_type": {"enum": ["enterprise", "hyperscaler"]},
+        "project": {"type": ["string", "null"]},
+        "split": {"enum": ["example", "dev", "eval", "adversarial"]}
+      }
+    },
+    "documents": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["doc_id", "doc_type", "filename"],
+        "additionalProperties": false,
+        "properties": {
+          "doc_id": {"type": "string"},
+          "doc_type": {"enum": ["quote", "order_form", "technical_annex", "loa_cfa", "email"]},
+          "filename": {"type": "string"}
+        }
+      }
+    },
+    "expected_fields": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["field_key", "expected_status", "raw_value", "normalized_value", "sources"],
+        "additionalProperties": false,
+        "properties": {
+          "field_key": {"type": "string"},
+          "expected_status": {"enum": ["verified", "pending", "missing", "not_applicable", "contradictory", "stale"]},
+          "raw_value": {"type": ["string", "null"]},
+          "normalized_value": {},
+          "sources": {"type": "array", "items": {"$ref": "#/$defs/source"}}
+        }
+      }
+    },
+    "expected_findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["finding_id", "rule_id", "field_key", "severity", "mandatory_case", "conflicting_values", "description"],
+        "additionalProperties": false,
+        "properties": {
+          "finding_id": {"type": "string"},
+          "rule_id": {"type": "string"},
+          "field_key": {"type": "string"},
+          "severity": {"$ref": "#/$defs/severity"},
+          "mandatory_case": {"type": ["integer", "null"], "minimum": 1, "maximum": 16},
+          "conflicting_values": {"type": "array", "items": {"$ref": "#/$defs/source"}},
+          "description": {"type": "string"}
+        }
+      }
+    },
+    "expected_gate": {
+      "type": "object",
+      "required": ["gate", "recommendation", "blocking_finding_ids"],
+      "additionalProperties": false,
+      "properties": {
+        "gate": {"const": "G1"},
+        "recommendation": {"enum": ["pass", "block"]},
+        "blocking_finding_ids": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "expected_dates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["doc_id", "location", "raw_value", "date", "type", "is_commitment", "mandatory_case", "note"],
+        "additionalProperties": false,
+        "properties": {
+          "doc_id": {"type": "string"},
+          "location": {"type": "string"},
+          "raw_value": {"type": "string"},
+          "date": {"type": "string", "format": "date"},
+          "type": {"enum": ["requested", "forecast", "committed"]},
+          "is_commitment": {"type": "boolean"},
+          "mandatory_case": {"type": ["integer", "null"]},
+          "note": {"type": "string"}
+        }
+      }
+    },
+    "shared_resources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["shared_resource_id", "kind", "description", "is_blocked", "linked_order_ids"],
+        "additionalProperties": false,
+        "properties": {
+          "shared_resource_id": {"type": "string"},
+          "kind": {"type": "string"},
+          "description": {"type": "string"},
+          "is_blocked": {"type": "boolean"},
+          "linked_order_ids": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "seeded_defects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["defect_type", "description"],
+        "properties": {
+          "defect_type": {"type": "string"},
+          "description": {"type": "string"}
+        }
+      }
+    }
+  }
+}

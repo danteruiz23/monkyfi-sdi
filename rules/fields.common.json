@@ -1,0 +1,49 @@
+{
+  "rules_version": "0.1.0",
+  "applies_to": ["EPL", "WAVELENGTH"],
+  "status": "Field list validated by Dante (D19). authoritative_source and missing_severity are Proposed defaults.",
+  "notes": [
+    "scope=endpoint fields are stored once per end, as a_end.<key> and z_end.<key>.",
+    "requirement=conditional fields are required only when applies_when holds (or, when applies_when is null, when the contract requires them). Otherwise they are recorded as not_applicable, never omitted.",
+    "missing_severity is the default severity of the finding raised when a required field is missing. Tie-break (D20): when unsure, the higher severity."
+  ],
+  "fields": [
+    {"key": "order_id", "group": "identification", "scope": "order", "requirement": "required", "value_type": "string", "authoritative_source": "order_form", "gate": "G1", "missing_severity": "critical"},
+    {"key": "customer_name", "group": "identification", "scope": "order", "requirement": "required", "value_type": "string", "authoritative_source": "order_form", "gate": "G1", "missing_severity": "critical"},
+    {"key": "product", "group": "identification", "scope": "order", "requirement": "required", "value_type": "enum", "enum": ["EPL", "WAVELENGTH"], "authoritative_source": "order_form", "gate": "G1", "missing_severity": "critical"},
+    {"key": "order_version", "group": "identification", "scope": "order", "requirement": "required", "value_type": "string", "authoritative_source": "order_form", "gate": "G1", "missing_severity": "critical"},
+    {"key": "carrier_circuit_id", "group": "identification", "scope": "order", "requirement": "required", "value_type": "string", "authoritative_source": "order_form", "gate": "G1", "missing_severity": "high"},
+
+    {"key": "signature.signatory_name", "group": "signature", "scope": "order", "requirement": "required", "value_type": "string", "authoritative_source": "order_form", "gate": "G1", "missing_severity": "critical"},
+    {"key": "signature.signatory_title", "group": "signature", "scope": "order", "requirement": "required", "value_type": "string", "authoritative_source": "order_form", "gate": "G1", "missing_severity": "critical"},
+    {"key": "signature.date", "group": "signature", "scope": "order", "requirement": "required", "value_type": "date", "authoritative_source": "order_form", "gate": "G1", "missing_severity": "critical"},
+    {"key": "signature.contract_reference", "group": "signature", "scope": "order", "requirement": "required", "value_type": "string", "authoritative_source": "order_form", "gate": "G1", "missing_severity": "critical"},
+
+    {"key": "address", "group": "endpoint", "scope": "endpoint", "requirement": "required", "value_type": "string", "authoritative_source": "technical_annex", "gate": "G1", "missing_severity": "critical"},
+    {"key": "building", "group": "endpoint", "scope": "endpoint", "requirement": "required", "value_type": "string", "authoritative_source": "technical_annex", "gate": "G1", "missing_severity": "critical"},
+    {"key": "floor", "group": "endpoint", "scope": "endpoint", "requirement": "required", "value_type": "string", "authoritative_source": "technical_annex", "gate": "G1", "missing_severity": "critical"},
+    {"key": "suite_or_room", "group": "endpoint", "scope": "endpoint", "requirement": "required", "value_type": "string", "authoritative_source": "technical_annex", "gate": "G1", "missing_severity": "critical"},
+    {"key": "rack", "group": "endpoint", "scope": "endpoint", "requirement": "required", "value_type": "string", "authoritative_source": "technical_annex", "gate": "G1", "missing_severity": "critical"},
+    {"key": "demarcation_point", "group": "endpoint", "scope": "endpoint", "requirement": "required", "value_type": "string", "authoritative_source": "technical_annex", "gate": "G1", "missing_severity": "critical"},
+    {"key": "data_center_operator", "group": "endpoint", "scope": "endpoint", "requirement": "required", "value_type": "string", "authoritative_source": "technical_annex", "gate": "G1", "missing_severity": "high"},
+    {"key": "meet_me_room", "group": "endpoint", "scope": "endpoint", "requirement": "required", "value_type": "string", "authoritative_source": "technical_annex", "gate": "G1", "missing_severity": "high"},
+
+    {"key": "cross_connect.required", "group": "cross_connect", "scope": "endpoint", "requirement": "required", "value_type": "boolean", "authoritative_source": "technical_annex", "gate": "G1", "missing_severity": "critical"},
+    {"key": "cross_connect.responsibility", "group": "cross_connect", "scope": "endpoint", "requirement": "conditional", "applies_when": {"field": "cross_connect.required", "equals": "yes"}, "condition": "A cross-connect is needed at this end", "value_type": "enum", "enum": ["carrier", "customer"], "authoritative_source": "order_form", "gate": "G1", "missing_severity": "critical"},
+    {"key": "cross_connect.loa_cfa_reference", "group": "cross_connect", "scope": "endpoint", "requirement": "conditional", "applies_when": {"field": "cross_connect.required", "equals": "yes"}, "condition": "A cross-connect is needed at this end", "value_type": "string", "authoritative_source": "loa_cfa", "gate": "G1", "missing_severity": "critical"},
+
+    {"key": "site_access.hours", "group": "site_access", "scope": "endpoint", "requirement": "required", "value_type": "string", "authoritative_source": "technical_annex", "gate": "G1", "missing_severity": "medium"},
+    {"key": "site_access.notice_lead_time", "group": "site_access", "scope": "endpoint", "requirement": "required", "value_type": "duration", "authoritative_source": "technical_annex", "gate": "G1", "missing_severity": "medium"},
+    {"key": "site_access.escort_required", "group": "site_access", "scope": "endpoint", "requirement": "required", "value_type": "boolean", "authoritative_source": "technical_annex", "gate": "G1", "missing_severity": "medium"},
+
+    {"key": "technical_contact", "group": "contacts", "scope": "endpoint", "requirement": "required", "value_type": "contact", "authoritative_source": "technical_annex", "gate": "G1", "missing_severity": "high"},
+    {"key": "escalation_contact", "group": "contacts", "scope": "order", "requirement": "required", "value_type": "contact", "authoritative_source": "order_form", "gate": "G1", "missing_severity": "medium"},
+
+    {"key": "acceptance.deemed_acceptance_clause", "group": "acceptance", "scope": "order", "requirement": "required", "value_type": "boolean", "authoritative_source": "order_form", "gate": "G1", "missing_severity": "high"},
+    {"key": "acceptance.deemed_acceptance_period", "group": "acceptance", "scope": "order", "requirement": "conditional", "applies_when": {"field": "acceptance.deemed_acceptance_clause", "equals": "yes"}, "condition": "The contract has a deemed-acceptance clause", "value_type": "duration", "authoritative_source": "order_form", "gate": "G1", "missing_severity": "high"},
+
+    {"key": "dates.requested", "group": "dates", "scope": "order", "requirement": "required", "value_type": "date", "authoritative_source": "order_form", "gate": "G1", "missing_severity": "high"},
+    {"key": "dates.forecast", "group": "dates", "scope": "order", "requirement": "conditional", "applies_when": null, "condition": "A forecast exists; it must carry explicit assumptions", "value_type": "date", "authoritative_source": "carrier_plan", "gate": "G2", "missing_severity": "info"},
+    {"key": "dates.committed", "group": "dates", "scope": "order", "requirement": "conditional", "applies_when": null, "condition": "The carrier has formally committed; requires a recorded approval", "value_type": "date", "authoritative_source": "order_form", "gate": "G2", "missing_severity": "info"}
+  ]
+}
