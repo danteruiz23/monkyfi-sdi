@@ -1,6 +1,6 @@
 # Monkyfi Service Delivery Intelligence — SPEC
 
-Version 1.3 · 2026-11-09 · Owner: Dante Ruiz · Status: approved by Dante on 2026-11-09 (Phase 0 done); v1.1 applies amendments D19–D23; v1.2 applies D25–D32 (review of the two example orders); Phase 1 done (D33); v1.3 records Phase 2 as built so far (section 14) and applies D34–D36; see `docs/HANDOFF.md`
+Version 1.3 · 2026-11-10 · Owner: Dante Ruiz · Status: approved by Dante on 2026-11-09 (Phase 0 done); v1.1 applies amendments D19–D23; v1.2 applies D25–D32 (review of the two example orders); Phase 1 done (D33); v1.3 applies D34–D40; Phase 2 done (D37); see `docs/HANDOFF.md`
 
 This is the single source of truth for the build plan. It is `docs/PRD.md` (v0.1) with the 11 improvements from `docs/REVIEW.md` applied and the definitions from `docs/DEFINITIONS.md` incorporated. Section 18 maps each improvement to where it lands.
 
@@ -484,7 +484,8 @@ Each session opens with `/prime phase N` and closes with `/hand-off`. A phase ca
 
 - **Deliverables:** PDF/DOCX reading (extraction is evaluated on the dataset's PDFs, D30); critical-field extraction with value, source, page, version and date; the six `field_value` statuses; the provider layer with Muse Spark 1.1 and Gemini (gemini-3.8-flash) as the comparison model (D36).
 - **Exit criteria:** per-field accuracy reported on the eval split, with ≥95% on critical fields (Decided: D34; the PRD's 98% in 12.1 is reported for information only on synthetic data). Zero values without a source. Zero invented values on clean orders. The same extraction run completes on both providers, with the same prompt and rules, and results compared (D36).
-- **As built (in progress):** `src/ingest/` (PDF and DOCX), `src/providers/` (Muse Spark and Gemini through OpenAI-compatible clients, schema-validated answers, recording and replay), `src/extract/` and `prompts/`. The model proposes mentions per document; deterministic code keeps only text printed on the cited page, normalizes it and sets each field's status (rules in `rules/extraction.json`). Emails never set or contradict a contractual field value (Decided: D35); in Phase 4 they are evidence for tentative dates, as forecast only. Extraction sets pending, missing, not_applicable and contradictory; verified needs a named human and stale marks a value superseded by a newer version. The eval runner maps source file names to document ids. Not yet measured: no model credentials exist, so the exit criteria have not been demonstrated.
+- **Status: Done (D37).** Eval split (12 orders, 13 versions, synthetic): critical-field extraction 828/828 (100%) on both Muse Spark 1.1 and gemini-3.8-flash; traceability 761/761; zero rejected values; zero schema retries. Model time per order on Muse Spark: 43–76 s (11 orders), within the 3-minute target in section 9; gemini-3.8-flash 150–345 s. The data is clean, text-based PDFs, so it does not tell the models apart (backlog D39).
+- **As built:** `src/ingest/` (PDF and DOCX), `src/providers/` (Muse Spark and Gemini through OpenAI-compatible clients, schema-validated answers, recording and replay), `src/extract/` and `prompts/`. The model proposes mentions per document; deterministic code keeps only text printed on the cited page, normalizes it and sets each field's status (rules in `rules/extraction.json`). Emails never set or contradict a contractual field value (Decided: D35); in Phase 4 they are evidence for tentative dates, as forecast only. Extraction sets pending, missing, not_applicable and contradictory; verified needs a named human and stale marks a value superseded by a newer version. The eval runner maps source file names to document ids. Muse Spark 1.1 stays the primary model; Gemini stays the comparison model (D37).
 
 ### Phase 3 · Validators and gate G1 (UC02, UC03, RF02–RF03)
 
@@ -508,7 +509,7 @@ Each session opens with `/prime phase N` and closes with `/hand-off`. A phase ca
 
 ### Phase 7 · Security, robustness and audit (RF07, RF09, RF10, RF11)
 
-- **Deliverables:** tenant RLS verified with the second synthetic tenant; customer-level scoping; defense against instructions inside documents; idempotency and deduplication; complete audit log; SDM corrections saved as candidate eval cases.
+- **Deliverables:** tenant RLS verified with the second synthetic tenant; customer-level scoping; defense against instructions inside documents; idempotency and deduplication; complete audit log; SDM corrections saved as candidate eval cases; every model API retry logged with its reason (for example 429 or timeout), because silent client retries make failures unobservable (RF07, D38).
 - **Exit criteria:** zero failures on the 8 adversarial orders and the simulated events. Zero cross-tenant reads in RLS tests. Zero duplicated effects on repeated events; every failure is visible. Mandatory cases 11, 12, 13 and 14 pass. Full eval regression with no drop.
 
 ### Phase 8 · Web view and demo
@@ -547,6 +548,8 @@ Open items for a pilot offer to a design partner: scope and duration; price or f
 - G1 and non-critical gaps: D28 is implemented as "a missing or contradictory field blocks G1 when its severity is critical". The alternative reading is that any missing or contradictory field in the 8.4 list blocks G1. It would change the expected G1 result of 3 orders that currently pass with a medium or high finding (SYN-EPL-0008, SYN-WAV-0011, SYN-WAV-0017).
 - Demo step 1 needs an EPL order with 3 seeded errors, while 11.1 allows one or two per order. Either one order gets a third defect or the demo shows two.
 - The migration has been parsed and checked against the schemas but not executed: there is no local Postgres. Applying it to a Supabase project needs Dante's approval.
+- Backlog before the demo (D39): a "hard" synthetic subset (scanned PDFs, misaligned tables, varied wording) to tell models apart; the current data is too clean. Scanned PDFs need OCR, which is not built.
+- Backlog (D40): test lower reasoning effort on Muse Spark (reasoning is about 83% of its output tokens) while keeping extraction ≥95%; requires an eval re-run.
 - Field-level `stale`: the labels count a value from a document not reissued for the current version as `pending` (the version mismatch itself is the contradictory `order_version`). The extractor follows that and marks the source as from an earlier version; `stale` is used only when a newer version supersedes a stored value.
 - Web framework and i18n library.
 - Commercial model (section 16).

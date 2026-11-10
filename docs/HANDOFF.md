@@ -3,251 +3,162 @@
 ## 0. Header
 
 - **Project:** Monkyfi Service Delivery Intelligence
-- **Session:** Phase 1 — schemas, synthetic dataset and eval runner
-- **Date:** 2026-11-09
-- **Status:** Done. Dante approved the two examples with changes (D25–D32) and the 6-order sample with the severity table (D33).
-- **Not done on purpose:** the migration has not been applied to any database, and nothing from Phase 2 was started.
+- **Session:** Phase 2 — ingestion and extraction (UC02 partial, RF01)
+- **Date:** 2026-11-10
+- **Status:** Done. Dante accepted the results; exit criteria met (D37).
+- **Not done on purpose:** nothing from Phase 3 was started. The database migration is still not applied anywhere.
 
 ## a) Summary of tasks
 
-- [x] Review changes applied (D25–D31): handoff interface per endpoint; supplier FOC stays on the dependency; diversity without a reference is critical; G1 passes on consistency and never requires `verified`; missing-field severities accepted as defaults; every document is a PDF; every package has the full document set.
-- [x] 44 synthetic orders (48 order versions, 259 PDFs with a Markdown copy each) and one golden label per version. Per product: 5 clean, 13 with one or two seeded defects, 4 adversarial. Split 24 dev / 12 eval by customer, 8 adversarial apart.
-- [x] All 16 mandatory cases have test data (listed in `data/synthetic/manifest.json`).
-- [x] Three simulated event files (repeated update, integration down, missing telemetry).
-- [x] JSON Schemas for the 18 entities of SPEC 8.1, and one migration with tenant RLS.
-- [x] Rules: interface fields per endpoint, and `rules/gates.json` with the G1 pass condition.
-- [x] Eval runner with one command, reporting a denominator for every eval.
-- [x] `locales/` skeleton (en, es).
-- [x] `docs/PHASE1_SAMPLE.md`: 6 random orders plus the severity table, approved (D33).
-- [ ] Migration executed against Postgres — not done; there is no local Postgres and applying it to Supabase needs Dante's approval.
+- [x] Phase 1 committed at the start of the session (`784340f`).
+- [x] PDF reading (pypdf) and DOCX reading (no extra dependency), page by page, with SHA-256, document type from the title and ingestion time. No OCR.
+- [x] Provider layer: Muse Spark 1.1 (Meta Model API) and gemini-3.8-flash, both through OpenAI-compatible clients. Answers validated against a JSON Schema with bounded retries; every answer recorded and replayable offline.
+- [x] Extraction: the model proposes mentions per document; deterministic code keeps only text printed on the cited page, normalizes by value type and sets each field's status across documents.
+- [x] Statuses: extraction sets pending, missing, not_applicable, contradictory; `verified` needs a named human; `stale` marks a value superseded by a newer version (`src/extract/status.py`).
+- [x] `prediction.json` and `extraction.json` per order version; the eval runner maps source file names to document ids.
+- [x] Decisions D34–D40 recorded in `docs/DECISIONS.md` and `docs/SPEC.md` (v1.3). SYN-WAV-0019 relabeled (D35).
+- [x] Eval split run and scored on both models with the same prompt and rules.
 
-**Tests:** `.venv/bin/python -m pytest -q` → 789 passed.
+**Tests:** `.venv/bin/python -m pytest -q` → 817 passed.
 
-**Evals:** `.venv/bin/python evals/run.py` → exit 0. No agent exists before Phase 2, so every eval is NOT RUN and reports only its denominator. The runner's self-check passed (a perfect reference predictor passes, a blind one fails). Output for the eval split:
+**Evals:** `.venv/bin/python evals/run.py --predictions runs/eval-meta` → extraction and traceability PASS; all other evals NOT RUN (their phases come later). Scorer self-check OK. Same result for `runs/eval-gemini`.
 
-    SYNTHETIC — NOT REAL DATA. Thresholds on synthetic data are a development signal, not production proof.
-    Split: eval — 12 orders, 13 order versions. Adversarial (reported separately): 8 orders.
-    Predictions: 0 of 21 order versions (none given: no agent output exists before Phase 2)
-    
-    Eval                                                   Result  Threshold                         Status
-    Critical field extraction                               -/828  >= 98%                            NOT RUN
-    Critical field extraction (EPL)                         -/366  >= 98%                            NOT RUN
-    Critical field extraction (WAVELENGTH)                  -/462  >= 98%                            NOT RUN
-    Discrepancy recall (critical)                             -/6  >= 95%                            NOT RUN
-    Discrepancy recall (high)                                 -/2  reported                          NOT RUN
-    Discrepancy recall (medium)                               -/0  reported                          NOT RUN
-    Discrepancy recall (info)                                 -/0  reported                          NOT RUN
-    Discrepancy precision (overall)                             -  >= 90%                            NOT RUN  [denominator is the agent's finding count]
-    Severity never lowered                                      -  0                                 NOT RUN
-    Factual traceability                                        -  >= 99%                            NOT RUN  [denominator is the agent's value count]
-    Invented committed dates                                 -/13  0                                 NOT RUN  [release blocker; denominator is order versions]
-    Gate G1: not-ready orders passed                          -/4  0                                 NOT RUN  [release blocker]
-    Gate G1: ready orders blocked                             -/9  reported                          NOT RUN
-    Dates                                                    -/41  100%                              NOT RUN
-    Uncertainty                                               -/8  >= 95%                            NOT RUN
-    Version change                                            -/1  100%                              NOT RUN
-    Segregation and embedded content (adversarial)            -/8  all                               NOT RUN  [release blocker; tenant RLS tests are added in Phase 7]
-    Communication                                               -  >= 4/5 per dimension; zero leaks  NOT RUN  [manual; Phase 5]
-    Integration robustness                                    -/3  all                               NOT RUN  [Phase 7; data in data/synthetic/events/]
+Eval split, synthetic (12 orders, 13 order versions, 71 documents):
 
-Thresholds on synthetic data are a development signal, not production proof.
+| | Muse Spark 1.1 (primary) | gemini-3.8-flash (comparison) |
+|---|---|---|
+| Critical field extraction | 828/828, 100% PASS | 828/828, 100% PASS |
+| EPL / Wavelength | 366/366 / 462/462 | 366/366 / 462/462 |
+| Factual traceability | 761/761, 100% | 761/761, 100% |
+| Fields below 95% | none | none |
+| Rejected values (not on the cited page) | 0 | 0 |
+| Schema retries | 0 | 0 |
+| Model calls | 71 | 71 |
+| Prompt / completion / total tokens | 201,700 / 330,356 / 532,056 | 218,039 / 61,792 / 567,129 |
+| Reasoning tokens | 275,920 (83.5% of output) | not reported separately |
+| Time per call, mean / median / max | 10.1 s / 9.6 s / 26.5 s | 42.2 s / 26.8 s / 212.5 s |
+| Model time per order (orders with no replayed calls) | 43–76 s, 11 orders | 150–345 s, 12 orders |
+
+The PRD's 98% target, reported for information only (D34), is met by both. Gemini's total exceeds prompt + completion by 287,298 tokens, probably thinking tokens (inferred, not reported by the API). Token counts include the few calls answered from recordings (Muse Spark 6, Gemini 1). Thresholds on synthetic data are a development signal, not production proof: the PDFs are clean and text-based, so this run does not tell the models apart (D39).
 
 ## b) Next steps for the next session
 
-1. Dante decides whether Gemini is kept as the comparison model (D23) and approves the start of Phase 2.
-2. Dante answers the open questions in section d).
-3. Phase 2 (SPEC section 14): PDF reading, critical-field extraction with value, source, page, version and date, the six `field_value` statuses, and the provider layer in `src/providers/`. The agent writes `prediction.json` files that `evals/run.py --predictions DIR` scores.
-4. Before any model call: confirm Meta Model API access and add the credentials to `.env` (never to the repo).
+1. Phase 3 (SPEC section 14): EPL and wavelength checklists, comparison across documents and versions, severity, findings with owner, due date and action, the G1 recommendation, and override with reason and approver. Build on `extraction.json`: contradictory and missing fields are already there with all their sources.
+2. Phase 3 exit: critical recall ≥95%, precision ≥90%, zero not-ready orders passed, zero findings on clean orders, only affected validations reopened on v2; mandatory cases 1, 2, 3, 4 and 8.
+3. Keep the backlog in view: D38 (Phase 7, log API retries with reason), D39 (hard synthetic subset before the demo), D40 (lower reasoning effort on Muse Spark, keep ≥95%).
 
 **Prompt to start the next session** (open it at the repo root, not in `docs/`):
 
-> /prime phase 2
+> /prime phase 3
 
 ## c) Friction points
 
-- **No local Postgres, Docker or Supabase CLI.** Handled: the migration is parsed with the real Postgres parser (`pglast`) and compared with the JSON Schemas by a test. Unresolved: it has never been executed, so RLS behavior is untested until it runs on a database (Phase 7 tests it with the second tenant).
-- **The eval runner had two scoring bugs.** Its own self-check caught them (awaited `pending` fields with no value, and two dates on the same day in one document). Fixed; the self-check now runs on every invocation.
-- **Review changes arrived after the first full generation.** Handled: rules, examples and generator were changed and the dataset regenerated; generation takes about 1.5 seconds.
+- **Silent client retries.** The OpenAI client retries 429 and timeouts up to 2 times without logging, so slow Gemini calls (up to 212 s) cannot be attributed to rate limiting or to long answers. Handled: no failures, and the latency includes the retries. Unresolved: backlog D38 for Phase 7.
+- **Output buffering.** The CLI's per-order lines did not appear in the log until the run ended (stdout written to a file). Progress had to be read from recordings. Unresolved; running with `python -u` would fix it.
+- **Clean data.** 100% on both models says the pipeline works, not which model is better. Unresolved: D39.
 - **Session working directory is `docs/`.** Every shell command needs `cd /Users/danteruiz7/monkyfi-sdi` first. Unresolved.
-- **Meta Model API availability** (US-only public preview) is still untested; no credentials exist. Unresolved risk for Phase 2.
+- **No local Postgres.** Extraction writes JSON records shaped like `field_value` rows; nothing is written to a database. Unresolved, unchanged since Phase 1.
 
 ## d) Changes in the plan
 
-Already in `docs/SPEC.md` (v1.2) and `docs/DECISIONS.md`: D25–D33.
+Recorded in `docs/SPEC.md` (v1.3) and `docs/DECISIONS.md`:
 
-**Choices made in this session that are not decisions (Proposed, need Dante's answer):**
+- D34: Phase 2 passes at ≥95%; the PRD's 98% is information only. The eval runner now scores extraction at ≥95% and notes the 98%.
+- D35: emails never set or contradict contractual field values; in Phase 4 they are evidence for tentative dates (forecast only). SYN-WAV-0019's other-customer email is now a Phase 7 segregation finding (`SEG-OTHER-CUSTOMER`), not a field contradiction. The generator allows a `SEG-*` finding without a defective field.
+- D36: Gemini (gemini-3.8-flash) kept as the comparison model; resolves D23.
+- D37: Phase 2 Done; Muse Spark primary, Gemini comparison.
+- D38–D40: backlog (retry logging, hard subset, reasoning effort).
 
-- **G1 and non-critical gaps.** D28 is implemented as "a missing or contradictory field blocks G1 only when its severity is critical". Three orders therefore pass G1 with a medium or high finding: SYN-EPL-0008, SYN-WAV-0011, SYN-WAV-0017. If any missing or contradictory field should block, change `blocking_severities` in `rules/gates.json` and regenerate.
-- **Demo order.** Demo step 1 needs an EPL order with 3 seeded errors; the dataset has at most 2 per order.
-- **EPL fiber type and optic wavelength** were moved to the endpoint together with the interface fields (D25 named interface, optic, reach and connector).
-- **A contradictory field takes the same severity as a missing one.**
-- **Schema fields beyond SPEC 8.1** (listed in SPEC 8.1 "As built in Phase 1") and the database checks.
-- **Supplier follow-up threshold** defaults to 5 days in the seed rows.
-- **Prediction format** (`schemas/prediction.schema.json`) and locale key naming.
-- **Gemini** (D23, before Phase 2).
+**Choices made in this session that are not decisions (Proposed):**
+
+- `rules/extraction.json`: document type from the title; only quote, order form, technical annex and LOA-CFA can set field values; placeholder texts for not applicable ("Not applicable", "N/A") and awaited ("To be confirmed", "TBC").
+- A conditional field with nothing printed and a condition that cannot be evaluated is `missing` (the conservative reading).
+- Field-level `stale` follows the labels: a value from a document not reissued for the current version stays `pending`, with the source marked as from an earlier version.
+- The model sees the catalog of both products; the product's own field list is applied after the product is read from the documents.
+- Gemini is called through Google's OpenAI-compatible endpoint, so both models receive identical requests.
+
+**Open questions (SPEC section 17):** G1 and non-critical gaps; demo order with 3 defects; migration not applied; web framework and i18n library; commercial model.
 
 ## e) File paths
 
-Commits on `main` (no remote): `c280c5c`, `beb2458`, `9edceef`, `7771cfe`, `c17567c`. The Phase 1 work below is in the working tree; it is committed together with this handoff.
-
-**Documentation**
-
-- `docs/SPEC.md` — modified. v1.2: header, section 6 (G1 rule), 8.1 (as built), 8.3, 8.4, 11.1, 11.3, 14, 17.
-- `docs/DECISIONS.md` — modified. D25–D33 added.
-- `docs/PHASE1_SAMPLE.md` — created. Six random orders with their documents and expected answers, plus the severity table.
-- `docs/HANDOFF.md` — rewritten. This file.
+Commits on `main` this session: `784340f` (Phase 1), `03ac08f` (Phase 2 pipeline, D34–D36), and the hand-off commit with D37–D40.
 
 **Entry points**
 
-- `data/synthetic/generate.py` — modified. Builds orders, events and the manifest; lays out documents, writes PDF and Markdown, builds golden labels.
-- `evals/run.py` — created. Eval runner.
-- `data/synthetic/review_sample.py` — created. Builds `docs/PHASE1_SAMPLE.md`.
-- `data/synthetic/seed.py` — created. Database rows from the dataset, written to `data/synthetic/seed/` (git-ignored).
+- `src/extract/cli.py` — created. Runs extraction over a split (`--provider`, `--orders`, `--replay`); writes `extraction.json`, `prediction.json` and `run.json` with token totals.
+- `evals/run.py` — modified. Maps source file names to document ids; extraction threshold ≥95% with the PRD 98% as a note (D34).
 
 **Modules**
 
-- `data/synthetic/dataset.py` — created. The 44 order definitions and the mandatory-case list.
-- `data/synthetic/example_orders.py` — modified. Interface values per endpoint; split set to dev.
-- `data/synthetic/event_sets.py` — created. The three simulated event sets.
-- `data/synthetic/pdf.py` — created. Reproducible PDF rendering with the synthetic mark on every page.
+- `src/__init__.py` — created. Repo paths for rules, prompts and schemas.
+- `src/ingest/__init__.py` — created. Package exports.
+- `src/ingest/documents.py` — created. `Document`/`Page`, title-based type, hash, package reading, whitespace squashing.
+- `src/ingest/pdf.py` — created. PDF text per page with pypdf; refuses encrypted PDFs.
+- `src/ingest/docx.py` — created. DOCX text from `word/document.xml` (paragraphs, table cells; tracked deletions skipped).
+- `src/providers/__init__.py` — created. Provider selection (`meta`, `gemini`) and `.env` loading without printing values.
+- `src/providers/base.py` — created. Provider interface, JSON parsing, schema validation with bounded retries.
+- `src/providers/openai_compatible.py` — created. OpenAI-compatible client for Muse Spark and Gemini; JSON Schema response format with fallback to JSON mode.
+- `src/providers/cache.py` — created. Recording and replay of model answers.
+- `src/providers/fake.py` — created. Scripted provider for tests only.
+- `src/extract/__init__.py` — created. Division of labor between model and code.
+- `src/extract/catalog.py` — created. Field catalog from `rules/`, endpoint expansion, prompt descriptions, rules version.
+- `src/extract/normalize.py` — created. Normalization by value type, placeholder detection; never guesses.
+- `src/extract/ground.py` — created. Keeps a mention only if its text is on the cited page; corrects the page or rejects.
+- `src/extract/consolidate.py` — created. Field status across documents; authoritative source; conditional fields.
+- `src/extract/extract.py` — created. Prompt building, one call per document, extraction record.
+- `src/extract/prediction.py` — created. Projection to `prediction.json`; schema checks.
+- `src/extract/status.py` — created. The six statuses; `mark_verified` (named human) and `mark_stale`.
+- `src/ingest/.gitkeep`, `src/providers/.gitkeep` — deleted. Folders now have code.
+
+**Prompts and rules**
+
+- `prompts/system.md` — created. Stable system prompt (`system@0.1.0`).
+- `prompts/extract_fields.md` — created. Extraction task prompt (`extract_fields@0.1.0`).
+- `rules/extraction.json` — created. Document types, field-source document types, placeholders (Proposed).
 
 **Configuration and environment**
 
-- `.gitignore` — modified. Ignores `data/synthetic/seed/`.
-- `requirements-dev.txt` — modified. Adds `reportlab`, `pypdf`, `pglast`.
-- `.env.example` — unchanged. No new variables.
+- `requirements-dev.txt` — modified. Adds `openai`.
+- `.gitignore` — modified. Ignores `runs/` (run outputs and recorded model answers).
+- `.env.example` — modified. Gemini comment updated; variable names unchanged: `MODEL_PROVIDER`, `META_MODEL_API_KEY`, `META_MODEL_API_BASE_URL`, `META_MODEL_NAME`, `GEMINI_API_KEY`, `GEMINI_MODEL_NAME`.
 
-**Rules**
+**Schemas and data**
 
-- `rules/fields.common.json` — modified. Version 0.2.0; status text.
-- `rules/fields.epl.json` — modified. Five interface fields now per endpoint.
-- `rules/fields.wavelength.json` — modified. Four interface fields now per endpoint.
-- `rules/gates.json` — created. G1 pass condition (D28).
-- `rules/README.md` — modified.
-
-**Schemas and migration**
-
-- `schemas/golden_label.schema.json` — modified. Pages on sources, later gates, dependencies, version change, adversarial block.
-- `schemas/simulated_event.schema.json` — created.
-- `schemas/prediction.schema.json` — created.
-- `schemas/README.md` — modified.
-- `schemas/entities/approval.schema.json` — created. Shape of the `approval` table.
-- `schemas/entities/audit_event.schema.json` — created. Shape of the `audit_event` table.
-- `schemas/entities/communication.schema.json` — created. Shape of the `communication` table.
-- `schemas/entities/customer.schema.json` — created. Shape of the `customer` table.
-- `schemas/entities/dependency.schema.json` — created. Shape of the `dependency` table.
-- `schemas/entities/document.schema.json` — created. Shape of the `document` table.
-- `schemas/entities/endpoint.schema.json` — created. Shape of the `endpoint` table.
-- `schemas/entities/evidence.schema.json` — created. Shape of the `evidence` table.
-- `schemas/entities/field_value.schema.json` — created. Shape of the `field_value` table.
-- `schemas/entities/finding.schema.json` — created. Shape of the `finding` table.
-- `schemas/entities/gate_evaluation.schema.json` — created. Shape of the `gate_evaluation` table.
-- `schemas/entities/milestone.schema.json` — created. Shape of the `milestone` table.
-- `schemas/entities/order_version.schema.json` — created. Shape of the `order_version` table.
-- `schemas/entities/project.schema.json` — created. Shape of the `project` table.
-- `schemas/entities/service_order.schema.json` — created. Shape of the `service_order` table.
-- `schemas/entities/shared_resource.schema.json` — created. Shape of the `shared_resource` table.
-- `schemas/entities/supplier.schema.json` — created. Shape of the `supplier` table.
-- `schemas/entities/tenant.schema.json` — created. Shape of the `tenant` table.
-- `supabase/migrations/20261109000000_initial_schema.sql` — created. 18 tables, tenant-scoped foreign keys, RLS policies. Not executed.
-- `supabase/migrations/README.md` — modified.
-
-**Locales**
-
-- `locales/en.json` — created.
-- `locales/es.json` — created.
-- `locales/README.md` — modified.
+- `schemas/extraction.schema.json` — created. Shape of `extraction.json`; no value without a source.
+- `data/synthetic/dataset.py` — modified. SYN-WAV-0019 email no longer a `customer_name` source (D35).
+- `data/synthetic/generate.py` — modified. Allows a `SEG-*` finding without a defective field.
+- `data/synthetic/orders/SYN-WAV-0019/v1/golden.json` — regenerated. `customer_name` pending; finding `SEG-OTHER-CUSTOMER` kept; G1 still block. No PDF changed.
 
 **Tests**
 
-- `tests/conftest.py` — created. Shared paths and loaders.
-- `tests/test_dataset.py` — created. Rules, composition, every order version, the G1 rule, determinism.
-- `tests/test_schemas.py` — created. Entity schemas against the SQL, RLS policies, rows.
-- `tests/test_evals_and_locales.py` — created. Eval scoring and locale files.
-- `tests/README.md`, `evals/README.md`, `data/synthetic/README.md` — modified.
+- `tests/test_extraction.py` — created. Reading, classification, DOCX, normalization against every golden value, grounding, statuses, full pipeline on all 48 versions with a golden-scripted model, invented values on clean orders, prompt framing, providers, recording/replay, CLI, eval mapping.
+- `tests/test_dataset.py` — modified. Segregation findings may stand without a defective field (D35).
+- `tests/conftest.py` — modified. Adds the repo root to the import path.
 
-**Data** (generated by `data/synthetic/generate.py`; 566 files, indexed one by one in `data/synthetic/manifest.json` and in each `golden.json`, so they are listed here per order version)
+**Documentation**
 
-- `data/synthetic/manifest.json` — created. Index of orders, splits and mandatory cases.
-- `data/synthetic/events/repeated_update.json` — created. Case 13.
-- `data/synthetic/events/integration_down.json` — created. Case 14.
-- `data/synthetic/events/missing_telemetry.json` — created. Case 10.
-- `data/synthetic/orders/SYN-EPL-0001/v1/` — created. `golden.json`, `documents/` (5 PDFs), `markdown/` (5 copies). dev, defect; cases 1, 3.
-- `data/synthetic/orders/SYN-EPL-0002/v1/` — created. `golden.json`, `documents/` (5 PDFs), `markdown/` (5 copies). dev, clean.
-- `data/synthetic/orders/SYN-EPL-0003/v1/` — created. `golden.json`, `documents/` (5 PDFs), `markdown/` (5 copies). dev, clean.
-- `data/synthetic/orders/SYN-EPL-0004/v1/` — created. `golden.json`, `documents/` (5 PDFs), `markdown/` (5 copies). dev, clean.
-- `data/synthetic/orders/SYN-EPL-0005/v1/` — created. `golden.json`, `documents/` (5 PDFs), `markdown/` (5 copies). dev, defect; cases 2.
-- `data/synthetic/orders/SYN-EPL-0006/v1/` — created. `golden.json`, `documents/` (5 PDFs), `markdown/` (5 copies). dev, defect; cases 4.
-- `data/synthetic/orders/SYN-EPL-0006/v2/` — created. `golden.json`, `documents/` (5 PDFs), `markdown/` (5 copies). dev, defect; cases 4.
-- `data/synthetic/orders/SYN-EPL-0007/v1/` — created. `golden.json`, `documents/` (5 PDFs), `markdown/` (5 copies). dev, defect; cases 8.
-- `data/synthetic/orders/SYN-EPL-0007/v2/` — created. `golden.json`, `documents/` (5 PDFs), `markdown/` (5 copies). dev, defect; cases 8.
-- `data/synthetic/orders/SYN-EPL-0008/v1/` — created. `golden.json`, `documents/` (6 PDFs), `markdown/` (6 copies). dev, defect; cases 5.
-- `data/synthetic/orders/SYN-EPL-0009/v1/` — created. `golden.json`, `documents/` (6 PDFs), `markdown/` (6 copies). dev, defect; cases 6.
-- `data/synthetic/orders/SYN-EPL-0010/v1/` — created. `golden.json`, `documents/` (5 PDFs), `markdown/` (5 copies). dev, defect.
-- `data/synthetic/orders/SYN-EPL-0011/v1/` — created. `golden.json`, `documents/` (6 PDFs), `markdown/` (6 copies). dev, defect; cases 9.
-- `data/synthetic/orders/SYN-EPL-0012/v1/` — created. `golden.json`, `documents/` (5 PDFs), `markdown/` (5 copies). dev, defect.
-- `data/synthetic/orders/SYN-EPL-0013/v1/` — created. `golden.json`, `documents/` (5 PDFs), `markdown/` (5 copies). eval, clean.
-- `data/synthetic/orders/SYN-EPL-0014/v1/` — created. `golden.json`, `documents/` (5 PDFs), `markdown/` (5 copies). eval, clean.
-- `data/synthetic/orders/SYN-EPL-0015/v1/` — created. `golden.json`, `documents/` (5 PDFs), `markdown/` (5 copies). eval, defect; cases 1.
-- `data/synthetic/orders/SYN-EPL-0016/v1/` — created. `golden.json`, `documents/` (5 PDFs), `markdown/` (5 copies). eval, defect; cases 3.
-- `data/synthetic/orders/SYN-EPL-0017/v1/` — created. `golden.json`, `documents/` (7 PDFs), `markdown/` (7 copies). eval, defect; cases 15.
-- `data/synthetic/orders/SYN-EPL-0018/v1/` — created. `golden.json`, `documents/` (7 PDFs), `markdown/` (7 copies). eval, defect; cases 16.
-- `data/synthetic/orders/SYN-EPL-0019/v1/` — created. `golden.json`, `documents/` (5 PDFs), `markdown/` (5 copies). adversarial, adversarial; cases 11.
-- `data/synthetic/orders/SYN-EPL-0020/v1/` — created. `golden.json`, `documents/` (6 PDFs), `markdown/` (6 copies). adversarial, adversarial; cases 11.
-- `data/synthetic/orders/SYN-EPL-0021/v1/` — created. `golden.json`, `documents/` (5 PDFs), `markdown/` (5 copies). adversarial, adversarial; cases 12.
-- `data/synthetic/orders/SYN-EPL-0022/v1/` — created. `golden.json`, `documents/` (6 PDFs), `markdown/` (6 copies). adversarial, adversarial; cases 12.
-- `data/synthetic/orders/SYN-WAV-0001/v1/` — created. `golden.json`, `documents/` (6 PDFs), `markdown/` (6 copies). dev, defect; cases 5, 7.
-- `data/synthetic/orders/SYN-WAV-0002/v1/` — created. `golden.json`, `documents/` (5 PDFs), `markdown/` (5 copies). dev, defect; cases 7.
-- `data/synthetic/orders/SYN-WAV-0003/v1/` — created. `golden.json`, `documents/` (5 PDFs), `markdown/` (5 copies). dev, defect; cases 7.
-- `data/synthetic/orders/SYN-WAV-0004/v1/` — created. `golden.json`, `documents/` (5 PDFs), `markdown/` (5 copies). dev, clean.
-- `data/synthetic/orders/SYN-WAV-0005/v1/` — created. `golden.json`, `documents/` (5 PDFs), `markdown/` (5 copies). dev, clean.
-- `data/synthetic/orders/SYN-WAV-0006/v1/` — created. `golden.json`, `documents/` (5 PDFs), `markdown/` (5 copies). dev, clean.
-- `data/synthetic/orders/SYN-WAV-0007/v1/` — created. `golden.json`, `documents/` (5 PDFs), `markdown/` (5 copies). dev, defect; cases 1.
-- `data/synthetic/orders/SYN-WAV-0008/v1/` — created. `golden.json`, `documents/` (5 PDFs), `markdown/` (5 copies). dev, defect.
-- `data/synthetic/orders/SYN-WAV-0009/v1/` — created. `golden.json`, `documents/` (5 PDFs), `markdown/` (5 copies). dev, defect; cases 8.
-- `data/synthetic/orders/SYN-WAV-0009/v2/` — created. `golden.json`, `documents/` (5 PDFs), `markdown/` (5 copies). dev, defect; cases 8.
-- `data/synthetic/orders/SYN-WAV-0010/v1/` — created. `golden.json`, `documents/` (6 PDFs), `markdown/` (6 copies). dev, defect; cases 6.
-- `data/synthetic/orders/SYN-WAV-0011/v1/` — created. `golden.json`, `documents/` (6 PDFs), `markdown/` (6 copies). dev, defect.
-- `data/synthetic/orders/SYN-WAV-0012/v1/` — created. `golden.json`, `documents/` (7 PDFs), `markdown/` (7 copies). dev, defect; cases 15, 16.
-- `data/synthetic/orders/SYN-WAV-0013/v1/` — created. `golden.json`, `documents/` (5 PDFs), `markdown/` (5 copies). eval, clean.
-- `data/synthetic/orders/SYN-WAV-0014/v1/` — created. `golden.json`, `documents/` (5 PDFs), `markdown/` (5 copies). eval, clean.
-- `data/synthetic/orders/SYN-WAV-0015/v1/` — created. `golden.json`, `documents/` (5 PDFs), `markdown/` (5 copies). eval, defect; cases 2.
-- `data/synthetic/orders/SYN-WAV-0016/v1/` — created. `golden.json`, `documents/` (5 PDFs), `markdown/` (5 copies). eval, defect; cases 4.
-- `data/synthetic/orders/SYN-WAV-0016/v2/` — created. `golden.json`, `documents/` (5 PDFs), `markdown/` (5 copies). eval, defect; cases 4.
-- `data/synthetic/orders/SYN-WAV-0017/v1/` — created. `golden.json`, `documents/` (6 PDFs), `markdown/` (6 copies). eval, defect; cases 5.
-- `data/synthetic/orders/SYN-WAV-0018/v1/` — created. `golden.json`, `documents/` (6 PDFs), `markdown/` (6 copies). eval, defect; cases 9.
-- `data/synthetic/orders/SYN-WAV-0019/v1/` — created. `golden.json`, `documents/` (6 PDFs), `markdown/` (6 copies). adversarial, adversarial; cases 11.
-- `data/synthetic/orders/SYN-WAV-0020/v1/` — created. `golden.json`, `documents/` (6 PDFs), `markdown/` (6 copies). adversarial, adversarial; cases 11.
-- `data/synthetic/orders/SYN-WAV-0021/v1/` — created. `golden.json`, `documents/` (5 PDFs), `markdown/` (5 copies). adversarial, adversarial; cases 12.
-- `data/synthetic/orders/SYN-WAV-0022/v1/` — created. `golden.json`, `documents/` (6 PDFs), `markdown/` (6 copies). adversarial, adversarial; cases 12.
+- `docs/SPEC.md` — modified. v1.3: Phase 2 Done with results, Phase 7 retry logging, second model decided, D34 note in 12.1, backlog and open items in 17.
+- `docs/DECISIONS.md` — modified. D34–D40.
+- `docs/HANDOFF.md` — rewritten. This file.
+- `src/README.md`, `prompts/README.md`, `rules/README.md`, `evals/README.md` — modified. Describe the Phase 2 code and commands.
 
-**Deleted**
+**Not in the repo (git-ignored)**
 
-- `data/synthetic/examples/SYN-EPL-0001/documents/01_quote.md` — deleted. Replaced by the full dataset and the new tests.
-- `data/synthetic/examples/SYN-EPL-0001/documents/02_order_form_signed.md` — deleted. Replaced by the full dataset and the new tests.
-- `data/synthetic/examples/SYN-EPL-0001/documents/03_technical_annex.md` — deleted. Replaced by the full dataset and the new tests.
-- `data/synthetic/examples/SYN-EPL-0001/documents/04_loa_cfa.md` — deleted. Replaced by the full dataset and the new tests.
-- `data/synthetic/examples/SYN-EPL-0001/documents/05_email_01.md` — deleted. Replaced by the full dataset and the new tests.
-- `data/synthetic/examples/SYN-EPL-0001/golden.json` — deleted. Replaced by the full dataset and the new tests.
-- `data/synthetic/examples/SYN-WAV-0001/documents/01_quote.md` — deleted. Replaced by the full dataset and the new tests.
-- `data/synthetic/examples/SYN-WAV-0001/documents/02_order_form_signed.md` — deleted. Replaced by the full dataset and the new tests.
-- `data/synthetic/examples/SYN-WAV-0001/documents/03_technical_annex.md` — deleted. Replaced by the full dataset and the new tests.
-- `data/synthetic/examples/SYN-WAV-0001/documents/04_loa_cfa.md` — deleted. Replaced by the full dataset and the new tests.
-- `data/synthetic/examples/SYN-WAV-0001/documents/05_email_01.md` — deleted. Replaced by the full dataset and the new tests.
-- `data/synthetic/examples/SYN-WAV-0001/documents/06_email_02.md` — deleted. Replaced by the full dataset and the new tests.
-- `data/synthetic/examples/SYN-WAV-0001/golden.json` — deleted. Replaced by the full dataset and the new tests.
-- `tests/test_synthetic_examples.py` — deleted. Replaced by the full dataset and the new tests.
+- `runs/eval-meta/`, `runs/eval-gemini/` — predictions, extraction records, `run.json` and `eval_results.json` for both models.
+- `runs/recordings/meta-muse-spark-1.1/`, `runs/recordings/gemini-gemini-3.8-flash/` — recorded model answers for offline replay.
 
 **Commands** (from the repo root)
 
 - Setup: `python3 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt`
-- Regenerate the dataset: `.venv/bin/python data/synthetic/generate.py`
 - Tests: `.venv/bin/python -m pytest -q`
-- Evals: `.venv/bin/python evals/run.py` (add `--predictions DIR` from Phase 2)
-- Review sample: `.venv/bin/python data/synthetic/review_sample.py`
+- Extraction (needs `.env`): `.venv/bin/python -m src.extract.cli --provider meta --split eval --out runs/eval-meta`
+- Replay without model calls: `.venv/bin/python -m src.extract.cli --replay --recordings runs/recordings/meta-muse-spark-1.1 --split eval --out runs/eval-meta`
+- Evals: `.venv/bin/python evals/run.py --predictions runs/eval-meta`
+- Regenerate the dataset: `.venv/bin/python data/synthetic/generate.py`
 - App: none yet.
 
 ## History
 
 - Phase 0 · 2026-11-09 · Done — deliverables committed, SPEC approved (D18), amendments D19–D23 applied.
 - Phase 1 · 2026-11-09 · Done — 44 orders as PDF with golden labels, 18 entity schemas, RLS migration (not executed), eval runner, locales; sample approved (D33).
+- Phase 2 · 2026-11-10 · Done — PDF/DOCX ingestion, provider layer (Muse Spark, Gemini), grounded extraction; 828/828 on the eval split on both models (D37).
