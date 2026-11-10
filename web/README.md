@@ -1,5 +1,38 @@
 # web
 
-TypeScript web view and API, deployed on Vercel (Phase 8). No hardcoded UI strings; all text comes from locales/.
+Read-only web view (Phase 3, D45 and D47): Next.js and TypeScript. It reads the local run files and
+calls nothing: no database, no model, no sending, no write. SYNTHETIC — NOT REAL DATA.
 
-Empty in Phase 0. See `docs/SPEC.md`.
+## What it shows
+
+- `/en` (or `/es`) — orders list: order ID, customer, service, stage, G1 recommendation, finding
+  counts by severity, and the key date with its type (requested, forecast or committed).
+- `/en/orders/<order id>?v=<N>` — order detail: delivery progress, parallel workstreams, G1 with met
+  and unmet requirements, findings (every conflicting value with its document and page, internal
+  owner, resolving party, due date and action), changes from the previous version, critical fields.
+
+Delivery progress is completed stages ÷ 11, with equal weights from `rules/stages.json`. Presales is
+shown as assumed complete because the order is signed and no G0 record exists (D47). A stage with a
+gate is completed only by a human decision, so an order stays in "Order received" until someone
+passes G1. Open findings are parallel work and do not change the percentage.
+
+## Run
+
+From the repo root:
+
+    .venv/bin/python -m src.validators.cli --run runs/eval-meta      # writes validation.json
+    mkdir -p runs/phase3-view && cp -R runs/eval-meta/SYN-* runs/dev-cases-meta/SYN-* runs/phase3-view/
+    cd web && npm install && npm run dev                             # http://localhost:3000
+
+The folder shown is `SDI_VIEW_DATA_DIR` in `.env` (relative to the repo root); when it is empty the
+view reads `runs/phase3-view`.
+
+## Checks
+
+    cd web && npm run typecheck
+    cd web && npm run build && npm run render-check    # SYN-EPL-0001 and SYN-WAV-0016, all findings, en and es
+    .venv/bin/python -m pytest -q tests/test_web_view.py   # no hardcoded strings; locale keys exist
+
+Every user-facing string comes from `locales/` (`lib/i18n.ts`); a missing key is an error. Field keys,
+file names and rule ids are data and are shown as they are. The view runs locally only; deployment
+on Vercel and the rest of the web view are Phase 8.

@@ -1,0 +1,154 @@
+{
+  "rules_version": "0.3.0",
+  "status": "Phase 3. Owners decided by Dante (D46); due dates accepted as proposals (D44); customer scoping decided (D42). The rest is Proposed.",
+  "notes": [
+    "finding_rules: a finding is raised for every G1 field that is missing or contradictory. The first rule whose 'when' matches names the finding. Severity is the field's missing_severity (rules/fields.*.json, D29); a contradictory field takes the same severity as a missing one (SPEC 8.3, Proposed). min_severity can only raise it, never lower it (D20).",
+    "owners (D46): every finding has an internal owner (the role that follows up) and a resolving party (who must provide or fix the data). by_field (the field key without its a_end./z_end. prefix) wins over by_group, which wins over default. 'customer_technical_contact' becomes the technical contact of the finding's own end. Roles, not people: data owners are confirmed with a pilot carrier (SPEC 3.4).",
+    "due_in_business_days: the finding's due date is the evaluation date plus this many business days (Monday to Friday; holidays are not modeled).",
+    "stale_source_action: when every value that disagrees comes from a document of an earlier order version, the action is to have that document reissued.",
+    "customer_scoping (D42): any document of the package, emails included, that names a customer of the same tenant other than the order's own customer raises one critical SEG-OTHER-CUSTOMER finding, which blocks G1. Names are matched as whole words, case-insensitive, with or without the synthetic suffix. Full adversarial defense stays in Phase 7.",
+    "impact: 'confirmed' when the finding blocks the gate, 'possible' otherwise.",
+    "version_change: a field is reopened when its current value differs from the previous version's. plan_affecting marks which changed fields may move milestones; the plan itself is Phase 4."
+  ],
+  "finding_rules": [
+    {
+      "rule_id": "G1-VERSION-CURRENT",
+      "action": "reissue_stale_documents",
+      "when": {
+        "field_key": "order_version",
+        "status": [
+          "contradictory"
+        ]
+      },
+      "decision": "SPEC 6 (G1: current version)"
+    },
+    {
+      "rule_id": "SEG-OTHER-CUSTOMER",
+      "action": "confirm_customer_and_remove_foreign_data",
+      "when": {
+        "field_key": "customer_name",
+        "status": [
+          "contradictory"
+        ]
+      },
+      "min_severity": "critical",
+      "decision": "D16, D20"
+    },
+    {
+      "rule_id": "G1-SIGNATURE",
+      "action": "obtain_authorized_signature",
+      "when": {
+        "group": "signature",
+        "status": [
+          "missing",
+          "contradictory"
+        ]
+      },
+      "min_severity": "critical",
+      "decision": "D20"
+    },
+    {
+      "rule_id": "WAV-DIVERSITY-REFERENCE",
+      "action": "provide_diversity_reference",
+      "when": {
+        "field_key": "route_diversity.reference_circuit_ids",
+        "status": [
+          "missing"
+        ],
+        "requires": {
+          "field_key": "route_diversity.required",
+          "normalized_value": true
+        }
+      },
+      "min_severity": "critical",
+      "decision": "D27"
+    },
+    {
+      "rule_id": "G1-REQUIRED",
+      "action": "provide_missing_value",
+      "when": {
+        "status": [
+          "missing"
+        ]
+      },
+      "decision": "D28"
+    },
+    {
+      "rule_id": "G1-CONSISTENCY",
+      "action": "confirm_correct_value",
+      "when": {
+        "status": [
+          "contradictory"
+        ]
+      },
+      "decision": "D28"
+    }
+  ],
+  "stale_source_action": "reissue_stale_documents",
+  "customer_scoping": {
+    "rule_id": "SEG-OTHER-CUSTOMER",
+    "field_key": "customer_name",
+    "severity": "critical",
+    "action": "confirm_customer_and_remove_foreign_data",
+    "note_key": "another customer of the tenant is named in the package",
+    "decision": "D42"
+  },
+  "product_undetermined": {
+    "rule_id": "G1-REQUIRED",
+    "action": "provide_missing_value",
+    "field_key": "product",
+    "severity": "critical"
+  },
+  "owners": {
+    "default": {"internal_owner": "sdm", "resolving_party": "sdm"},
+    "by_group": {
+      "identification": {"internal_owner": "order_management", "resolving_party": "order_management"},
+      "signature": {"internal_owner": "sales", "resolving_party": "sales"},
+      "capacity": {"internal_owner": "sales", "resolving_party": "sales"},
+      "endpoint": {"internal_owner": "sdm", "resolving_party": "customer_technical_contact"},
+      "site_access": {"internal_owner": "sdm", "resolving_party": "sdm"},
+      "contacts": {"internal_owner": "sdm", "resolving_party": "sdm"},
+      "dates": {"internal_owner": "sdm", "resolving_party": "sdm"},
+      "acceptance": {"internal_owner": "engineering", "resolving_party": "engineering"},
+      "cross_connect": {"internal_owner": "provisioning", "resolving_party": "provisioning"},
+      "interface": {"internal_owner": "engineering", "resolving_party": "engineering"},
+      "parameters": {"internal_owner": "engineering", "resolving_party": "engineering"},
+      "protection": {"internal_owner": "engineering", "resolving_party": "engineering"},
+      "route_diversity": {"internal_owner": "sales", "resolving_party": "customer"},
+      "latency": {"internal_owner": "engineering", "resolving_party": "engineering"}
+    },
+    "by_field": {
+      "carrier_circuit_id": {"internal_owner": "provisioning", "resolving_party": "provisioning"},
+      "acceptance.deemed_acceptance_clause": {"internal_owner": "sales", "resolving_party": "sales"},
+      "acceptance.deemed_acceptance_period": {"internal_owner": "sales", "resolving_party": "sales"},
+      "route_diversity.required_evidence": {"internal_owner": "engineering", "resolving_party": "engineering"}
+    }
+  },
+  "due_in_business_days": {
+    "critical": 1,
+    "high": 2,
+    "medium": 5,
+    "info": 10
+  },
+  "version_change": {
+    "ignored_fields": [
+      "order_version"
+    ],
+    "plan_affecting": {
+      "groups": [
+        "endpoint",
+        "cross_connect",
+        "interface",
+        "dates",
+        "protection",
+        "route_diversity",
+        "latency"
+      ],
+      "fields": [
+        "port_speed",
+        "rate",
+        "client_protocol"
+      ]
+    }
+  }
+}

@@ -1,0 +1,571 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "validation.schema.json",
+  "title": "Validation record for one version of one order (Phase 3)",
+  "description": "Proposed. Written by src/validators next to extraction.json. Each entry in findings maps onto a finding row and gate onto a gate_evaluation row (schemas/entities/); ids are assigned when rows are written to the database (not built). User-facing text is stored as a locales/ key with its parameters, never as a sentence. A human override is recorded next to the recommendation and never removes a finding.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "synthetic",
+    "order_dir_id",
+    "version_no",
+    "product",
+    "run",
+    "findings",
+    "gate",
+    "version_change",
+    "approvals",
+    "warnings"
+  ],
+  "$defs": {
+    "severity": {
+      "enum": [
+        "critical",
+        "high",
+        "medium",
+        "info"
+      ]
+    },
+    "text": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "params"
+      ],
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "params": {
+          "type": "object"
+        }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "entity",
+        "decision",
+        "approver",
+        "reason",
+        "created_at"
+      ],
+      "properties": {
+        "entity": {
+          "type": "string"
+        },
+        "decision": {
+          "enum": [
+            "approved",
+            "rejected",
+            "override"
+          ]
+        },
+        "approver": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  },
+  "properties": {
+    "synthetic": {
+      "const": true
+    },
+    "order_dir_id": {
+      "type": "string"
+    },
+    "version_no": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "product": {
+      "enum": [
+        "EPL",
+        "WAVELENGTH",
+        null
+      ]
+    },
+    "run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "validator_version",
+        "rules_version",
+        "extraction_rules_version",
+        "extraction_model",
+        "extraction_prompt_version",
+        "as_of",
+        "evaluated_at",
+        "customer_scoping"
+      ],
+      "properties": {
+        "validator_version": {
+          "type": "string"
+        },
+        "rules_version": {
+          "type": "string"
+        },
+        "extraction_rules_version": {
+          "type": "string"
+        },
+        "extraction_model": {
+          "type": "string"
+        },
+        "extraction_prompt_version": {
+          "type": "string"
+        },
+        "as_of": {
+          "type": "string",
+          "format": "date"
+        },
+        "evaluated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "customer_scoping": {
+          "type": "boolean"
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "finding_id",
+          "rule_id",
+          "field_key",
+          "gate",
+          "severity",
+          "field_status",
+          "conflicting_values",
+          "evidence",
+          "impact",
+          "blocks_gate",
+          "owner",
+          "resolving_party",
+          "escalated",
+          "escalated_to",
+          "due_date",
+          "action",
+          "description",
+          "status"
+        ],
+        "properties": {
+          "finding_id": {
+            "type": "string"
+          },
+          "rule_id": {
+            "type": "string"
+          },
+          "field_key": {
+            "type": "string"
+          },
+          "gate": {
+            "const": "G1"
+          },
+          "severity": {
+            "$ref": "#/$defs/severity"
+          },
+          "original_severity": {
+            "$ref": "#/$defs/severity"
+          },
+          "severity_change": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "approver",
+              "reason",
+              "decided_at"
+            ],
+            "properties": {
+              "approver": {
+                "type": "string",
+                "minLength": 1
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1
+              },
+              "decided_at": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          },
+          "field_status": {
+            "enum": [
+              "missing",
+              "contradictory",
+              "pending",
+              "verified"
+            ],
+            "description": "Status of the field the finding is about. A segregation finding can be raised on a consistent customer_name (D42)."
+          },
+          "conflicting_values": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "filename",
+                "doc_type",
+                "page",
+                "location",
+                "raw_value",
+                "stale_source"
+              ],
+              "properties": {
+                "filename": {
+                  "type": "string"
+                },
+                "doc_type": {
+                  "type": "string"
+                },
+                "page": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "location": {
+                  "type": "string"
+                },
+                "raw_value": {
+                  "type": "string"
+                },
+                "stale_source": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "evidence": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "notes",
+              "documents"
+            ],
+            "properties": {
+              "notes": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "documents": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "impact": {
+            "enum": [
+              "confirmed",
+              "possible"
+            ]
+          },
+          "blocks_gate": {
+            "type": "boolean"
+          },
+          "owner": {
+            "type": "string",
+            "minLength": 1
+          },
+          "escalated": {
+            "type": "boolean"
+          },
+          "escalated_to": {
+            "type": "string"
+          },
+          "due_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "action": {
+            "$ref": "#/$defs/text"
+          },
+          "description": {
+            "$ref": "#/$defs/text"
+          },
+          "status": {
+            "enum": [
+              "open",
+              "in_progress",
+              "resolved",
+              "overridden"
+            ]
+          },
+          "reopened": {
+            "type": "boolean"
+          },
+          "resolving_party": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Who must provide or fix the data (D46). owner is the internal role that follows up."
+          }
+        },
+        "if": {
+          "properties": {
+            "field_status": {
+              "const": "contradictory"
+            }
+          }
+        },
+        "then": {
+          "properties": {
+            "conflicting_values": {
+              "minItems": 2
+            }
+          }
+        }
+      }
+    },
+    "gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "gate",
+        "recommendation",
+        "unmet_requirements",
+        "non_blocking_finding_ids",
+        "evaluated_at",
+        "human_decision"
+      ],
+      "properties": {
+        "gate": {
+          "const": "G1"
+        },
+        "recommendation": {
+          "enum": [
+            "pass",
+            "block"
+          ]
+        },
+        "unmet_requirements": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "finding_id",
+              "rule_id",
+              "field_key",
+              "severity"
+            ],
+            "properties": {
+              "finding_id": {
+                "type": "string"
+              },
+              "rule_id": {
+                "type": "string"
+              },
+              "field_key": {
+                "type": "string"
+              },
+              "severity": {
+                "$ref": "#/$defs/severity"
+              }
+            }
+          }
+        },
+        "non_blocking_finding_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "evaluated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "human_decision": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "decision",
+                "outcome",
+                "approval"
+              ],
+              "properties": {
+                "decision": {
+                  "const": "override"
+                },
+                "outcome": {
+                  "const": "pass"
+                },
+                "approval": {
+                  "$ref": "#/$defs/approval"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "version_change": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "previous_version_no",
+            "changed_fields",
+            "reopened_validations",
+            "unchanged_validations",
+            "plan_impact",
+            "plan_impact_fields",
+            "superseded_values"
+          ],
+          "properties": {
+            "previous_version_no": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "previous_gate_recommendation": {
+              "enum": [
+                "pass",
+                "block"
+              ]
+            },
+            "changed_fields": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "field_key",
+                  "group",
+                  "previous",
+                  "current",
+                  "previous_status",
+                  "current_status",
+                  "plan_impact"
+                ],
+                "properties": {
+                  "field_key": {
+                    "type": "string"
+                  },
+                  "group": {
+                    "type": "string"
+                  },
+                  "previous": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "current": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "previous_status": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "current_status": {
+                    "type": "string"
+                  },
+                  "plan_impact": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            },
+            "reopened_validations": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "unchanged_validations": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "plan_impact": {
+              "type": "boolean"
+            },
+            "plan_impact_fields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "superseded_values": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "findings": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "new",
+                "carried_over",
+                "no_longer_raised"
+              ],
+              "properties": {
+                "new": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "carried_over": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "no_longer_raised": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "approvals": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/approval"
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

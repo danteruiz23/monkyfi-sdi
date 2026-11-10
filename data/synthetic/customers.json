@@ -1,0 +1,23 @@
+{
+  "synthetic": true,
+  "synthetic_mark": "SYNTHETIC — NOT REAL DATA",
+  "description": "Customer register of each synthetic tenant: the stand-in for the customer table until the database is applied. Used by the customer-scoping check (D42). Every name is fictional. Kept in step with data/synthetic/dataset.py by tests/test_validators.py.",
+  "tenants": [
+    {
+      "tenant": "Carrier Alfa (synthetic)",
+      "customers": [
+        "Bravo Logistics (synthetic)",
+        "Retailer Kilo (synthetic)",
+        "Bank Lima (synthetic)",
+        "Hyperscaler X (synthetic)",
+        "Hyperscaler Y (synthetic)",
+        "Hospital Group November (synthetic)",
+        "Broadcaster Romeo (synthetic)",
+        "Hyperscaler Z (synthetic)",
+        "Insurer Papa (synthetic)",
+        "Hyperscaler W (synthetic)",
+        "Freight Company Quebec (synthetic)"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "rules_version": "0.1.0",
+  "status": "Stages from SPEC section 6. Progress method and the Presales assumption decided by Dante (D45, D47).",
+  "notes": [
+    "progress = completed stages / total stages. Every stage has the same weight. Open findings and milestones inside the current stage are parallel work and do not change the percentage.",
+    "assumed_complete: a stage counted as complete without a gate record, with the reason shown on screen. Presales is assumed complete because the order is signed; no G0 record exists (D47).",
+    "exit_gate: the stage is completed only by a human decision that passes its gate. The agent's recommendation alone never completes a stage. While the gate recommends block and no human decision exists, the stage is shown as blocked."
+  ],
+  "stages": [
+    {"key": "presales", "weight": 1, "exit_gate": "G0", "assumed_complete": "order_signed"},
+    {"key": "order_received", "weight": 1, "exit_gate": "G1"},
+    {"key": "order_validated", "weight": 1, "exit_gate": null},
+    {"key": "design_and_dependencies", "weight": 1, "exit_gate": "G2"},
+    {"key": "provisioning", "weight": 1, "exit_gate": null},
+    {"key": "ready_for_testing", "weight": 1, "exit_gate": null},
+    {"key": "testing_completed", "weight": 1, "exit_gate": "G3"},
+    {"key": "delivered_pending_acceptance", "weight": 1, "exit_gate": "G4"},
+    {"key": "accepted", "weight": 1, "exit_gate": null},
+    {"key": "hypercare", "weight": 1, "exit_gate": "G5"},
+    {"key": "closed", "weight": 1, "exit_gate": null}
+  ]
+}

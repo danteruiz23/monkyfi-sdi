@@ -51,3 +51,7 @@ data/synthetic/seed/
 
 # Extraction runs and recorded model answers (rebuild with src/extract/cli.py)
 runs/
+
+# Local preview launcher for the session (not part of the product)
+**/.claude/launch.json
+next-env.d.ts

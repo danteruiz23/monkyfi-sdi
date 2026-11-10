@@ -1,0 +1,83 @@
+// Phase 3 exit criterion (D45): SYN-EPL-0001 and SYN-WAV-0016 render with all their findings visible.
+// Starts the built view, fetches the pages in both languages and compares them with validation.json.
+// Usage, from web/: npm run build && npm run render-check [-- ORDER_ID ...]
+import { spawn } from "node:child_process";
+import fs from "node:fs";
+import path from "node:path";
+
+const PORT = 3999;
+const root = path.resolve(process.cwd(), "..");
+const dataDir = path.resolve(root, process.env.SDI_VIEW_DATA_DIR || "runs/phase3-view");
+const orders = process.argv.slice(2).length ? process.argv.slice(2) : ["SYN-EPL-0001", "SYN-WAV-0016"];
+const mark = (lang) => JSON.parse(fs.readFileSync(path.join(root, "locales", `${lang}.json`), "utf8")).app.synthetic_mark;
+const escape = (text) => String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#x27;");
+
+const server = spawn("npx", ["next", "start", "-p", String(PORT)], { stdio: "ignore" });
+const stop = () => server.kill("SIGTERM");
+process.on("exit", stop);
+
+async function get(url) {
+  for (let attempt = 0; attempt < 60; attempt++) {
+    try {
+      const response = await fetch(url);
+      return { status: response.status, html: await response.text() };
+    } catch {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+  }
+  throw new Error(`no answer from ${url}`);
+}
+
+const problems = [];
+let checked = 0;
+for (const lang of ["en", "es"]) {
+  const list = await get(`http://localhost:${PORT}/${lang}`);
+  if (list.status !== 200 || !list.html.includes(mark(lang))) problems.push(`${lang} orders list: status ${list.status} or no synthetic mark`);
+  for (const order of orders) {
+    if (!list.html.includes(`data-order="${order}"`)) problems.push(`${lang} orders list: ${order} is not listed`);
+    const versions = fs.readdirSync(path.join(dataDir, order)).filter((n) => /^v\d+$/.test(n)).sort();
+    for (const version of versions) {
+      const validation = JSON.parse(fs.readFileSync(path.join(dataDir, order, version, "validation.json"), "utf8"));
+      const page = await get(`http://localhost:${PORT}/${lang}/orders/${order}?v=${version.slice(1)}`);
+      const where = `${lang} ${order} ${version}`;
+      if (page.status !== 200) problems.push(`${where}: status ${page.status}`);
+      if (!page.html.includes(mark(lang))) problems.push(`${where}: no synthetic mark`);
+      const shown = (page.html.match(/data-finding="/g) || []).length;
+      if (shown !== validation.findings.length) problems.push(`${where}: ${shown} findings shown, ${validation.findings.length} expected`);
+      const extraction = JSON.parse(fs.readFileSync(path.join(dataDir, order, version, "extraction.json"), "utf8"));
+      const needsAction = extraction.fields.filter((f) => ["contradictory", "missing", "stale"].includes(f.status));
+      const panelStart = page.html.indexOf('data-bucket="needs_action"');
+      const panel = panelStart < 0 ? "" : page.html.slice(panelStart, page.html.indexOf('data-bucket="pending"'));
+      for (const field of needsAction) {
+        const finding = validation.findings.find((f) => f.field_key === field.field_key);
+        const rowStart = panel.indexOf(`data-field="${field.field_key}"`);
+        const row = rowStart < 0 ? "" : panel.slice(rowStart, panel.indexOf("</tr>", rowStart));
+        if (!row) problems.push(`${where}: ${field.field_key} is not in "needs action"`);
+        else if (finding && !row.includes(`href="#${finding.finding_id}"`)) problems.push(`${where}: ${field.field_key} has no link to ${finding.finding_id}`);
+        for (const source of field.sources) {
+          if (row && !row.includes(escape(source.raw_value))) problems.push(`${where}: ${field.field_key} value "${source.raw_value}" is not explained`);
+        }
+      }
+      const counts = [...page.html.matchAll(/data-bucket-count="(\w+)"[^>]*><span[^>]*>(\d+)</g)].map((m) => Number(m[2]));
+      if (counts.length !== 4 || counts[0] !== needsAction.length || counts.reduce((a, b) => a + b, 0) !== extraction.fields.length) {
+        problems.push(`${where}: status counts ${counts.join("+")} do not add up to ${extraction.fields.length} fields`);
+      }
+      for (const finding of validation.findings) {
+        checked += 1;
+        const start = page.html.indexOf(`data-finding="${finding.finding_id}"`);
+        const next = page.html.indexOf('data-finding="', start + 1);
+        const block = start < 0 ? "" : page.html.slice(start, next < 0 ? undefined : next);
+        const needed = [finding.field_key, finding.rule_id, finding.due_date,
+          ...finding.conflicting_values.flatMap((v) => [v.raw_value, v.filename])];
+        for (const text of needed) {
+          if (!block.includes(escape(text))) problems.push(`${where} ${finding.finding_id}: "${text}" is not shown`);
+        }
+      }
+    }
+  }
+}
+stop();
+console.log(`SYNTHETIC — NOT REAL DATA. Render check: ${orders.join(", ")}; ${checked} finding renderings checked in en and es.`);
+for (const problem of problems) console.log(`  - ${problem}`);
+console.log(problems.length ? "FAIL" : "PASS");
+process.exit(problems.length ? 1 : 0);

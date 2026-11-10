@@ -1,6 +1,6 @@
 # Monkyfi Service Delivery Intelligence — SPEC
 
-Version 1.3 · 2026-11-10 · Owner: Dante Ruiz · Status: approved by Dante on 2026-11-09 (Phase 0 done); v1.1 applies amendments D19–D23; v1.2 applies D25–D32 (review of the two example orders); Phase 1 done (D33); v1.3 applies D34–D40; Phase 2 done (D37); see `docs/HANDOFF.md`
+Version 1.4 · 2026-11-10 · Owner: Dante Ruiz · Status: approved by Dante on 2026-11-09 (Phase 0 done); v1.1 applies amendments D19–D23; v1.2 applies D25–D32 (review of the two example orders); Phase 1 done (D33); v1.3 applies D34–D40; Phase 2 done (D37); v1.4 applies D41–D48 (Phase 3 review); see `docs/HANDOFF.md`
 
 This is the single source of truth for the build plan. It is `docs/PRD.md` (v0.1) with the 11 improvements from `docs/REVIEW.md` applied and the definitions from `docs/DEFINITIONS.md` incorporated. Section 18 maps each improvement to where it lands.
 
@@ -167,7 +167,7 @@ Availability of orders and annexes; authorized owner of each data item; source s
 | G4: accepted | Acceptance evidence per contract | Authorized customer and carrier representatives | 6 |
 | G5: closure | Observation complete, pending items handled, NOC handover | SDM / operations | Post-demo |
 
-**G1 pass rule (Decided: D28).** G1 passes when the critical fields are consistent across their authoritative sources, with no missing or contradictory values. G1 does **not** require a field to be `verified`: a consistent, extracted value is `pending` until its data owner verifies it, and `pending` is enough to pass. Every missing or contradictory field raises a finding; the finding blocks G1 when its severity is critical (8.3), and lower severities are reported without blocking (this reading of "critical fields" is Proposed — section 17). Machine-readable form: `rules/gates.json`.
+**G1 pass rule (Decided: D28).** G1 passes when the critical fields are consistent across their authoritative sources, with no missing or contradictory values. G1 does **not** require a field to be `verified`: a consistent, extracted value is `pending` until its data owner verifies it, and `pending` is enough to pass. Every missing or contradictory field raises a finding; the finding blocks G1 when its severity is critical (8.3), and lower severities are reported without blocking (Decided: D43). A package that names another customer of the same tenant raises a critical segregation finding that blocks G1 (Decided: D42). Machine-readable form: `rules/gates.json`.
 
 The agent may recommend blocking or advancing; the official transition depends on the carrier's permissions and authority policy. A human override requires reason, approver and a record; it does not delete the original discrepancy.
 
@@ -194,13 +194,13 @@ A coordinator with specialized functions. In the MVP they run inside a single ag
 | Layer | Choice | Status |
 |---|---|---|
 | Ingestion, extraction, validators, planner, comms logic, evals | Python (`src/`, `evals/`, `tests/`) | Decided (D04) |
-| Web view and API | TypeScript on Vercel (`web/`), Phase 8 | Decided (D04) |
+| Web view and API | TypeScript on Vercel (`web/`); a minimal read-only view in Phase 3 (D45), the full view in Phase 8 | Decided (D04, D45) |
 | Rules | JSON in `rules/`, read by both languages | Decided (D04) |
 | Database | Supabase (Postgres) with RLS; migrations in `supabase/migrations/` | Decided (D05) |
 | Agent model | Muse Spark 1.1 via Meta Model API (OpenAI SDK-compatible) for development | Decided (D06) |
 | Second model | Gemini (gemini-3.8-flash), for comparison only | Decided (D36) |
 | Provider layer | `src/providers/`: one interface (structured output, tool calls); provider selected by `MODEL_PROVIDER` | Decided (D06); interface design Proposed |
-| Web framework | Next.js | Proposed |
+| Web framework | Next.js | Decided (D45) |
 | Orchestration | Single agent loop with tools; no multi-agent framework | Proposed |
 | Schema source of truth | JSON Schema in `schemas/` for payloads; SQL migrations for tables; a test checks they agree | Proposed |
 
@@ -489,8 +489,10 @@ Each session opens with `/prime phase N` and closes with `/hand-off`. A phase ca
 
 ### Phase 3 · Validators and gate G1 (UC02, UC03, RF02–RF03)
 
-- **Deliverables:** EPL and wavelength checklists; comparison across documents and versions; severity; findings with owner, due date and action; pass/block recommendation at G1; override with reason and approver.
-- **Exit criteria:** critical discrepancy recall ≥95% and overall precision ≥90% on the eval split. Zero not-ready orders recommended as ready. Zero findings on the 10 clean orders' critical fields. On v2, only affected validations are reopened. Mandatory cases 1, 2, 3, 4 and 8 pass.
+- **Deliverables:** EPL and wavelength checklists; comparison across documents and versions; severity; findings with owner, due date and action; pass/block recommendation at G1; override with reason and approver; minimal customer scoping (D42); a minimal read-only web view of orders, order detail, delivery progress and parallel workstreams (D45, pulled forward from Phase 8).
+- **Exit criteria:** critical discrepancy recall ≥95% and overall precision ≥90% on the eval split. Zero not-ready orders recommended as ready. Zero findings on the 10 clean orders' critical fields. On v2, only affected validations are reopened. Mandatory cases 1, 2, 3, 4 and 8 pass (case 8 with real extraction on development orders, D41). SYN-WAV-0019 is blocked at G1 (D42). SYN-EPL-0001 and SYN-WAV-0016 render in the web view with all their findings visible (D45).
+- **Status: built, waiting for Dante's approval (not Done).** Reviewed by Dante (D41–D47). Eval split (12 orders, 13 versions, synthetic), same result on the Muse Spark 1.1 and gemini-3.8-flash extraction runs: critical recall 6/6, high recall 2/2, precision 8/8, not-ready orders passed 0/4, ready orders blocked 0/9, uncertainty 8/8, version change 1/1. Development orders of cases 1–4 and 8 with real Muse Spark extraction (6 orders, 9 versions, D41): critical recall 6/6, precision 6/6, not-ready passed 0/4, ready blocked 0/5, version change 3/3. The denominators are small: one missed critical finding on the eval split would give 83%. SYN-WAV-0019 is blocked at G1 in the tests, where a scripted model stands in for extraction; no model run exists on the adversarial orders. Web view: `npm run render-check` shows SYN-EPL-0001 and SYN-WAV-0016 with all their findings in English and Spanish.
+- **As built:** `src/validators/` is deterministic, with no model call. One finding per G1 field that is missing or contradictory, named by the first matching rule in `rules/findings.json`; severity is the field's `missing_severity`, which a rule can raise and never lower. Each finding keeps every conflicting source (document, page, location), an internal owner, a resolving party, a due date and an action; all are escalated to the resolving party. G1 follows `rules/gates.json`. An override is a human decision stored next to the recommendation with approver and reason: the recommendation, the unmet requirements and the findings stay. A new version reopens only the fields whose current value changed; a document carried over from an earlier version does not count as a change and gets a "reissue" action instead. Changed fields are flagged when they may affect the plan (the plan is Phase 4). Finding text is a `locales/` key with parameters, rendered in English or Spanish. Customer scoping (D42) reads the page text of every document for the names in the tenant's customer register (`data/synthetic/customers.json`, the stand-in for the `customer` table), as whole words with or without the synthetic suffix; it merges into an existing `SEG-OTHER-CUSTOMER` finding instead of raising a second one. Output: `validation.json` (`schemas/validation.schema.json`) next to `extraction.json`. The web view (`web/`, D45, D47) is read-only Next.js that reads those two files from a local folder (`SDI_VIEW_DATA_DIR`, default `runs/phase3-view`): orders list, order detail, delivery progress and parallel workstreams. Progress is completed stages ÷ 11 with equal weights from `rules/stages.json`; Presales is shown as assumed complete (order signed, no G0 record); a stage with a gate is completed only by a human decision, so every order is in "Order received" today; open findings are the workstreams and do not change the percentage. The key date is the committed date if the order states one, else the forecast, else the requested date, always with its type. G1 requirements are shown per field group plus customer scoping. Critical fields are grouped by status (D48): needs action first (contradictory, missing, stale) with the conflict explained and a link to the finding, then pending confirmation by the data owner, then not applicable or not set with its reason; a pending field with no value yet (printed as "To be confirmed") counts as not set. All strings come from `locales/`. In `rules/findings.json`, accepted as proposals (D44): due dates in business days per severity (critical 1, high 2, medium 5, info 10), impact "confirmed" when the finding blocks the gate, and which fields affect the plan. Owners are decided (D46): each finding has an internal owner (`owner`) and a `resolving_party`, set per field group with per-field exceptions in `rules/findings.json`; the finding is escalated to the resolving party. The `finding` table has only `owner`; a `resolving_party` column is added when the migration is next revised.
 
 ### Phase 4 · Milestones, dependencies, dates and gate G2 (UC04, UC05, RF04; UC07 minimal slice)
 
@@ -545,13 +547,15 @@ Open items for a pilot offer to a design partner: scope and duration; price or f
 
 ## 17. Open decisions
 
-- G1 and non-critical gaps: D28 is implemented as "a missing or contradictory field blocks G1 when its severity is critical". The alternative reading is that any missing or contradictory field in the 8.4 list blocks G1. It would change the expected G1 result of 3 orders that currently pass with a medium or high finding (SYN-EPL-0008, SYN-WAV-0011, SYN-WAV-0017).
 - Demo step 1 needs an EPL order with 3 seeded errors, while 11.1 allows one or two per order. Either one order gets a third defect or the demo shows two.
 - The migration has been parsed and checked against the schemas but not executed: there is no local Postgres. Applying it to a Supabase project needs Dante's approval.
 - Backlog before the demo (D39): a "hard" synthetic subset (scanned PDFs, misaligned tables, varied wording) to tell models apart; the current data is too clean. Scanned PDFs need OCR, which is not built.
 - Backlog (D40): test lower reasoning effort on Muse Spark (reasoning is about 83% of its output tokens) while keeping extraction ≥95%; requires an eval re-run.
 - Field-level `stale`: the labels count a value from a document not reissued for the current version as `pending` (the version mismatch itself is the contradictory `order_version`). The extractor follows that and marks the source as from an earlier version; `stale` is used only when a newer version supersedes a stored value.
-- Web framework and i18n library.
+- The `finding` table has no `resolving_party` column yet (D46); add it to the entity schema and the migration together.
+- Customer scoping (D42) matches names from a register; a customer named in another form (abbreviation, misspelling, logo only) is not detected until Phase 7.
+- i18n library for the web view: Proposed, none — the view reads `locales/*.json` directly (D45).
+- Web view (Phase 3): local only, not deployed; it has no way to record a human decision at G1, so no order leaves "Order received" on screen. Recording decisions from the UI, the plan and the drafts are Phase 8.
 - Commercial model (section 16).
 - With a pilot carrier: systems and access; data owners; approval authority; test and acceptance criteria; language per audience; cadences and time zones; hypercare window; target volume and cost; retention and processing region.
 
