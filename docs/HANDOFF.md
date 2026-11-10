@@ -5,8 +5,8 @@
 - **Project:** Monkyfi Service Delivery Intelligence
 - **Session:** Phase 3 — validators and gate G1 (UC02, UC03, RF02–RF03), plus the minimal read-only web view (D45)
 - **Date:** 2026-11-10
-- **Status:** Built; every Phase 3 exit criterion passes (one with a caveat, below). **Not marked Done:** Dante reviewed the work (D41–D48) and asked for the closing steps, but has not yet said "Phase 3 is Done". Phase 4 must not start until he does.
-- **Not done on purpose:** nothing from Phase 4 was started. The database migration is still not applied anywhere. No model run on the adversarial orders.
+- **Status:** Done. Dante accepted the results; exit criteria met (D51).
+- **Not done on purpose:** nothing from Phase 4 was started. The database migration is still not applied anywhere. Of the adversarial orders, only SYN-WAV-0019 has a model run.
 
 ## a) Summary of tasks
 
@@ -18,13 +18,14 @@
 - [x] Internal owner and resolving party per field (D46).
 - [x] Real Muse Spark extraction on the development orders of cases 1–4 and 8 (D41).
 - [x] Read-only Next.js view (D45, D47, D48): orders list, order detail, delivery progress, parallel workstreams, critical fields grouped by status; English and Spanish from `locales/`.
-- [x] Decisions D41–D48 in `docs/DECISIONS.md`; `docs/SPEC.md` is v1.4.
-- [ ] Phase 3 marked Done in the SPEC — waits for Dante.
+- [x] Decisions D41–D51 in `docs/DECISIONS.md`; `docs/SPEC.md` is v1.4.
+- [x] Real Muse Spark extraction on SYN-WAV-0019: G1 block, critical `SEG-OTHER-CUSTOMER` citing `06_email_02.pdf` page 1, zero values sourced from an email; renders in the view.
+- [x] Phase 3 marked Done in the SPEC (D51).
 - [ ] `resolving_party` column in the `finding` table (entity schema and migration) — noted in SPEC section 17.
 
 **Tests:** `.venv/bin/python -m pytest -q` → 856 passed.
 
-**Web checks** (from `web/`): `npm run typecheck` → no errors; `npm run build` → no errors; `npm run render-check` → PASS (SYN-EPL-0001 and SYN-WAV-0016, 8 finding renderings in English and Spanish, status counts add up, every "needs action" field links to its finding).
+**Web checks** (from `web/`): `npm run typecheck` → no errors; `npm run build` → no errors; `npm run render-check -- SYN-WAV-0019 SYN-EPL-0001 SYN-WAV-0016` → PASS (10 finding renderings in English and Spanish, status counts add up, every "needs action" field links to its finding).
 
 **Evals:** `.venv/bin/python evals/run.py --predictions runs/eval-meta` → exit 0, scorer self-check OK. Same for `runs/eval-gemini`. `--split dev --predictions runs/dev-cases-meta` → exit 0.
 
@@ -43,7 +44,7 @@ Synthetic data. Eval split: 12 orders, 13 order versions. Development run: 6 ord
 | Uncertainty | 8/8 | 8/8 | 6/6 | ≥95% |
 | Version change | 1/1 | 1/1 | 3/3 | 100% |
 
-NOT RUN (later phases): dates, invented committed dates, adversarial, communication, integration robustness, future risk. The development model run used 45 calls and 334,828 tokens.
+NOT RUN (later phases): dates, invented committed dates, adversarial, communication, integration robustness, future risk. The development model run used 45 calls and 334,828 tokens; the SYN-WAV-0019 run used 6 calls and 43,464 tokens. The adversarial eval needs the `security` section of the prediction, which is Phase 7, so SYN-WAV-0019 is checked directly on its `validation.json`, not by the eval runner.
 
 **Phase 3 exit criteria**
 
@@ -55,15 +56,15 @@ NOT RUN (later phases): dates, invented committed dates, adversarial, communicat
 | Zero findings on the 10 clean orders | PASS | 4 with real extraction; 10/10 in tests with a scripted model |
 | On v2 only affected validations reopened | PASS | 1/1 eval, 3/3 development |
 | Mandatory cases 1, 2, 3, 4, 8 | PASS | all with real extraction |
-| SYN-WAV-0019 blocked at G1 (D42) | PASS, with a caveat | tests only, scripted model; no model run on adversarial orders |
-| SYN-EPL-0001 and SYN-WAV-0016 render with all findings (D45) | PASS | `npm run render-check` |
+| SYN-WAV-0019 blocked at G1 (D42) | PASS | real Muse Spark extraction (`runs/adv-0019-meta/`) and tests |
+| SYN-EPL-0001 and SYN-WAV-0016 render with all findings (D45) | PASS | `npm run render-check`; SYN-WAV-0019 renders too |
 
 Thresholds on synthetic data are a development signal, not production proof. The denominators are small: one missed critical finding on the eval split would give 83%.
 
 ## b) Next steps for the next session
 
-1. Dante confirms Phase 3 is Done (or lists changes). Then record it in `docs/DECISIONS.md` and set the Phase 3 status in `docs/SPEC.md`.
-2. Phase 4 (SPEC section 14): milestone plan with owners, dependency graph, requested / forecast / committed dates, supplier follow-up threshold, *not estimable*, G2, and a blocked `shared_resource` flagging all linked orders. Exit: mandatory cases 5, 6 and 7.
+1. Phase 4 (SPEC section 14): milestone plan with owners, dependency graph, requested / forecast / committed dates, supplier follow-up threshold, *not estimable*, G2, and a blocked `shared_resource` flagging all linked orders. Exit: mandatory cases 5, 6 and 7.
+2. Phase 4 web view backlog (D50): collapse the "Pending confirmation" block by default and group it by field group with a count per group.
 3. Phase 4 can reuse: `version_change.plan_impact_fields` in `validation.json` (which changed fields may move milestones) and `observations` in `extraction.json` (what emails say; emails are forecast evidence only, D35).
 4. Add `resolving_party` to `schemas/entities/finding.schema.json` and the migration together.
 5. Backlog unchanged: D38 (retry logging, Phase 7), D39 (hard synthetic subset), D40 (lower reasoning effort).
@@ -75,7 +76,9 @@ Thresholds on synthetic data are a development signal, not production proof. The
 ## c) Friction points
 
 - **Case 8 had no eval-split order.** Its orders are development orders. Handled: Dante approved a model run on them (D41). Unresolved: the eval split still cannot show case 8 by itself.
-- **SYN-WAV-0019 not proven with a real run.** The scoping check reads document text and does not depend on the model, but only the scripted-model tests cover it. Unresolved until a run on the adversarial orders is approved (Phase 7 at the latest).
+- **SYN-WAV-0019 first proven only with a scripted model.** Handled: Dante asked for a real run on that order; it passed. Unresolved: the other 7 adversarial orders have no model run (Phase 7).
+- **"Needs action" can be empty on a blocked order.** In SYN-WAV-0019 the only finding is on `customer_name`, whose field status is pending, so the panel shows 0 fields needing action while G1 blocks. The finding itself is shown above. Unresolved; a question for Dante in Phase 4.
+- **No GitHub remote.** The repo has no `origin`, so the push Dante asked for could not run. Unresolved: Dante names the repository or approves creating a private one.
 - **The view cannot record a human decision.** Every order shows "Order received", 1 of 11 stages. Unresolved by design: recording decisions from the UI is Phase 8.
 - **Key date is almost always "requested".** Forecast and committed dates are printed as "To be confirmed" in most orders. Not a defect; Phase 4 adds forecasts.
 - **Preview launcher location.** The session's working directory is `docs/`, so the app's preview needed `docs/.claude/launch.json`. Handled: the file is git-ignored. `.gitignore` also ignores `next-env.d.ts`.
@@ -95,6 +98,9 @@ Recorded in `docs/SPEC.md` (v1.4) and `docs/DECISIONS.md`:
 - D46: internal owner and resolving party per finding.
 - D47: view layout approved; Presales shown as assumed complete (1 of 11).
 - D48: critical fields panel grouped by status.
+- D49: a field printed as "To be confirmed" goes under "Not applicable or not set".
+- D50: Phase 4 backlog for the "Pending confirmation" block.
+- D51: Phase 3 Done.
 
 **Choices made in this session that are not decisions (Proposed):**
 
@@ -104,10 +110,9 @@ Recorded in `docs/SPEC.md` (v1.4) and `docs/DECISIONS.md`:
 - `acceptance.deemed_acceptance_period` follows the deemed-acceptance clause to Sales (D46 names only the clause).
 - Customer register in `data/synthetic/customers.json` as the stand-in for the `customer` table; names matched as whole words, case-insensitive, with or without the synthetic suffix.
 - Key date on screen: committed if stated, else forecast, else requested, always with its type.
-- A pending field with no value yet ("To be confirmed") is shown under "Not applicable or not set".
 - No i18n library in the view: it reads `locales/*.json` directly.
 
-**Open questions (SPEC section 17):** Phase 3 Done; demo order with 3 defects; migration not applied; `resolving_party` column; scoping by register misses abbreviations and misspellings; commercial model.
+**Open questions (SPEC section 17):** demo order with 3 defects; migration not applied; `resolving_party` column; scoping by register misses abbreviations and misspellings; commercial model.
 
 ## e) File paths
 
@@ -160,8 +165,8 @@ Recorded in `docs/SPEC.md` (v1.4) and `docs/DECISIONS.md`:
 
 **Documentation**
 
-- `docs/SPEC.md` — modified. v1.4: D41–D48, Phase 3 deliverables, exit criteria, status and as-built, section 17.
-- `docs/DECISIONS.md` — modified. D41–D48.
+- `docs/SPEC.md` — modified. v1.4: D41–D51, Phase 3 Done, Phase 3 deliverables, exit criteria, status and as-built, section 17.
+- `docs/DECISIONS.md` — modified. D41–D51.
 - `docs/HANDOFF.md` — rewritten. This file.
 - `src/README.md`, `rules/README.md`, `evals/README.md`, `web/README.md` — modified. Phase 3 code and commands.
 
@@ -169,7 +174,8 @@ Recorded in `docs/SPEC.md` (v1.4) and `docs/DECISIONS.md`:
 
 - `runs/eval-meta/`, `runs/eval-gemini/` — now also `validation.json` per order version.
 - `runs/dev-cases-meta/` — Muse Spark extraction and validation of SYN-EPL-0001, 0005, 0006, 0007 and SYN-WAV-0007, 0009.
-- `runs/phase3-view/` — the 18 orders the view shows, copied from `runs/eval-meta/` and `runs/dev-cases-meta/`.
+- `runs/adv-0019-meta/` — Muse Spark extraction and validation of SYN-WAV-0019.
+- `runs/phase3-view/` — the 19 orders the view shows, copied from `runs/eval-meta/`, `runs/dev-cases-meta/` and `runs/adv-0019-meta/`.
 - `docs/.claude/launch.json` — preview launcher for the session.
 - `web/node_modules/`, `web/.next/`.
 
@@ -179,7 +185,7 @@ Recorded in `docs/SPEC.md` (v1.4) and `docs/DECISIONS.md`:
 - Validators: `.venv/bin/python -m src.validators.cli --run runs/eval-meta` (add `--language es`, `--as-of YYYY-MM-DD`, `--quiet`)
 - Evals: `.venv/bin/python evals/run.py --predictions runs/eval-meta`
 - Development cases: `.venv/bin/python evals/run.py --split dev --predictions runs/dev-cases-meta`
-- View data: `mkdir -p runs/phase3-view && cp -R runs/eval-meta/SYN-* runs/dev-cases-meta/SYN-* runs/phase3-view/`
+- View data: `mkdir -p runs/phase3-view && cp -R runs/eval-meta/SYN-* runs/dev-cases-meta/SYN-* runs/adv-0019-meta/SYN-* runs/phase3-view/`
 - App: `cd web && npm install && npm run dev`, then http://localhost:3000
 - Web checks: `cd web && npm run typecheck && npm run build && npm run render-check`
 
@@ -188,4 +194,4 @@ Recorded in `docs/SPEC.md` (v1.4) and `docs/DECISIONS.md`:
 - Phase 0 · 2026-11-09 · Done — deliverables committed, SPEC approved (D18), amendments D19–D23 applied.
 - Phase 1 · 2026-11-09 · Done — 44 orders as PDF with golden labels, 18 entity schemas, RLS migration (not executed), eval runner, locales; sample approved (D33).
 - Phase 2 · 2026-11-10 · Done — PDF/DOCX ingestion, provider layer (Muse Spark, Gemini), grounded extraction; 828/828 on the eval split on both models (D37).
-- Phase 3 · 2026-11-10 · Built, waiting for Dante to mark it Done — validators, G1, override, version comparison, customer scoping, read-only web view (D41–D48).
+- Phase 3 · 2026-11-10 · Done — validators, G1, override, version comparison, customer scoping, read-only web view; critical recall 6/6 and precision 8/8 on the eval split (D51).
