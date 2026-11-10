@@ -18,9 +18,10 @@
 - [x] Internal owner and resolving party per field (D46).
 - [x] Real Muse Spark extraction on the development orders of cases 1–4 and 8 (D41).
 - [x] Read-only Next.js view (D45, D47, D48): orders list, order detail, delivery progress, parallel workstreams, critical fields grouped by status; English and Spanish from `locales/`.
-- [x] Decisions D41–D51 in `docs/DECISIONS.md`; `docs/SPEC.md` is v1.4.
+- [x] Decisions D41–D52 in `docs/DECISIONS.md`; `docs/SPEC.md` is v1.4.
 - [x] Real Muse Spark extraction on SYN-WAV-0019: G1 block, critical `SEG-OTHER-CUSTOMER` citing `06_email_02.pdf` page 1, zero values sourced from an email; renders in the view.
 - [x] Phase 3 marked Done in the SPEC (D51).
+- [ ] "Needs action" listing package-level findings (D52) — first task of Phase 4.
 - [ ] `resolving_party` column in the `finding` table (entity schema and migration) — noted in SPEC section 17.
 
 **Tests:** `.venv/bin/python -m pytest -q` → 856 passed.
@@ -63,6 +64,7 @@ Thresholds on synthetic data are a development signal, not production proof. The
 
 ## b) Next steps for the next session
 
+1. First task of Phase 4 (D52): "Needs action" in `web/app/[lang]/orders/[id]/page.tsx` lists everything that blocks G1, including package-level findings such as `SEG-OTHER-CUSTOMER` with their document and page. Add to `web/scripts/render-check.mjs`: if G1 recommends block, "Needs action" is not empty. Check it on SYN-WAV-0019 (`runs/adv-0019-meta/`).
 1. Phase 4 (SPEC section 14): milestone plan with owners, dependency graph, requested / forecast / committed dates, supplier follow-up threshold, *not estimable*, G2, and a blocked `shared_resource` flagging all linked orders. Exit: mandatory cases 5, 6 and 7.
 2. Phase 4 web view backlog (D50): collapse the "Pending confirmation" block by default and group it by field group with a count per group.
 3. Phase 4 can reuse: `version_change.plan_impact_fields` in `validation.json` (which changed fields may move milestones) and `observations` in `extraction.json` (what emails say; emails are forecast evidence only, D35).
@@ -77,7 +79,7 @@ Thresholds on synthetic data are a development signal, not production proof. The
 
 - **Case 8 had no eval-split order.** Its orders are development orders. Handled: Dante approved a model run on them (D41). Unresolved: the eval split still cannot show case 8 by itself.
 - **SYN-WAV-0019 first proven only with a scripted model.** Handled: Dante asked for a real run on that order; it passed. Unresolved: the other 7 adversarial orders have no model run (Phase 7).
-- **"Needs action" can be empty on a blocked order.** In SYN-WAV-0019 the only finding is on `customer_name`, whose field status is pending, so the panel shows 0 fields needing action while G1 blocks. The finding itself is shown above. Unresolved; a question for Dante in Phase 4.
+- **"Needs action" can be empty on a blocked order.** In SYN-WAV-0019 the only finding is on `customer_name`, whose field status is pending, so the panel shows 0 fields needing action while G1 blocks. The finding itself is shown above. Decided (D52): fix it as the first task of Phase 4.
 - **No GitHub remote.** The repo has no `origin`, so the push Dante asked for could not run. Unresolved: Dante names the repository or approves creating a private one.
 - **The view cannot record a human decision.** Every order shows "Order received", 1 of 11 stages. Unresolved by design: recording decisions from the UI is Phase 8.
 - **Key date is almost always "requested".** Forecast and committed dates are printed as "To be confirmed" in most orders. Not a defect; Phase 4 adds forecasts.
@@ -101,6 +103,7 @@ Recorded in `docs/SPEC.md` (v1.4) and `docs/DECISIONS.md`:
 - D49: a field printed as "To be confirmed" goes under "Not applicable or not set".
 - D50: Phase 4 backlog for the "Pending confirmation" block.
 - D51: Phase 3 Done.
+- D52: "Needs action" lists everything that blocks G1; first task of Phase 4.
 
 **Choices made in this session that are not decisions (Proposed):**
 
@@ -166,7 +169,7 @@ Recorded in `docs/SPEC.md` (v1.4) and `docs/DECISIONS.md`:
 **Documentation**
 
 - `docs/SPEC.md` — modified. v1.4: D41–D51, Phase 3 Done, Phase 3 deliverables, exit criteria, status and as-built, section 17.
-- `docs/DECISIONS.md` — modified. D41–D51.
+- `docs/DECISIONS.md` — modified. D41–D52.
 - `docs/HANDOFF.md` — rewritten. This file.
 - `src/README.md`, `rules/README.md`, `evals/README.md`, `web/README.md` — modified. Phase 3 code and commands.
 
