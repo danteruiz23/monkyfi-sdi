@@ -87,6 +87,16 @@ export interface Plan {
       committed_awaiting_approval: string[];
     };
   };
+  actions?: PlanAction[];
+}
+/** An open question in the plan with an owner (D60), shown as a workstream. */
+export interface PlanAction {
+  action_id: string;
+  action: string;
+  milestone: string;
+  owner: string;
+  status: string;
+  due_date: string | null;
 }
 export interface OrderVersion {
   orderId: string;

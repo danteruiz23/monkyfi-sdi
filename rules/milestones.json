@@ -1,0 +1,43 @@
+{
+  "rules_version": "0.1.0",
+  "status": "Phase 4. Milestone lists per product are decided as defaults (D56). Owners, criticality, predecessors and applicability conditions are Proposed.",
+  "notes": [
+    "Every milestone has an internal owner role. A milestone is never dropped silently: when the package does not say whether a conditional milestone applies, it is listed with applicability 'unknown'.",
+    "Dates: the customer's requested date goes on the delivery milestone; a forecast goes on the milestone its evidence is about (a supplier's date on the supplier milestone, any other forecast on delivery), always with its assumptions; a carrier commitment goes on the delivery milestone only with an approval record. Every other milestone is 'not_estimable': no duration is ever assumed.",
+    "Predecessors are used by the dependency graph (Phase 4 step 4)."
+  ],
+  "conditions": {
+    "cross_connect_any_end": "a_end.cross_connect.required or z_end.cross_connect.required is true; false at both ends is not_applicable; otherwise unknown",
+    "supplier_involved": "a registered supplier wrote an email in the package; otherwise unknown (no contract field says whether access is off-net)"
+  },
+  "unknown_actions": {
+    "note": "D60: a conditional milestone whose applicability is unknown creates an action with an owner, shown in the plan and in the workstreams. No due date is set (Proposed): the action has no severity.",
+    "supplier_involved": {"action": "confirm_access_type", "owner": "engineering"}
+  },
+  "products": {
+    "EPL": [
+      {"key": "intake_g1", "owner": "order_management", "is_critical": true, "predecessors": [], "gate": "G1"},
+      {"key": "design", "owner": "engineering", "is_critical": true, "predecessors": ["intake_g1"]},
+      {"key": "port_assignment_az", "owner": "provisioning", "is_critical": true, "predecessors": ["design"]},
+      {"key": "cross_connects_az", "owner": "provisioning", "is_critical": true, "predecessors": ["intake_g1"], "condition": "cross_connect_any_end"},
+      {"key": "third_party_access", "owner": "supplier_management", "is_critical": true, "predecessors": ["intake_g1"], "condition": "supplier_involved", "supplier_milestone": true},
+      {"key": "g2", "owner": "engineering", "is_critical": true, "predecessors": ["design", "port_assignment_az", "cross_connects_az", "third_party_access"], "gate": "G2"},
+      {"key": "provisioning", "owner": "provisioning", "is_critical": true, "predecessors": ["g2"]},
+      {"key": "service_tests_epl", "owner": "engineering", "is_critical": true, "predecessors": ["provisioning"]},
+      {"key": "delivery", "owner": "sdm", "is_critical": true, "predecessors": ["service_tests_epl"], "delivery_milestone": true},
+      {"key": "acceptance", "owner": "sdm", "is_critical": true, "predecessors": ["delivery"]}
+    ],
+    "WAVELENGTH": [
+      {"key": "intake_g1", "owner": "order_management", "is_critical": true, "predecessors": [], "gate": "G1"},
+      {"key": "route_design_diversity", "owner": "engineering", "is_critical": true, "predecessors": ["intake_g1"]},
+      {"key": "optical_path_assignment", "owner": "engineering", "is_critical": true, "predecessors": ["route_design_diversity"]},
+      {"key": "cross_connects_az", "owner": "provisioning", "is_critical": true, "predecessors": ["intake_g1"], "condition": "cross_connect_any_end"},
+      {"key": "supplier_segments_foc", "owner": "supplier_management", "is_critical": true, "predecessors": ["intake_g1"], "condition": "supplier_involved", "supplier_milestone": true},
+      {"key": "g2", "owner": "engineering", "is_critical": true, "predecessors": ["route_design_diversity", "optical_path_assignment", "cross_connects_az", "supplier_segments_foc"], "gate": "G2"},
+      {"key": "provisioning", "owner": "provisioning", "is_critical": true, "predecessors": ["g2"]},
+      {"key": "ber_test", "owner": "engineering", "is_critical": true, "predecessors": ["provisioning"]},
+      {"key": "delivery", "owner": "sdm", "is_critical": true, "predecessors": ["ber_test"], "delivery_milestone": true},
+      {"key": "acceptance", "owner": "sdm", "is_critical": true, "predecessors": ["delivery"]}
+    ]
+  }
+}

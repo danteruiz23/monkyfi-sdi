@@ -116,13 +116,20 @@ def test_planner_cli_writes_plan_and_prediction_dates(tmp_path):
     golden = load(DATA / "orders" / "SYN-WAV-0001" / "v1" / "golden.json")
     target = tmp_path / "SYN-WAV-0001" / "v1"
     target.mkdir(parents=True)
-    (target / "extraction.json").write_text(json.dumps(golden_extraction(golden)), encoding="utf-8")
+    extraction = golden_extraction(golden)
+    expected = {f["field_key"]: f for f in golden["expected_fields"]}
+    for field in extraction["fields"]:
+        field["status"] = expected[field["field_key"]]["expected_status"]
+        field["normalized_value"] = expected[field["field_key"]]["normalized_value"]
+    (target / "extraction.json").write_text(json.dumps(extraction), encoding="utf-8")
     (target / "prediction.json").write_text(json.dumps({"external_order_id": "SYN-WAV-0001"}), encoding="utf-8")
     assert cli.main(["--run", str(tmp_path)]) == 0
     plan = load(target / "plan.json")
     assert plan["synthetic"] is True
     assert plan["dates"]["order"]["forecast"] == ["2027-01-22"]
     assert plan["dates"]["order"]["committed"] == []
+    assert [m["key"] for m in plan["milestones"]][4] == "supplier_segments_foc"
+    assert all(m["owner"] for m in plan["milestones"])
     assert {"doc_id": "06_email_02.pdf", "date": "2027-01-22", "type": "forecast", "scope": "order"} in \
         load(target / "prediction.json")["dates"]
 

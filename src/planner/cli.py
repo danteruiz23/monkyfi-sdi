@@ -14,6 +14,7 @@ from pathlib import Path
 
 from ..ingest.documents import SYNTHETIC_MARK, now_utc, read_package
 from .dates import PLANNER_VERSION, classify_dates, to_prediction_dates
+from .milestones import build_milestones
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -30,16 +31,23 @@ def supplier_register(data: Path) -> list[str]:
     return [s["name"] for s in _read(data / "seed" / "supplier.json")]
 
 
-def build_plan(extraction: dict, documents, suppliers: list[str], evaluated_at: str) -> dict:
+def build_plan(extraction: dict, documents, suppliers: list[str], evaluated_at: str,
+               validation: dict | None = None) -> dict:
+    # No approval records exist yet (data/synthetic/seed/approval.json is empty), so no order
+    # commitment is usable as the order's committed date.
+    dates = classify_dates(extraction, documents, suppliers, approvals={})
+    plan = build_milestones(extraction.get("product"), extraction, dates, validation)
     return {
         "synthetic": True,
         "synthetic_mark": SYNTHETIC_MARK,
         "order_dir_id": extraction["order_dir_id"],
         "version_no": extraction["version_no"],
         "run": {"planner_version": PLANNER_VERSION, "evaluated_at": evaluated_at},
-        # No approval records exist yet (data/synthetic/seed/approval.json is empty), so no order
-        # commitment is usable as the order's committed date.
-        "dates": classify_dates(extraction, documents, suppliers, approvals={}),
+        "product": extraction.get("product"),
+        "dates": dates,
+        "milestones": plan["milestones"],
+        "actions": plan["actions"],
+        "warnings": dates["warnings"] + plan["warnings"],
     }
 
 
@@ -56,6 +64,14 @@ def show(plan: dict) -> None:
             print(f"          \"{m['sentence']}\"")
     for m in plan["dates"]["ignored"]:
         print(f"      {m['date']} ignored ({m['reason']}) {m['doc_id']} p.{m['page']}: \"{m['sentence']}\"")
+    for ms in plan["milestones"]:
+        dates = " · ".join(f"{k} {ms[k]}" for k in ("requested_date", "forecast_date", "committed_date",
+                                                    "committed_awaiting_approval") if ms[k])
+        print(f"      [{ms['key']:<24}] owner={ms['owner']:<19} {ms['applicability']:<14} {ms['state']:<17}"
+              f" forecast={ms['forecast_status']}{' (' + ms['forecast_reason'] + ')' if ms['forecast_reason'] else ''}"
+              f"{' · ' + dates if dates else ''}{' blocked by ' + ','.join(ms['blocked_by']) if ms['blocked_by'] else ''}")
+        for assumption in ms["forecast_assumptions"]:
+            print(f"          assumption: {assumption}")
     order = plan["dates"]["order"]
     print(f"      order dates: requested {order['requested']} · forecast {order['forecast']} · "
           f"committed {order['committed']} · committed awaiting approval {order['committed_awaiting_approval']}")
@@ -85,7 +101,8 @@ def main(argv=None) -> int:
             extraction = _read(directory / "extraction.json")
             package = paths[order_id] / f"v{version_no}" / "documents"
             documents = read_package(package) if package.is_dir() else None
-            plan = build_plan(extraction, documents, suppliers, evaluated_at)
+            validation = _read(directory / "validation.json") if (directory / "validation.json").exists() else None
+            plan = build_plan(extraction, documents, suppliers, evaluated_at, validation)
         except (ValueError, KeyError, OSError) as exc:
             failures += 1
             print(f"  {order_id} v{version_no}: FAILED — {exc}", flush=True)
@@ -101,7 +118,8 @@ def main(argv=None) -> int:
             counts[m["type"]] = counts.get(m["type"], 0) + 1
         print(f"  {order_id} v{version_no}: {len(plan['dates']['mentions'])} date(s) "
               f"{dict(sorted(counts.items()))}, {len(plan['dates']['ignored'])} ignored"
-              + "".join(f" [{w}]" for w in plan["dates"]["warnings"]), flush=True)
+              + f", {sum(1 for m in plan['milestones'] if m['applicability'] != 'not_applicable')} milestone(s)"
+              + "".join(f" [{w}]" for w in plan["warnings"]), flush=True)
         if args.show:
             show(plan)
     print(f"Done: {len(directories) - failures} planned, {failures} failed.", flush=True)

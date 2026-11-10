@@ -22,4 +22,5 @@ Empty until their phase: `planner/`, `comms/`, `acceptance/`, `audit/`. See `doc
 ## Phase 4: planner
 
 - `src/planner/dates.py` — deterministic date typing (rules in `rules/dates.json`). Reads the grounded quote and order-form dates from `extraction.json` and the email page text directly; the model's field keys are not used. Output: the `dates` section of `plan.json` (typed mentions with sentence and assumptions, ignored mentions with reason, and the order's dates by type) and the `dates` section of `prediction.json`.
+- `src/planner/milestones.py` — milestone plan per product from `rules/milestones.json` (D56): owner, applicability (applies / not applicable / unknown), state (the intake milestone follows G1), requested date on delivery (signed order form), forecast only from dated evidence with its assumptions (a supplier's date on the supplier milestone), committed date only with an approval record; everything else `not_estimable`.
 - `src/planner/cli.py` — `.venv/bin/python -m src.planner.cli --run runs/eval-meta [--orders ...] [--show]`. Run after the validators.

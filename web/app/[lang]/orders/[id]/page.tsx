@@ -52,6 +52,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
   const decision = validation.gate.human_decision;
   const buckets = fieldBuckets(extraction);
   const blockers = otherBlockers(order);
+  const actions = (order.plan?.actions ?? []).filter((a) => a.status === "open");
   const needsActionCount = buckets.needs_action.length + blockers.length;
 
   return (
@@ -137,7 +138,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
 
         <h3>{t("ui.workstreams_title")}</h3>
         <p className="muted small">{t("ui.workstreams_note")}</p>
-        {open.length === 0 ? (
+        {open.length === 0 && actions.length === 0 ? (
           <p>{t("ui.workstreams_none")}</p>
         ) : (
           <div className="table-wrap">
@@ -162,6 +163,18 @@ export default async function OrderPage({ params, searchParams }: Props) {
                     <td>{t(`owner_role.${finding.owner}`)}</td>
                     <td>{t(`owner_role.${finding.resolving_party}`)}</td>
                     <td className="date">{finding.due_date}</td>
+                  </tr>
+                ))}
+                {actions.map((action) => (
+                  <tr key={action.action_id} data-action={action.action_id}>
+                    <td>
+                      {action.action_id} {t(`plan_action.${action.action}`)}{" "}
+                      <span className="muted small">· {t(`milestone.${action.milestone}`)}</span>
+                    </td>
+                    <td>{t(`finding_status.${action.status}`)}</td>
+                    <td>{t(`owner_role.${action.owner}`)}</td>
+                    <td>{t(`owner_role.${action.owner}`)}</td>
+                    <td className="date">{action.due_date ?? t("ui.due_not_set")}</td>
                   </tr>
                 ))}
               </tbody>

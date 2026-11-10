@@ -152,12 +152,16 @@ def classify_dates(extraction: dict, documents: list[Document] | None, suppliers
     """The dates section of plan.json: typed mentions, ignored mentions and the order's dates by type."""
     mentions = contract_mentions(extraction, approvals)
     ignored: list[dict] = []
+    supplier_emails: list[dict] = []
     warnings = []
     if documents is None:
         warnings.append("package documents not found: email dates not read")
     else:
         for document in documents:
             if document.doc_type == "email":
+                sender = email_sender(document, suppliers)
+                if sender:
+                    supplier_emails.append({"doc_id": document.filename, "supplier": sender})
                 typed, skipped = classify_email(document, suppliers)
                 mentions += typed
                 ignored += skipped
@@ -175,7 +179,8 @@ def classify_dates(extraction: dict, documents: list[Document] | None, suppliers
         "committed_awaiting_approval": sorted({m["date"] for m in committed
                                                if m["commitment_status"] == "awaiting_approval"}),
     }
-    return {"mentions": mentions, "ignored": ignored, "order": order, "warnings": warnings}
+    return {"mentions": mentions, "ignored": ignored, "supplier_emails": supplier_emails, "order": order,
+            "warnings": warnings}
 
 
 def to_prediction_dates(dates: dict) -> list[dict]:

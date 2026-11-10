@@ -60,6 +60,7 @@ let checked = 0;
 let blockerRows = 0;
 let commitmentChecks = 0;
 let awaitingShown = 0;
+let actionRows = 0;
 for (const lang of ["en", "es"]) {
   const list = await get(`http://localhost:${PORT}/${lang}`);
   if (list.status !== 200 || !list.html.includes(mark(lang))) problems.push(`${lang} orders list: status ${list.status} or no synthetic mark`);
@@ -79,7 +80,17 @@ for (const lang of ["en", "es"]) {
       const where = `${lang} ${order} ${version}`;
       if (page.status !== 200) problems.push(`${where}: status ${page.status}`);
       if (!page.html.includes(mark(lang))) problems.push(`${where}: no synthetic mark`);
-      const approved = readPlan(order, version)?.dates.order.committed ?? [];
+      const plan = readPlan(order, version);
+      const approved = plan?.dates.order.committed ?? [];
+      const workstreams = page.html.slice(page.html.indexOf('data-testid="workstreams"'), page.html.indexOf('data-testid="gate"'));
+      for (const action of (plan?.actions ?? []).filter((a) => a.status === "open")) {
+        const start = workstreams.indexOf(`data-action="${action.action_id}"`);
+        const row = start < 0 ? "" : workstreams.slice(start, workstreams.indexOf("</tr>", start));
+        if (!row || !row.includes(escape(locale(lang).plan_action[action.action])) || !row.includes(escape(locale(lang).owner_role[action.owner]))) {
+          problems.push(`${where}: plan action ${action.action_id} (${action.action}) is not in the workstreams with its owner`);
+        }
+        actionRows += 1;
+      }
       checkCommitments(where, page.html, approved, lang);
       const stated = JSON.parse(fs.readFileSync(path.join(dataDir, order, version, "extraction.json"), "utf8"))
         .fields.find((f) => f.field_key === "dates.committed");
@@ -149,7 +160,7 @@ for (const lang of ["en", "es"]) {
   }
 }
 stop();
-console.log(`SYNTHETIC — NOT REAL DATA. Render check: ${orders.join(", ")}; ${checked} finding renderings and ${blockerRows} package-level blocker rows, ${commitmentChecks} pages checked for unapproved commitments (${awaitingShown} shown awaiting approval) in en and es.`);
+console.log(`SYNTHETIC — NOT REAL DATA. Render check: ${orders.join(", ")}; ${checked} finding renderings and ${blockerRows} package-level blocker rows, ${commitmentChecks} pages checked for unapproved commitments (${awaitingShown} shown awaiting approval), ${actionRows} plan action rows, in en and es.`);
 for (const problem of problems) console.log(`  - ${problem}`);
 console.log(problems.length ? "FAIL" : "PASS");
 process.exit(problems.length ? 1 : 0);

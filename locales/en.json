@@ -55,7 +55,6 @@
     "failed": "Failed"
   },
   "forecast_status": {
-    "pending": "Pending",
     "estimated": "Estimated",
     "not_estimable": "Not estimable"
   },
@@ -86,7 +85,8 @@
     "customer": "Customer",
     "customer_technical_contact": "Customer (technical contact)",
     "customer_technical_contact_a_end": "Customer (A-end technical contact)",
-    "customer_technical_contact_z_end": "Customer (Z-end technical contact)"
+    "customer_technical_contact_z_end": "Customer (Z-end technical contact)",
+    "supplier_management": "Supplier Management"
   },
   "finding_status": {
     "open": "Open",
@@ -166,7 +166,7 @@
     "progress_method": "Method: completed stages ÷ {total}. Every stage has the same weight (rules/stages.json). A stage is completed only by a human decision at its gate. Parallel work inside the current stage does not change the percentage.",
     "stage_blocked_by_gate": "Blocked: {gate} recommends block",
     "workstreams_title": "Parallel workstreams in the current stage",
-    "workstreams_note": "One row per open finding. Milestones are added in Phase 4. These rows do not change the percentage.",
+    "workstreams_note": "One row per open finding or open plan action (D60). These rows do not change the percentage.",
     "workstreams_none": "No open findings in this stage.",
     "col_workstream": "Workstream",
     "col_status": "Status",
@@ -251,6 +251,38 @@
     "reason_printed_not_applicable": "Printed as not applicable in {document} ({page}).",
     "reason_condition_not_met": "Conditional field: its condition does not hold for this order.",
     "reason_awaited": "No value yet: printed as \"{text}\" in {document} ({page}).",
-    "reason_not_set": "No value has been given yet."
+    "reason_not_set": "No value has been given yet.",
+    "due_not_set": "Not set"
+  },
+  "milestone": {
+    "intake_g1": "Order intake (G1)",
+    "design": "Design",
+    "port_assignment_az": "A/Z port assignment",
+    "cross_connects_az": "A/Z cross-connects",
+    "third_party_access": "Third-party access (off-net)",
+    "g2": "Ready for execution (G2)",
+    "provisioning": "Provisioning",
+    "service_tests_epl": "RFC 2544 / Y.1564 tests",
+    "delivery": "Delivery",
+    "acceptance": "Acceptance",
+    "route_design_diversity": "Route design and diversity check",
+    "optical_path_assignment": "Optical path assignment",
+    "supplier_segments_foc": "Supplier segments (FOC)",
+    "ber_test": "BER test"
+  },
+  "milestone_applicability": {
+    "applies": "Applies",
+    "not_applicable": "Not applicable",
+    "unknown": "Not known yet"
+  },
+  "milestone_state": {
+    "not_started": "Not started",
+    "blocked": "Blocked",
+    "awaiting_decision": "Awaiting human decision",
+    "completed": "Completed",
+    "not_evaluated": "Not evaluated"
+  },
+  "plan_action": {
+    "confirm_access_type": "Confirm on-net or off-net access"
   }
 }

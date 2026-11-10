@@ -55,7 +55,6 @@
     "failed": "Fallido"
   },
   "forecast_status": {
-    "pending": "Pendiente",
     "estimated": "Estimada",
     "not_estimable": "No estimable"
   },
@@ -86,7 +85,8 @@
     "customer": "Cliente",
     "customer_technical_contact": "Cliente (contacto técnico)",
     "customer_technical_contact_a_end": "Cliente (contacto técnico del extremo A)",
-    "customer_technical_contact_z_end": "Cliente (contacto técnico del extremo Z)"
+    "customer_technical_contact_z_end": "Cliente (contacto técnico del extremo Z)",
+    "supplier_management": "Gestión de proveedores"
   },
   "finding_status": {
     "open": "Abierto",
@@ -166,7 +166,7 @@
     "progress_method": "Método: etapas completadas ÷ {total}. Todas las etapas pesan lo mismo (rules/stages.json). Una etapa se completa solo con una decisión humana en su gate. El trabajo en paralelo dentro de la etapa actual no cambia el porcentaje.",
     "stage_blocked_by_gate": "Bloqueada: {gate} recomienda bloquear",
     "workstreams_title": "Frentes en paralelo en la etapa actual",
-    "workstreams_note": "Una fila por hallazgo abierto. Los hitos se agregan en la Fase 4. Estas filas no cambian el porcentaje.",
+    "workstreams_note": "Una fila por hallazgo abierto o acción abierta del plan (D60). Estas filas no cambian el porcentaje.",
     "workstreams_none": "No hay hallazgos abiertos en esta etapa.",
     "col_workstream": "Frente",
     "col_status": "Estado",
@@ -251,6 +251,38 @@
     "reason_printed_not_applicable": "Aparece como no aplica en {document} ({page}).",
     "reason_condition_not_met": "Campo condicional: su condición no se cumple en esta orden.",
     "reason_awaited": "Sin valor todavía: aparece como \"{text}\" en {document} ({page}).",
-    "reason_not_set": "Todavía no se ha dado un valor."
+    "reason_not_set": "Todavía no se ha dado un valor.",
+    "due_not_set": "Sin fijar"
+  },
+  "milestone": {
+    "intake_g1": "Recepción de la orden (G1)",
+    "design": "Diseño",
+    "port_assignment_az": "Asignación de puertos A/Z",
+    "cross_connects_az": "Cross-connects A/Z",
+    "third_party_access": "Acceso de terceros (off-net)",
+    "g2": "Listo para ejecución (G2)",
+    "provisioning": "Aprovisionamiento",
+    "service_tests_epl": "Pruebas RFC 2544 / Y.1564",
+    "delivery": "Entrega",
+    "acceptance": "Aceptación",
+    "route_design_diversity": "Diseño de ruta y verificación de diversidad",
+    "optical_path_assignment": "Asignación de trayecto óptico",
+    "supplier_segments_foc": "Segmentos de proveedor (FOC)",
+    "ber_test": "Prueba BER"
+  },
+  "milestone_applicability": {
+    "applies": "Aplica",
+    "not_applicable": "No aplica",
+    "unknown": "Aún no se sabe"
+  },
+  "milestone_state": {
+    "not_started": "Sin iniciar",
+    "blocked": "Bloqueado",
+    "awaiting_decision": "Esperando decisión humana",
+    "completed": "Completado",
+    "not_evaluated": "Sin evaluar"
+  },
+  "plan_action": {
+    "confirm_access_type": "Confirmar si el acceso es on-net u off-net"
   }
 }
