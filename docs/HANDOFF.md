@@ -3,194 +3,191 @@
 ## 0. Header
 
 - **Project:** Monkyfi Service Delivery Intelligence
-- **Session:** Phase 3 — validators and gate G1 (UC02, UC03, RF02–RF03), plus the minimal read-only web view (D45)
+- **Session:** Phase 4 — milestones, dependencies, dates and gate G2 (UC04, UC05, RF04; UC07 minimal slice), plus the Phase 4 web view work
 - **Date:** 2026-11-10
-- **Status:** Done. Dante accepted the results; exit criteria met (D51).
-- **Not done on purpose:** nothing from Phase 4 was started. The database migration is still not applied anywhere. Of the adversarial orders, only SYN-WAV-0019 has a model run.
+- **Status:** Done. Dante approved the results; exit criteria met (D69).
+- **Not done on purpose:** nothing from Phase 5 was started. The database migration is still not applied anywhere (it was revised in place before any execution; D64 applies from the first execution).
 
 ## a) Summary of tasks
 
-- [x] Deterministic validators: one finding per missing or contradictory G1 field, with rule, severity, every conflicting source, internal owner, resolving party, due date and action.
-- [x] Gate G1 from `rules/gates.json`: only critical findings block (D43); `verified` is never required.
-- [x] Override with approver and reason; the recommendation and the original finding are kept. Severity can be lowered only by a named human with a reason.
-- [x] Version comparison: only fields whose current value changed are reopened; a document carried over from an earlier version gets a "reissue" action.
-- [x] Minimal customer scoping (D42): another customer of the tenant named in any document raises a critical `SEG-OTHER-CUSTOMER` finding.
-- [x] Internal owner and resolving party per field (D46).
-- [x] Real Muse Spark extraction on the development orders of cases 1–4 and 8 (D41).
-- [x] Read-only Next.js view (D45, D47, D48): orders list, order detail, delivery progress, parallel workstreams, critical fields grouped by status; English and Spanish from `locales/`.
-- [x] Decisions D41–D52 in `docs/DECISIONS.md`; `docs/SPEC.md` is v1.4.
-- [x] Real Muse Spark extraction on SYN-WAV-0019: G1 block, critical `SEG-OTHER-CUSTOMER` citing `06_email_02.pdf` page 1, zero values sourced from an email; renders in the view.
-- [x] Phase 3 marked Done in the SPEC (D51).
-- [ ] "Needs action" listing package-level findings (D52) — first task of Phase 4.
-- [ ] `resolving_party` column in the `finding` table (entity schema and migration) — noted in SPEC section 17.
+- [x] Step 1 (D52): "Needs action" lists every open G1 blocker, including package-level findings such as `SEG-OTHER-CUSTOMER` with document, page and value; render check fails if G1 blocks and the block is empty.
+- [x] Step 2: deterministic date typing (requested / forecast / committed) from `rules/dates.json`; email dates typed from their sentence; emails never give the order a committed date (D35, D57); a firm supplier FOC stays on the dependency (D26); the tentative reading of a date wins within one email (SYN-WAV-0022). `DATE-CUSTOMER-CHANGE` finding (D57). No date without an approval record is shown as committed (D58).
+- [x] Step 3: milestone plan per product (D56) with owners, applicability (unknown is never dropped), states and dates; Engineering action "Confirm on-net or off-net access", due in 2 business days (D60, D62).
+- [x] Step 4: supplier dependencies, "Supplier inputs: complete / missing" (D62), follow-up counted from the last supplier email (3 / 5 business days, D55), escalation to the SDM with history, dependency graph.
+- [x] Step 5: shared resources across a run (UC07): `XC-SYN-AURORA-A` is one record flagged on SYN-WAV-0001, 0002 and 0003 with one shared action.
+- [x] Step 6: gate G2 (D54, D65, D67) with seeded synthetic gate records; SYN-EPL-0013 and SYN-WAV-0013 pass G1 and G2; SYN-WAV-0003 fails G2 only on the blocked shared cross-connect.
+- [x] Step 7: plan section in the view, "Pending confirmation" collapsed and grouped (D50), progress with three spans and two percentages (D68).
+- [x] Real Muse Spark extraction on the case 5–7 orders (D53): 40 calls, 304,066 tokens, 386/386 critical fields.
+- [x] Migration revised before execution: `supplier.escalation_threshold_days`, `finding.resolving_party`.
+- [x] Decisions D53–D69; SPEC v1.5; Phase 4 marked Done (D69).
 
-**Tests:** `.venv/bin/python -m pytest -q` → 856 passed.
+**Tests:** `.venv/bin/python -m pytest -q` → 1431 passed.
 
-**Web checks** (from `web/`): `npm run typecheck` → no errors; `npm run build` → no errors; `npm run render-check -- SYN-WAV-0019 SYN-EPL-0001 SYN-WAV-0016` → PASS (10 finding renderings in English and Spanish, status counts add up, every "needs action" field links to its finding).
+**Web checks** (from `web/`): `npm run typecheck` → no errors; `npm run build` → no errors; `npm run render-check -- $(ls ../runs/phase4-view | grep SYN)` → PASS on 25 orders (36 finding renderings, 2 package-level blocker rows, 60 pages checked for unapproved commitments with 4 shown awaiting approval, 58 plan action rows incl. 6 shared-resource rows, 58 G2 cards, 58 pages with both progress numbers, 58 plan sections; English and Spanish).
 
-**Evals:** `.venv/bin/python evals/run.py --predictions runs/eval-meta` → exit 0, scorer self-check OK. Same for `runs/eval-gemini`. `--split dev --predictions runs/dev-cases-meta` → exit 0.
+**Evals** (all exit 0, scorer self-check OK):
 
-Synthetic data. Eval split: 12 orders, 13 order versions. Development run: 6 orders, 9 versions.
+| Eval | Eval split, Muse Spark 1.1 | Eval split, gemini-3.8-flash | Dev orders cases 1–4, 8 (D41) | Case 5–7 orders (D53) | Threshold |
+|---|---|---|---|---|---|
+| Critical field extraction | 828/828 | 828/828 | 564/564 | 386/386 | ≥95% |
+| Discrepancy recall (critical) | 6/6 | 6/6 | 6/6 | 2/2 | ≥95% |
+| Discrepancy precision | 8/8 | 8/8 | 6/6 | 3/3 | ≥90% |
+| Factual traceability | 761/761 | 761/761 | — | — | ≥99% |
+| G1: not-ready orders passed | 0/4 | 0/4 | 0/4 | 0/2 | 0 |
+| Dates | 41/41 | 41/41 | 25/25 | 17/17 | 100% |
+| Dates: no forecast or informal date as committed | 0/2 | 0/2 | 0/0 | 0/0 | 0 |
+| Dates: unlabeled or mistyped mentions | 0/41 | 0/41 | 0/25 | 0/17 | reported |
+| Dependencies | 1/1 | 1/1 | 0/0 | 4/4 | 100% |
+| Shared resources | 13/13 | 13/13 | 9/9 | 6/6 | 100% |
+| Uncertainty | 8/8 | 8/8 | — | — | ≥95% |
+| Version change | 1/1 | 1/1 | — | — | 100% |
 
-| Eval | Eval split, Muse Spark 1.1 | Eval split, gemini-3.8-flash | Development orders (D41), Muse Spark 1.1 | Threshold |
-|---|---|---|---|---|
-| Critical field extraction | 828/828 | 828/828 | 564/564 | ≥95% |
-| Discrepancy recall (critical) | 6/6 | 6/6 | 6/6 | ≥95% |
-| Discrepancy recall (high) | 2/2 | 2/2 | 0/0 | reported |
-| Discrepancy precision | 8/8 | 8/8 | 6/6 | ≥90% |
-| Severity lowered | 0/8 | 0/8 | 0/6 | 0 |
-| Factual traceability | 761/761 | 761/761 | 510/510 | ≥99% |
-| G1: not-ready orders passed | 0/4 | 0/4 | 0/4 | 0 |
-| G1: ready orders blocked | 0/9 | 0/9 | 0/5 | reported |
-| Uncertainty | 8/8 | 8/8 | 6/6 | ≥95% |
-| Version change | 1/1 | 1/1 | 3/3 | 100% |
+Commands: `.venv/bin/python evals/run.py --predictions runs/eval-meta` (same for `runs/eval-gemini`); `--split dev --predictions runs/dev-cases-meta`; `--split dev --predictions runs/phase4-cases-meta`. NOT RUN (later phases): adversarial, communication, integration robustness, future risk. Synthetic data; small denominators (1 labeled dependency on the eval split; cases 5–7 are mostly development orders).
 
-NOT RUN (later phases): dates, invented committed dates, adversarial, communication, integration robustness, future risk. The development model run used 45 calls and 334,828 tokens; the SYN-WAV-0019 run used 6 calls and 43,464 tokens. The adversarial eval needs the `security` section of the prediction, which is Phase 7, so SYN-WAV-0019 is checked directly on its `validation.json`, not by the eval runner.
-
-**Phase 3 exit criteria**
+**Phase 4 exit criteria**
 
 | Criterion | Result | Evidence |
 |---|---|---|
-| Critical recall ≥95% on the eval split | PASS | 6/6 on both models |
-| Overall precision ≥90% | PASS | 8/8 |
-| Zero not-ready orders recommended as ready | PASS | 0/4 eval, 0/4 development |
-| Zero findings on the 10 clean orders | PASS | 4 with real extraction; 10/10 in tests with a scripted model |
-| On v2 only affected validations reopened | PASS | 1/1 eval, 3/3 development |
-| Mandatory cases 1, 2, 3, 4, 8 | PASS | all with real extraction |
-| SYN-WAV-0019 blocked at G1 (D42) | PASS | real Muse Spark extraction (`runs/adv-0019-meta/`) and tests |
-| SYN-EPL-0001 and SYN-WAV-0016 render with all findings (D45) | PASS | `npm run render-check`; SYN-WAV-0019 renders too |
-
-Thresholds on synthetic data are a development signal, not production proof. The denominators are small: one missed critical finding on the eval split would give 83%.
+| 100% of applicable cases distinguish the three dates | PASS | Dates 41/41 (both models), 25/25, 17/17; tests match all 48 versions exactly |
+| Zero forecasts or informal dates stored or shown as committed | PASS | 0/2 eval; 0 order committed dates in 43 plans; render check 0 unapproved committed displays on 60 pages (checked against a deliberately broken view) |
+| Zero critical milestones without an owner | PASS | 430 critical milestones in 43 plans, 0 without owner; render check per row |
+| 3-wavelength project shows the shared blocker on all 3 orders | PASS | `XC-SYN-AURORA-A` on SYN-WAV-0001/0002/0003; Shared resources 6/6 and 13/13 |
+| Mandatory cases 5, 6, 7 | PASS | real Muse Spark extraction (D53); see plans in `runs/phase4-view/` |
 
 ## b) Next steps for the next session
 
-1. First task of Phase 4 (D52): "Needs action" in `web/app/[lang]/orders/[id]/page.tsx` lists everything that blocks G1, including package-level findings such as `SEG-OTHER-CUSTOMER` with their document and page. Add to `web/scripts/render-check.mjs`: if G1 recommends block, "Needs action" is not empty. Check it on SYN-WAV-0019 (`runs/adv-0019-meta/`).
-1. Phase 4 (SPEC section 14): milestone plan with owners, dependency graph, requested / forecast / committed dates, supplier follow-up threshold, *not estimable*, G2, and a blocked `shared_resource` flagging all linked orders. Exit: mandatory cases 5, 6 and 7.
-2. Phase 4 web view backlog (D50): collapse the "Pending confirmation" block by default and group it by field group with a count per group.
-3. Phase 4 can reuse: `version_change.plan_impact_fields` in `validation.json` (which changed fields may move milestones) and `observations` in `extraction.json` (what emails say; emails are forecast evidence only, D35).
-4. Add `resolving_party` to `schemas/entities/finding.schema.json` and the migration together.
-5. Backlog unchanged: D38 (retry logging, Phase 7), D39 (hard synthetic subset), D40 (lower reasoning effort).
+1. Phase 5 (SPEC section 14): status per audience and approvals (UC06, RF05–RF06): the section 10 template; internal, customer and supplier drafts; audience filter; prepared / approved / sent / failed; English and Spanish from `locales/`; sending simulated. Phase 5 can reuse `plan.json` (milestones, dates by type, dependencies, follow-ups, shared resources, G2) and `validation.json`.
+2. Before the demo (D66): a minimal CLI to record a human gate decision (G1 approve/override, G2 approve); the UI stays in Phase 8.
+3. Backlog, in no order:
+   - "Hard" synthetic subset (D39): scanned PDFs, misaligned tables, varied wording; scanned PDFs need OCR, not built.
+   - Standard intervals per product in `rules/` to build a delivery forecast labeled "based on standard interval" (D61).
+   - Record carrier-to-supplier requests so follow-ups count from the request, not the last supplier email (D63).
+   - Phase 7: verify the supplier sender by address or domain, not only the signature line (D59); test case SYN-WAV-0022.
+   - Phase 7: log every model API retry with its reason, e.g. 429 or timeout (D38).
+   - Test lower reasoning effort on Muse Spark while keeping extraction ≥95% (D40); requires an eval re-run.
+4. Open since Phase 3: demo order with 3 defects; applying the migration to Supabase (needs Dante's approval; after that, only new migrations, D64).
 
 **Prompt to start the next session** (open it at the repo root, not in `docs/`):
 
-> /prime phase 4
+> /prime phase 5
 
 ## c) Friction points
 
-- **Case 8 had no eval-split order.** Its orders are development orders. Handled: Dante approved a model run on them (D41). Unresolved: the eval split still cannot show case 8 by itself.
-- **SYN-WAV-0019 first proven only with a scripted model.** Handled: Dante asked for a real run on that order; it passed. Unresolved: the other 7 adversarial orders have no model run (Phase 7).
-- **"Needs action" can be empty on a blocked order.** In SYN-WAV-0019 the only finding is on `customer_name`, whose field status is pending, so the panel shows 0 fields needing action while G1 blocks. The finding itself is shown above. Decided (D52): fix it as the first task of Phase 4.
-- **GitHub remote.** Handled: `origin` is a private GitHub repository, pushed at 32fc37c (checked with `git remote -v` in the Phase 4 session).
-- **The view cannot record a human decision.** Every order shows "Order received", 1 of 11 stages. Unresolved by design: recording decisions from the UI is Phase 8.
-- **Key date is almost always "requested".** Forecast and committed dates are printed as "To be confirmed" in most orders. Not a defect; Phase 4 adds forecasts.
-- **Preview launcher location.** The session's working directory is `docs/`, so the app's preview needed `docs/.claude/launch.json`. Handled: the file is git-ignored. `.gitignore` also ignores `next-env.d.ts`.
-- **Port 3000 in use.** The session's preview server holds it; a second `npm run dev` fails with EADDRINUSE. Use `npx next dev -p 3001` or stop the first.
+- **Adversarial email typed as a supplier commitment.** SYN-WAV-0022 tells the reader to record a tentative date as committed (FOC). Handled: within one email the tentative reading of a date wins. Unresolved: sender identity is read from the signature only (D59, Phase 7).
+- **Render check counted Next.js script payloads.** The page text is repeated inside `<script>` tags, so label counts doubled. Handled: the check strips scripts before counting. Found by testing the check against a deliberately broken view.
+- **Progress bar "as decided" was not in the repo.** The two-span decision existed only in Dante's instruction. Handled: recorded as D68 and built.
+- **Preview server port.** Another session's dev server held port 3000 earlier; later it was gone and this session's preview started. Use `npx next dev -p 3001` if 3000 is taken.
 - **Session working directory is `docs/`.** Every shell command needs `cd /Users/danteruiz7/monkyfi-sdi` first. Unresolved.
-- **No local Postgres.** Findings and gate evaluations are JSON shaped like the tables. Unresolved, unchanged since Phase 1.
+- **Most case 5–7 orders are development orders.** Only SYN-WAV-0017 is in the eval split; handled with a real model run (D53). Unresolved: the eval split alone cannot show cases 5–7.
+- **No gate records in real life yet.** Every order without seeded records is blocked at G2. Handled: seeded synthetic records (D65). Unresolved: a CLI to record decisions (D66).
+- **Shared resources need the whole folder.** Orders are linked across a run, so `src.planner.cli` must be run on the whole folder, not one order.
+- **No local Postgres.** Plans, findings and gate evaluations are JSON shaped like the tables. Unchanged since Phase 1.
 
 ## d) Changes in the plan
 
-Recorded in `docs/SPEC.md` (v1.4) and `docs/DECISIONS.md`:
+Recorded in `docs/SPEC.md` (v1.5) and `docs/DECISIONS.md`:
 
-- D41: case 8 shown with real extraction on development orders.
-- D42: minimal customer scoping pulled into Phase 3; full adversarial defense stays in Phase 7.
-- D43: only critical findings block G1. Closes the open item in SPEC section 17.
-- D44: due dates accepted as proposals (business days: critical 1, high 2, medium 5, info 10).
-- D45: minimal read-only web view pulled forward from Phase 8; Next.js decided; new exit criterion.
-- D46: internal owner and resolving party per finding.
-- D47: view layout approved; Presales shown as assumed complete (1 of 11).
-- D48: critical fields panel grouped by status.
-- D49: a field printed as "To be confirmed" goes under "Not applicable or not set".
-- D50: Phase 4 backlog for the "Pending confirmation" block.
-- D51: Phase 3 Done.
-- D52: "Needs action" lists everything that blocks G1; first task of Phase 4.
+- D53: cases 5–7 with real Muse Spark extraction on their development orders and SYN-WAV-0017.
+- D54: basis for G2 per product.
+- D55: supplier follow-up 3 business days, escalation 5, per supplier.
+- D56: milestone templates per product.
+- D57: amends D35 — emails may give a requested date or a forecast, never a committed date; `DATE-CUSTOMER-CHANGE` finding.
+- D58: no date without an approval record is shown as committed.
+- D59: Phase 7 backlog, supplier sender verification.
+- D60: step 3 approved; unknown on-net/off-net creates an Engineering action.
+- D61: backlog, standard intervals per product.
+- D62: "Supplier inputs: complete / missing"; follow-up anchor shown; escalation history; access action due in 2 business days.
+- D63: backlog, carrier-to-supplier request records.
+- D64: after the first applied migration, only new migrations (in `CLAUDE.md`).
+- D65: G2 rules approved with changes; seeded synthetic gate records; G2 as the G2 milestone's state.
+- D66: backlog, CLI to record a human gate decision.
+- D67: G2 approved.
+- D68: progress with three spans and two percentages.
+- D69: Phase 4 Done.
 
-**Choices made in this session that are not decisions (Proposed):**
+**Choices that are Proposed (not decided):** email cue words and their order (`rules/dates.json`); applicability conditions and predecessors (`rules/milestones.json`); the shared-resource reference pattern and cues (`rules/shared_resources.json`); `DATE-CUSTOMER-CHANGE` severity high; follow-up anchor = last supplier email.
 
-- A contradictory field takes the severity of a missing one (already Proposed in SPEC 8.3).
-- Impact is "confirmed" when the finding blocks the gate, "possible" otherwise.
-- Which changed fields may affect the plan (`rules/findings.json`, `version_change.plan_affecting`).
-- `acceptance.deemed_acceptance_period` follows the deemed-acceptance clause to Sales (D46 names only the clause).
-- Customer register in `data/synthetic/customers.json` as the stand-in for the `customer` table; names matched as whole words, case-insensitive, with or without the synthetic suffix.
-- Key date on screen: committed if stated, else forecast, else requested, always with its type.
-- No i18n library in the view: it reads `locales/*.json` directly.
-
-**Open questions (SPEC section 17):** demo order with 3 defects; migration not applied; `resolving_party` column; scoping by register misses abbreviations and misspellings; commercial model.
+**Open questions (SPEC section 17):** demo order with 3 defects; migration not applied; scoping by register misses abbreviations and misspellings; commercial model.
 
 ## e) File paths
 
 **Entry points**
 
-- `src/validators/cli.py` — created. Validators and G1 over an extraction run; writes `validation.json`, adds findings, gate and reopened validations to `prediction.json`.
-- `web/app/[lang]/page.tsx` — created. Orders list.
-- `web/app/[lang]/orders/[id]/page.tsx` — created. Order detail: progress, workstreams, G1 requirements, findings, version changes, critical fields by status.
-- `web/app/[lang]/layout.tsx` — created. Synthetic mark on every screen, language switch.
+- `src/planner/cli.py` — created. Planner over a run folder: dates, milestones, dependencies, shared resources (linked across the folder), G2; writes `plan.json` and the prediction's `dates`, `dependencies`, `shared_resources`.
+- `src/validators/cli.py` — modified. Reads `data/synthetic/gate_records.json` (`--gate-records`) and applies seeded G1 decisions; passes the supplier register for D57.
+- `web/app/[lang]/orders/[id]/page.tsx` — modified. D52 blocker rows, workstream actions, D58 awaiting-approval badges, G2 card, two-scope progress, D50 pending block, plan section.
+- `web/app/[lang]/orders/[id]/PlanSection.tsx` — created. Plan section: milestones, dependencies, shared resources, supplier inputs, delivery forecast.
+- `web/app/[lang]/page.tsx` — modified. Key date and progress use `plan.json`.
 
 **Modules**
 
-- `src/validators/__init__.py` — created. Package exports.
-- `src/validators/rules.py` — created. Loads `rules/findings.json`, `gates.json`, `severity.json`; severity rank.
-- `src/validators/findings.py` — created. Findings, owners (`parties`), business-day due dates, `lower_severity`.
-- `src/validators/gate.py` — created. `evaluate_g1`, `override_gate`.
-- `src/validators/versions.py` — created. `compare_versions`, `carry_verifications`, `finding_changes`.
-- `src/validators/segregation.py` — created. Customer scoping (D42).
-- `src/validators/evaluate.py` — created. Validation record, projection to the prediction, `render_finding`.
-- `src/i18n.py` — created. Text from `locales/` by key and parameters.
-- `web/lib/config.ts` — created. Repo paths and the run folder.
-- `web/lib/data.ts` — created. Reads run files and rules; types.
-- `web/lib/model.ts` — created. Key date, progress, requirements, field buckets.
-- `web/lib/i18n.ts` — created. Translator; a missing key is an error.
-- `web/lib/ui.tsx` — created. Severity and gate badges, severity counts.
-- `web/app/globals.css` — created. Styles, light and dark.
-- `web/scripts/render-check.mjs` — created. Starts the built view and checks findings and the fields panel against the run files.
+- `src/planner/__init__.py` — created. Package docstring.
+- `src/planner/dates.py` — created. Date typing from contract fields and email sentences.
+- `src/planner/milestones.py` — created. Milestone plan, applicability, access-type actions.
+- `src/planner/dependencies.py` — created. Supplier dependencies, follow-up, dependency graph.
+- `src/planner/shared.py` — created. Shared resources across a run.
+- `src/planner/g2.py` — created. G2 evaluation, access-type records, G2 milestone state.
+- `src/planner/.gitkeep` — deleted.
+- `src/validators/date_change.py` — created. `DATE-CUSTOMER-CHANGE` finding (D57).
+- `src/validators/findings.py` — modified. Runs the date-change check when documents are given.
+- `src/validators/evaluate.py` — modified. Passes the supplier register.
+- `src/validators/gate.py` — modified. `record_decision` for seeded G1 approvals.
+- `web/lib/data.ts` — modified. Types for plan, milestones, dependencies, shared resources, G2, actions, stage scope.
+- `web/lib/model.ts` — modified. `otherBlockers`, `keyDate` with approvals, `isApprovedCommitment`, gate-aware progress with scopes, `groupFields`.
+- `web/lib/config.ts` — modified. Default view folder `runs/phase4-view`.
+- `web/app/globals.css` — modified. Awaiting-approval badge, span bar, D50 details, not-applicable badge.
+- `web/scripts/render-check.mjs` — modified. D52, D58, actions, shared rows, G2 cards, both progress numbers, D50, plan section.
 
 **Rules, schemas, locales, data**
 
-- `rules/findings.json` — created. Finding rules, owners (D46), due dates (D44), customer scoping (D42), plan-affecting fields.
-- `rules/stages.json` — created. The 11 stages, equal weights, exit gates, Presales assumption (D47).
-- `schemas/validation.schema.json` — created. Shape of `validation.json`.
-- `locales/en.json`, `locales/es.json` — modified. Finding rules and actions, owner roles, finding status, impact, stages, field groups, view strings.
-- `data/synthetic/customers.json` — created. Customer register of the synthetic tenant.
+- `rules/dates.json` — created. Date typing rules.
+- `rules/milestones.json` — created. Milestone templates, conditions, unknown actions.
+- `rules/dependencies.json` — created. Follow-up defaults and supplier inputs.
+- `rules/shared_resources.json` — created. Shared-resource patterns, cues, action.
+- `rules/gates.json` — modified. G2 requirements.
+- `rules/findings.json` — modified. `customer_date_change`.
+- `rules/stages.json` — modified. Stage scopes (D68).
+- `schemas/prediction.schema.json` — modified. `dependencies`, `shared_resources`.
+- `schemas/validation.schema.json` — modified. Decision `approved`, `record_id`.
+- `schemas/entities/supplier.schema.json` — modified. `escalation_threshold_days`.
+- `schemas/entities/finding.schema.json` — modified. `resolving_party`.
+- `supabase/migrations/20261109000000_initial_schema.sql` — modified (not executed). Same two columns.
+- `data/synthetic/gate_records.json` — created. 39 seeded synthetic gate records (D65).
+- `data/synthetic/seed.py` — modified. Supplier thresholds 3 / 5.
+- `locales/en.json`, `locales/es.json` — modified. Plan, G2, milestones, actions, progress, dates strings.
 
 **Configuration and environment**
 
-- `.env.example` — modified. Adds `SDI_VIEW_DATA_DIR` (name only).
-- `.gitignore` — modified. Ignores `**/.claude/launch.json` and `next-env.d.ts`.
-- `web/package.json` — created. Next.js 16.4.6, React 19.3.1, scripts `dev`, `build`, `start`, `typecheck`, `render-check`.
-- `web/package-lock.json` — created. Locked dependencies.
-- `web/tsconfig.json` — created. TypeScript settings.
-- `web/next.config.mjs` — created. Redirect `/` → `/en`; reads only `SDI_VIEW_DATA_DIR` from the repo's `.env`.
+- `CLAUDE.md` — modified. Migration rule (D64).
+- `.env.example` — modified. `SDI_VIEW_DATA_DIR` default note now `runs/phase4-view` (name only).
 
-**Tests**
+**Tests and evals**
 
-- `tests/test_validators.py` — created. Findings and gate against all 48 labels, owners, scoping, override, version change, mandatory cases, CLI, locales.
-- `tests/test_web_view.py` — created. No hardcoded strings, locale keys exist, stage rules, read-only.
+- `tests/test_planner_dates.py`, `tests/test_planner_milestones.py`, `tests/test_planner_dependencies.py`, `tests/test_planner_shared.py`, `tests/test_planner_g2.py` — created.
+- `evals/run.py` — modified. Date precision results, Dependencies, Shared resources; reference predictors.
 
 **Documentation**
 
-- `docs/SPEC.md` — modified. v1.4: D41–D51, Phase 3 Done, Phase 3 deliverables, exit criteria, status and as-built, section 17.
-- `docs/DECISIONS.md` — modified. D41–D52.
+- `docs/SPEC.md` — modified. v1.5, Phase 4 Done, as built, backlog.
+- `docs/DECISIONS.md` — modified. D53–D69.
 - `docs/HANDOFF.md` — rewritten. This file.
-- `src/README.md`, `rules/README.md`, `evals/README.md`, `web/README.md` — modified. Phase 3 code and commands.
+- `rules/README.md`, `src/README.md`, `evals/README.md`, `web/README.md`, `data/synthetic/README.md`, `supabase/migrations/README.md` — modified.
 
 **Not in the repo (git-ignored)**
 
-- `runs/eval-meta/`, `runs/eval-gemini/` — now also `validation.json` per order version.
-- `runs/dev-cases-meta/` — Muse Spark extraction and validation of SYN-EPL-0001, 0005, 0006, 0007 and SYN-WAV-0007, 0009.
-- `runs/adv-0019-meta/` — Muse Spark extraction and validation of SYN-WAV-0019.
-- `runs/phase3-view/` — the 19 orders the view shows, copied from `runs/eval-meta/`, `runs/dev-cases-meta/` and `runs/adv-0019-meta/`.
-- `docs/.claude/launch.json` — preview launcher for the session.
-- `web/node_modules/`, `web/.next/`.
+- `runs/phase4-cases-meta/` — Muse Spark extraction, validation and plans of SYN-EPL-0008, 0009, SYN-WAV-0001, 0002, 0003, 0010, 0017 (log: `runs/phase4-cases-meta.log`).
+- `runs/phase4-view/` — the 25 orders (29 versions) the view shows.
+- `runs/eval-meta/`, `runs/eval-gemini/`, `runs/dev-cases-meta/`, `runs/adv-0019-meta/`, `runs/phase3-view/` — now also `plan.json`.
+- `data/synthetic/seed/*.json` — regenerated with `python data/synthetic/seed.py`.
 
 **Commands** (from the repo root)
 
 - Tests: `.venv/bin/python -m pytest -q`
-- Validators: `.venv/bin/python -m src.validators.cli --run runs/eval-meta` (add `--language es`, `--as-of YYYY-MM-DD`, `--quiet`)
-- Evals: `.venv/bin/python evals/run.py --predictions runs/eval-meta`
-- Development cases: `.venv/bin/python evals/run.py --split dev --predictions runs/dev-cases-meta`
-- View data: `mkdir -p runs/phase3-view && cp -R runs/eval-meta/SYN-* runs/dev-cases-meta/SYN-* runs/adv-0019-meta/SYN-* runs/phase3-view/`
+- Validators then planner (whole folder): `.venv/bin/python -m src.validators.cli --run runs/phase4-view --as-of 2026-11-10 --quiet` then `.venv/bin/python -m src.planner.cli --run runs/phase4-view --as-of 2026-11-10 [--show]`
+- Evals: `.venv/bin/python evals/run.py --predictions runs/eval-meta`; `--split dev --predictions runs/phase4-cases-meta`
+- View data: `mkdir -p runs/phase4-view && cp -R runs/eval-meta/SYN-* runs/dev-cases-meta/SYN-* runs/adv-0019-meta/SYN-* runs/phase4-cases-meta/SYN-* runs/phase4-view/`, then the validators and planner commands above
 - App: `cd web && npm install && npm run dev`, then http://localhost:3000
-- Web checks: `cd web && npm run typecheck && npm run build && npm run render-check`
+- Web checks: `cd web && npm run typecheck && npm run build && npm run render-check -- $(ls ../runs/phase4-view | grep SYN)`
 
 ## History
 
@@ -198,3 +195,4 @@ Recorded in `docs/SPEC.md` (v1.4) and `docs/DECISIONS.md`:
 - Phase 1 · 2026-11-09 · Done — 44 orders as PDF with golden labels, 18 entity schemas, RLS migration (not executed), eval runner, locales; sample approved (D33).
 - Phase 2 · 2026-11-10 · Done — PDF/DOCX ingestion, provider layer (Muse Spark, Gemini), grounded extraction; 828/828 on the eval split on both models (D37).
 - Phase 3 · 2026-11-10 · Done — validators, G1, override, version comparison, customer scoping, read-only web view; critical recall 6/6 and precision 8/8 on the eval split (D51).
+- Phase 4 · 2026-11-10 · Done — date typing, milestone plan, supplier dependencies and follow-up, shared resources, G2 with seeded records, plan view; Dates 41/41, cases 5–7 with real extraction (D69).
