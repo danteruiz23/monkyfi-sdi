@@ -1,0 +1,47 @@
+# Secrets and environment — never commit
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*credentials*.json
+*service-account*.json
+
+# Real customer or carrier data must never enter the repo
+data/real/
+data/private/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+.coverage
+htmlcov/
+
+# Node / TypeScript / Vercel
+node_modules/
+.next/
+out/
+.vercel/
+*.tsbuildinfo
+npm-debug.log*
+
+# Supabase local
+supabase/.branches/
+supabase/.temp/
+
+# Eval and run outputs
+evals/results/
+*.log
+
+# OS and editors
+.DS_Store
+.idea/
+.vscode/
